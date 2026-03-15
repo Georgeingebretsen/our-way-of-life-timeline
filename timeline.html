@@ -1,0 +1,1464 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Interactive Timeline</title>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;0,8..60,700;1,8..60,400&amp;family=Libre+Franklin:ital,wght@0,300;0,400;0,600;0,700;1,400&amp;display=swap" rel="stylesheet"/>
+<style>
+      /* ============================================
+     RESET & BASE
+     ============================================ */
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family: "Libre Franklin", sans-serif;
+        background-color: #fffcf5;
+        color: #2d2d2d;
+        line-height: 1.6;
+        -webkit-font-smoothing: antialiased;
+        overflow-x: hidden;
+      }
+
+      /* ============================================
+     TIMELINE CONTAINER
+     ============================================ */
+      .timeline-wrapper {
+        max-width: 780px;
+        margin: 2rem auto;
+        padding: 0 1.5rem 3rem;
+        position: relative;
+      }
+
+      .timeline-title {
+        font-family:
+          "Source Serif 4", "Source Serif Pro", Georgia,
+          serif;
+        font-size: 2.2rem;
+        font-weight: 700;
+        color: #5c3a1e;
+        text-align: center;
+        margin-bottom: 0;
+      }
+
+      .timeline-subtitle {
+        font-family:
+          "Source Serif 4", "Source Serif Pro", Georgia,
+          serif;
+        text-align: center;
+        font-size: 2.2rem;
+        font-weight: 700;
+        color: #c4751a;
+        margin-bottom: 0;
+        line-height: 1.2;
+        text-decoration: underline;
+        text-decoration-color: #c4751a;
+        text-underline-offset: 0.35rem;
+        text-decoration-thickness: 2px;
+        margin-bottom: 2rem;
+      }
+
+      /* ============================================
+     VERTICAL LINE
+     ============================================ */
+      .timeline {
+        position: relative;
+        padding-left: 2.8rem;
+      }
+
+      .timeline::before {
+        content: "";
+        position: absolute;
+        left: calc(1.03rem - 5px);
+        top: 0;
+        bottom: 0;
+        width: 12px;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='50' viewBox='0 0 12 50'%3E%3Cpath d='M 6,0 Q 10.5,12.5 6,25 Q 1.5,37.5 6,50' fill='none' stroke='rgb(218,165,32)' stroke-width='2' stroke-linecap='round'/%3E%3Cpath d='M 7.5,0 Q 11.5,12.5 7.5,25 Q 3.5,37.5 7.5,50' fill='none' stroke='rgb(196,117,26)' stroke-width='1.3' stroke-opacity='0.6' stroke-linecap='round'/%3E%3Cpath d='M 4.5,0 Q 9,12.5 4.5,25 Q 0,37.5 4.5,50' fill='none' stroke='rgb(245,195,0)' stroke-width='1' stroke-opacity='0.45' stroke-linecap='round'/%3E%3C/svg%3E");
+        background-repeat: repeat-y;
+        background-size: 12px 50px;
+        -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 4%, black 96%, transparent 100%);
+        mask-image: linear-gradient(to bottom, transparent 0%, black 4%, black 96%, transparent 100%);
+      }
+
+      /* ============================================
+     TIMELINE ENTRY
+     ============================================ */
+      .timeline-entry {
+        position: relative;
+        margin-bottom: 1.8rem;
+      }
+
+      /* Dot on the vertical line */
+      .timeline-entry .dot {
+        position: absolute;
+        left: -2.08rem;
+        top: 0.35rem;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background-color: #ffffff;
+        border: 2.5px solid #e8a317;
+        transition: all 0.3s ease;
+        z-index: 2;
+      }
+
+      .timeline-entry.open .dot {
+        background-color: #e8a317;
+        border-color: #e8a317;
+        transform: scale(1.35);
+        box-shadow: 0 0 0 4px rgba(232, 163, 23, 0.2);
+      }
+
+      /* Date label */
+      .timeline-date {
+        font-family: "Libre Franklin", sans-serif;
+        font-size: 0.82rem;
+        font-weight: 600;
+        color: #daa520;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        margin-bottom: 0.2rem;
+      }
+
+      /* Clickable heading row */
+      .timeline-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        cursor: pointer;
+        padding: 0.45rem 0;
+        gap: 0.8rem;
+        user-select: none;
+        -webkit-user-select: none;
+      }
+
+      .timeline-header:hover .timeline-heading {
+        color: #e8a317;
+      }
+
+      .timeline-heading {
+        font-family:
+          "Source Serif 4", "Source Serif Pro", Georgia,
+          serif;
+        font-size: 1.3rem;
+        font-weight: 600;
+        color: #5c3a1e;
+        transition: color 0.2s ease;
+        flex: 1;
+      }
+
+      /* Chevron */
+      .chevron {
+        flex-shrink: 0;
+        width: 20px;
+        height: 20px;
+        transition: transform 0.35s ease;
+      }
+
+      .chevron svg {
+        width: 20px;
+        height: 20px;
+        stroke: #daa520;
+        fill: none;
+        stroke-width: 2.2;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+
+      .timeline-entry.open .chevron {
+        transform: rotate(180deg);
+      }
+
+      /* ============================================
+     EXPANDABLE CONTENT CARD
+     ============================================ */
+      .timeline-content {
+        max-height: 0;
+        overflow: hidden;
+        transition:
+          max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+          opacity 0.35s ease,
+          margin 0.35s ease;
+        opacity: 0;
+        margin-top: 0;
+      }
+
+      .timeline-entry.open .timeline-content {
+        opacity: 1;
+        margin-top: 0.6rem;
+      }
+
+      .card {
+        background: #fef3c7;
+        border: 1px solid #f0e4c8;
+        border-radius: 8px;
+        padding: 1.5rem 1.6rem;
+        box-shadow:
+          0 2px 8px rgba(92, 58, 30, 0.08),
+          0 1px 3px rgba(92, 58, 30, 0.05);
+      }
+
+      /* Card typography */
+      .card p {
+        margin-bottom: 1rem;
+        font-size: 1rem;
+        line-height: 1.7;
+        color: #2d2d2d;
+      }
+
+      .card h4 {
+        font-family:
+          "Source Serif 4", "Source Serif Pro", Georgia,
+          serif;
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: #5c3a1e;
+        margin: 1.5rem 0 0.6rem;
+        padding-bottom: 0.4rem;
+        border-bottom: 1px solid #ece4d8;
+      }
+
+      .participant-link {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        text-decoration: none;
+        color: inherit;
+      }
+
+      .participant-link:hover {
+        color: #e8a317;
+      }
+
+      .participant-avatar {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        object-fit: cover;
+        flex-shrink: 0;
+        border: 2px solid #ece4d8;
+      }
+
+      .card h4:first-child {
+        margin-top: 0;
+      }
+
+      .card ul {
+        margin: 0 0 1rem 1.2rem;
+        padding: 0;
+      }
+
+      .card ul li {
+        margin-bottom: 0.35rem;
+        font-size: 0.97rem;
+        color: #2d2d2d;
+        line-height: 1.6;
+      }
+
+      .card ul li::marker {
+        color: #daa520;
+      }
+
+      .card a {
+        color: #8b4513;
+        text-decoration: underline;
+        text-decoration-color: rgba(139, 69, 19, 0.35);
+        text-underline-offset: 2px;
+        transition:
+          color 0.2s,
+          text-decoration-color 0.2s;
+      }
+
+      .card a:hover {
+        color: #e8a317;
+        text-decoration-color: #e8a317;
+      }
+
+      /* Responsive YouTube embeds */
+      .video-wrapper {
+        position: relative;
+        width: 100%;
+        max-width: 100%;
+        padding-bottom: 56.25%; /* 16:9 */
+        margin: 1rem 0;
+        border-radius: 6px;
+        overflow: hidden;
+        background: #f0e4c8;
+      }
+
+      .video-wrapper iframe {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        border: 0;
+      }
+
+      /* Responsive images */
+      .card img:not(.participant-avatar) {
+        max-width: 100%;
+        height: auto;
+        border-radius: 6px;
+        margin: 0.8rem 0;
+        display: block;
+      }
+
+      /* Link preview card */
+      .link-preview {
+        display: block;
+        text-decoration: none;
+        border: 1px solid #e8ddd0;
+        border-radius: 6px;
+        overflow: hidden;
+        margin: 1rem 0;
+        transition: box-shadow 0.2s ease;
+      }
+
+      .link-preview:hover {
+        box-shadow: 0 3px 12px rgba(92, 58, 30, 0.12);
+      }
+
+      .link-preview img {
+        width: 100%;
+        height: auto;
+        display: block;
+      }
+
+      .link-preview-text {
+        padding: 0.8rem 1rem;
+        background: #fff;
+      }
+
+      .link-preview-title {
+        font-family: "Source Serif 4", "Source Serif Pro", Georgia, serif;
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: #5C3A1E;
+        margin-bottom: 0.3rem;
+        line-height: 1.4;
+      }
+
+      .link-preview-desc {
+        font-size: 0.85rem;
+        color: #555;
+        line-height: 1.5;
+        margin-bottom: 0.3rem;
+      }
+
+      .link-preview-domain {
+        font-size: 0.75rem;
+        color: #8B7355;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+      }
+
+      /* ============================================
+     RESPONSIVE — MOBILE
+     ============================================ */
+      @media (max-width: 600px) {
+        .timeline-wrapper {
+          padding: 0 1rem 2rem;
+        }
+
+        .timeline {
+          padding-left: 2.2rem;
+        }
+
+        .timeline-entry .dot {
+          left: -1.65rem;
+          width: 10px;
+          height: 10px;
+        }
+
+        .timeline::before {
+          left: calc(0.8rem - 5px);
+        }
+
+        .timeline-title {
+          font-size: 1.7rem;
+        }
+
+        .timeline-heading {
+          font-size: 1.15rem;
+        }
+
+        .card {
+          padding: 1.1rem 1.2rem;
+        }
+      }
+    
+      /* ============================================
+         LANGUAGE TOGGLE
+         ============================================ */
+      body.lang-en .lang-es { display: none; }
+      body.lang-es .lang-en { display: none; }
+
+      .lang-toggle {
+        position: fixed;
+        top: 1rem;
+        right: 1rem;
+        display: flex;
+        gap: 0.3rem;
+        z-index: 100;
+      }
+
+      .lang-toggle button {
+        font-family: "Libre Franklin", sans-serif;
+        font-size: 0.8rem;
+        font-weight: 600;
+        letter-spacing: 0.04em;
+        padding: 0.35rem 0.9rem;
+        border: 2px solid transparent;
+        border-radius: 6px;
+        background: rgba(255, 255, 255, 0.85);
+        color: #8b7355;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        opacity: 0.5;
+        backdrop-filter: blur(4px);
+      }
+
+      .lang-toggle button.active {
+        opacity: 1;
+        border-color: #daa520;
+        color: #5c3a1e;
+        box-shadow: 0 1px 4px rgba(92, 58, 30, 0.15);
+      }
+
+      .lang-toggle button:hover:not(.active) {
+        opacity: 0.8;
+      }
+
+      /* ============================================
+         DECORATIVE GEOMETRIC SHAPES
+         ============================================ */
+      .bg-shapes {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: 0;
+        overflow: hidden;
+      }
+
+      .bg-shapes .shape {
+        position: absolute;
+      }
+
+      /* ============================================
+         SHAPE ANIMATIONS
+         ============================================ */
+      @keyframes float-y {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(30px); }
+      }
+
+      @keyframes float-xy {
+        0%, 100% { transform: translate(0, 0); }
+        33% { transform: translate(18px, -22px); }
+        66% { transform: translate(-12px, 18px); }
+      }
+
+      @keyframes orbit {
+        0%, 100% { transform: translate(0, 0); }
+        25% { transform: translate(20px, -18px); }
+        50% { transform: translate(0, -30px); }
+        75% { transform: translate(-20px, -18px); }
+      }
+
+      @keyframes breathe {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.3); }
+      }
+
+      @keyframes bob-tri-r {
+        0%, 100% { transform: rotate(15deg) translateY(0); }
+        50% { transform: rotate(20deg) translateY(20px); }
+      }
+
+      @keyframes bob-tri-l {
+        0%, 100% { transform: rotate(-10deg) translateY(0); }
+        50% { transform: rotate(-15deg) translateY(-20px); }
+      }
+
+      @keyframes rock-diamond {
+        0%, 100% { transform: rotate(45deg) scale(1); }
+        50% { transform: rotate(55deg) scale(1.12); }
+      }
+
+      @keyframes sway-l {
+        0%, 100% { transform: translateX(0); }
+        50% { transform: translateX(25px); }
+      }
+
+      @keyframes sway-r {
+        0%, 100% { transform: translateX(0); }
+        50% { transform: translateX(-25px); }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .bg-shapes .shape { animation: none !important; }
+      }
+
+      /* Large ring — top left — bright yellow */
+      .shape.ring-lg {
+        width: 160px;
+        height: 160px;
+        border: 3.5px solid rgba(245, 195, 0, 0.5);
+        border-radius: 50%;
+        top: 5%;
+        left: -40px;
+        animation: orbit 14s ease-in-out infinite;
+      }
+
+      /* Small solid dot — top right — dark orange */
+      .shape.dot-sm-1 {
+        width: 18px;
+        height: 18px;
+        background: rgba(210, 105, 0, 0.55);
+        border-radius: 50%;
+        top: 12%;
+        right: 8%;
+        animation: float-xy 7s ease-in-out infinite;
+      }
+
+      /* Medium ring — right side — orange */
+      .shape.ring-md {
+        width: 90px;
+        height: 90px;
+        border: 3.5px solid rgba(235, 140, 20, 0.45);
+        border-radius: 50%;
+        top: 22%;
+        right: -20px;
+        animation: float-y 10s ease-in-out 2s infinite;
+      }
+
+      /* Half circle — left — yellow */
+      .shape.half-l {
+        width: 80px;
+        height: 160px;
+        border: 3.5px solid rgba(245, 195, 0, 0.4);
+        border-radius: 0 160px 160px 0;
+        border-left: none;
+        top: 35%;
+        left: 0;
+        animation: sway-l 11s ease-in-out infinite;
+      }
+
+      /* Small triangle — right — dark orange */
+      .shape.tri-r {
+        width: 0;
+        height: 0;
+        border-left: 24px solid transparent;
+        border-right: 24px solid transparent;
+        border-bottom: 42px solid rgba(210, 105, 0, 0.4);
+        top: 30%;
+        right: 5%;
+        transform: rotate(15deg);
+        animation: bob-tri-r 6s ease-in-out infinite;
+      }
+
+      /* Cluster of dots — left mid — mixed vibrant */
+      .shape.dot-sm-2 {
+        width: 10px;
+        height: 10px;
+        background: rgba(245, 195, 0, 0.6);
+        border-radius: 50%;
+        top: 48%;
+        left: 6%;
+        animation: float-xy 8s ease-in-out 1s infinite;
+      }
+      .shape.dot-sm-3 {
+        width: 14px;
+        height: 14px;
+        background: rgba(235, 140, 20, 0.5);
+        border-radius: 50%;
+        top: 50%;
+        left: 3%;
+        animation: breathe 6s ease-in-out infinite;
+      }
+      .shape.dot-sm-4 {
+        width: 8px;
+        height: 8px;
+        background: rgba(210, 105, 0, 0.55);
+        border-radius: 50%;
+        top: 46%;
+        left: 4.5%;
+        animation: float-y 5s ease-in-out 0.5s infinite;
+      }
+
+      /* Diamond — right mid — yellow */
+      .shape.diamond {
+        width: 36px;
+        height: 36px;
+        background: rgba(245, 195, 0, 0.35);
+        transform: rotate(45deg);
+        top: 55%;
+        right: 4%;
+        animation: rock-diamond 7s ease-in-out infinite;
+      }
+
+      /* Large half circle — right — orange */
+      .shape.half-r {
+        width: 70px;
+        height: 140px;
+        border: 3.5px solid rgba(235, 140, 20, 0.4);
+        border-radius: 140px 0 0 140px;
+        border-right: none;
+        top: 65%;
+        right: 0;
+        animation: sway-r 13s ease-in-out 1s infinite;
+      }
+
+      /* Small ring — lower left — dark orange */
+      .shape.ring-sm {
+        width: 50px;
+        height: 50px;
+        border: 3px solid rgba(210, 105, 0, 0.45);
+        border-radius: 50%;
+        top: 72%;
+        left: 5%;
+        animation: orbit 11s ease-in-out 3s infinite;
+      }
+
+      /* Triangle — lower left — yellow */
+      .shape.tri-l {
+        width: 0;
+        height: 0;
+        border-left: 18px solid transparent;
+        border-right: 18px solid transparent;
+        border-bottom: 32px solid rgba(245, 195, 0, 0.4);
+        top: 82%;
+        left: 3%;
+        transform: rotate(-10deg);
+        animation: bob-tri-l 7s ease-in-out 1s infinite;
+      }
+
+      /* Dot — lower right — orange */
+      .shape.dot-sm-5 {
+        width: 20px;
+        height: 20px;
+        background: rgba(235, 140, 20, 0.5);
+        border-radius: 50%;
+        top: 88%;
+        right: 6%;
+        animation: float-xy 9s ease-in-out 2s infinite;
+      }
+
+      /* Large ring — bottom — dark orange */
+      .shape.ring-btm {
+        width: 120px;
+        height: 120px;
+        border: 3.5px solid rgba(210, 105, 0, 0.4);
+        border-radius: 50%;
+        bottom: 3%;
+        right: -30px;
+        animation: orbit 16s ease-in-out 1s infinite reverse;
+      }
+
+
+      .timeline-wrapper {
+        position: relative;
+        z-index: 1;
+      }
+
+
+      @media (max-width: 600px) {
+        .bg-shapes { display: none; }
+      }
+</style>
+</head>
+<body class="lang-en">
+<div aria-hidden="true" class="bg-shapes">
+<div class="shape ring-lg"></div>
+<div class="shape dot-sm-1"></div>
+<div class="shape ring-md"></div>
+<div class="shape half-l"></div>
+<div class="shape tri-r"></div>
+<div class="shape dot-sm-2"></div>
+<div class="shape dot-sm-3"></div>
+<div class="shape dot-sm-4"></div>
+<div class="shape diamond"></div>
+<div class="shape half-r"></div>
+<div class="shape ring-sm"></div>
+<div class="shape tri-l"></div>
+<div class="shape dot-sm-5"></div>
+<div class="shape ring-btm"></div>
+</div>
+<div class="timeline-wrapper">
+<h1 class="timeline-title"><span class="lang-en">Our Way of Life</span><span class="lang-es">Nuestra Forma de Vida</span></h1>
+<p class="timeline-subtitle"><span class="lang-en">Weaving Our History</span><span class="lang-es">Tejiendo Nuestra Historia</span></p><div class="lang-toggle"><button class="active" data-lang="en" onclick="setLang('en')">English</button><button data-lang="es" onclick="setLang('es')">Spanish</button></div>
+<div class="timeline">
+<!-- =============================================
+         TEMPLATE: Copy a block like the one below to
+         add a new entry. Paste it where indicated by
+         the "ADD NEW ENTRIES HERE" comment at the end.
+
+         Structure:
+           .timeline-entry
+             .dot
+             .timeline-date   — the era/date label
+             .timeline-header — clickable row
+               .timeline-heading — the short title
+               .chevron          — arrow icon (don't edit)
+             .timeline-content   — hidden until clicked
+               .card             — the white content card
+                 (put your paragraphs, h4s, lists,
+                  videos, images, and tags inside here)
+         ============================================= -->
+<!-- ENTRY 1 -->
+<div class="timeline-entry">
+<div class="dot"></div>
+<div class="timeline-date">1400s</div>
+<div class="timeline-header" onclick="toggleEntry(this)">
+<h3 class="timeline-heading"><span class="lang-en">Colonization of the Americas</span><span class="lang-es">Colonización de las Américas</span></h3>
+<span class="chevron"><svg viewbox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
+</div>
+<div class="timeline-content">
+<div class="card">
+<h4><a class="participant-link" href="https://www.ourwayoflifearchive.com/s/stories/mgnj" rel="noopener" target="_blank"><img alt="MGNJ" class="participant-avatar" loading="lazy" src="https://www.ourwayoflifearchive.com/uploads/b/4d4f27a254ad409573c7c4eb443d718ebb65ef79eb130e662c91851895189621/d66856d2-8a6c-4202-81cd-8662560ffaec_1620661041.JPG"/><span class="lang-en">MGNJ | Colonization of the Americas</span><span class="lang-es">MGNJ | Colonización de las Américas</span></a></h4>
+<p><span class="lang-en">"When we were conquered there was a lot of cruelty, a lot of injustice, they violated women, they stole so much. Our country has been a very looted country, the Spanish took the gold, just like that, without restraint. From there on the people came with a very hardened heart, very rebellious. It took away all that valor, other customs came in, other cultures."</span><span class="lang-es">"Cuando fuimos conquistados hubo mucha crueldad, mucha injusticia, violaron a las mujeres, robaron muchísimo. Nuestro país ha sido un país muy saqueado, se llevaron el oro, así, sin modo los españoles. Desde ahí ya viene la gente con un corazón muy duro, muy rebelde. Quitó todo ese valor, se metieron otras costumbres, otras culturas."</span></p>
+<h4><a class="participant-link" href="https://www.ourwayoflifearchive.com/s/stories/mlnj" rel="noopener" target="_blank"><img alt="MLNJ" class="participant-avatar" loading="lazy" src="https://www.ourwayoflifearchive.com/uploads/b/4d4f27a254ad409573c7c4eb443d718ebb65ef79eb130e662c91851895189621/2021-05-10_11-27-04_1620660411.png"/><span class="lang-en">MLNJ | Colonization of the Americas</span><span class="lang-es">MLNJ | Colonización de las Américas</span></a></h4>
+<p><span class="lang-en">"Once you see what slavery did, they took us out of our culture, out of our history. Your name is everything because you live-- When people call your name, it embodies your spirit and who you are. Names have meanings. In the movie Roots, they told him that he couldn't keep his name anymore. They gave him the slave name. When you study your culture and your history, you realize that it's not your African name. They would take the name of the slave master, and it's not who you are, it's not your lineage, it's not your roots. That was a psychological way to get them to assume the identity of slavery."</span><span class="lang-es">"Una vez que ves lo que la esclavitud hizo, nos sacaron de nuestra cultura, de nuestra historia. Tu nombre lo es todo porque vives-- Cuando la gente llama tu nombre, encarna tu espíritu y quién eres. Los nombres tienen significados. En la película Raíces, le dijeron que no podía mantener su nombre nunca más. Le dieron el nombre de esclavo. Cuando estudias tu cultura y tu historia, te das cuenta de que no es tu nombre africano. Tomarían el nombre del dueño de esclavos, y no es quién eres, no es tu linaje, no son tus raíces. Esa era una forma psicológica de hacerles asumir la identidad de la esclavitud".</span></p>
+<div class="video-wrapper">
+<iframe allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen="" loading="lazy" src="https://www.youtube.com/embed/kE9EVgMU0No" title="Changing the Narrative: An Evening with Paul Ortiz"></iframe>
+</div></div>
+</div>
+</div>
+<!-- ENTRY 2 -->
+<div class="timeline-entry">
+<div class="dot"></div>
+<div class="timeline-date">1790</div>
+<div class="timeline-header" onclick="toggleEntry(this)">
+<h3 class="timeline-heading"><span class="lang-en">1790 Naturalization Act</span><span class="lang-es">Ley de Naturalización de 1790</span></h3>
+<span class="chevron"><svg viewbox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
+</div>
+<div class="timeline-content">
+<div class="card">
+<p><span class="lang-en">Congress limited the right to citizenship to "free white persons." In practice, only white, male property owners could naturalize and acquire the status of citizens.</span><span class="lang-es">El Congreso limitó el derecho a la ciudadanía a "personas blancas libres". En la práctica, solo los hombres blancos propietarios podían naturalizarse y adquirir el estatus de ciudadanos.</span></p><div class="video-wrapper">
+<iframe allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen="" loading="lazy" src="https://www.youtube.com/embed/597150Er59M?si=k7GW0pja0d1IMeWp" title="YouTube video player"></iframe>
+</div></div>
+</div>
+</div>
+<!-- ENTRY 3 -->
+<div class="timeline-entry">
+<div class="dot"></div>
+<div class="timeline-date">1823</div>
+<div class="timeline-header" onclick="toggleEntry(this)">
+<h3 class="timeline-heading"><span class="lang-en">1823 The Monroe Doctrine</span><span class="lang-es">1823 La Doctrina Monroe</span></h3>
+<span class="chevron"><svg viewbox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
+</div>
+<div class="timeline-content">
+<div class="card">
+<p><span class="lang-en">In 1823 U.S. President James Monroe proclaimed the U.S. protector of the Western Hemisphere.</span><span class="lang-es">En 1823, el presidente estadounidense James Monroe proclamó a Estados Unidos como protector del Hemisferio Occidental.</span></p>
+<p><span class="lang-en">How the U.S. caused its own migrant crisis | American Intervention in Latin America | Explore Mode</span><span class="lang-es">Cómo Estados Unidos causó su propia crisis de migrantes | Intervención estadounidense en América Latina | Modo de exploración</span></p><div class="video-wrapper">
+<iframe allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen="" loading="lazy" src="https://www.youtube.com/embed/rrvuPrdiF1E" title="How the U.S. caused its own migrant crisis | American Intervention in Latin America | EXPLORE MODE"></iframe>
+</div></div>
+</div>
+</div>
+<!-- ENTRY 4 -->
+<div class="timeline-entry">
+<div class="dot"></div>
+<div class="timeline-date">1865</div>
+<div class="timeline-header" onclick="toggleEntry(this)">
+<h3 class="timeline-heading"><span class="lang-en">1865 Voting Rights</span><span class="lang-es">1865 Derechos de Voto</span></h3>
+<span class="chevron"><svg viewbox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
+</div>
+<div class="timeline-content">
+<div class="card">
+<h4><a class="participant-link" href="https://www.ourwayoflifearchive.com/s/stories/senj" rel="noopener" target="_blank"><img alt="SENJ" class="participant-avatar" loading="lazy" src="https://www.ourwayoflifearchive.com/uploads/b/4d4f27a254ad409573c7c4eb443d718ebb65ef79eb130e662c91851895189621/2024-11-10_20-56-42_1731301015.jpg"/><span class="lang-en">SENJ | Voting Rights</span><span class="lang-es">SENJ | Derechos de voto</span></a></h4>
+<p><span class="lang-en">"I helped Obama get in and I want to help get 45 out."</span><span class="lang-es">"Ayudé a que Obama entrara y quiero ayudar a sacar al 45".</span></p>
+<p><span class="lang-en">I've voted in every election, because we had lots of African-Americans who lost their lives because they voted. My great, great, grandmother, I've been told, had to guess how many beans were in a jar in order to vote. Of course, I'm going to vote. That's ridiculous but those are the kinds of things that they did to us back then to stop us from voting.</span><span class="lang-es">He votado en todas las elecciones, porque hubo muchos afroamericanos que perdieron sus vidas porque votaron. Mi bisabuela, me han dicho, tuvo que adivinar cuántas habichuelas había en un frasco para poder votar. Por supuesto, voy a votar. Es ridículo, pero esas son las cosas que nos hacían para evitar que votáramos.</span></p>
+<p style="font-size:0.85rem; font-style:italic; color:#8b7355; line-height:1.5; margin-top:0.3rem;"><span class="lang-en">Historian Yohuru Williams give a brief rundown of the history of the 15th Amendment, which outlawed votings rights discrimination after the Civil War.</span><span class="lang-es">El historiador Yohuru Williams da un breve resumen de la historia de la 15ª Enmienda, que prohibió la discriminación de los derechos de voto después de la Guerra Civil.</span></p>
+<div class="video-wrapper">
+<iframe allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen="" loading="lazy" src="https://www.youtube.com/embed/3PWgcHkHFeM" title="Sound Smart: The 15th Amendment | History"></iframe>
+</div>
+</div>
+</div>
+<!-- ENTRY 5 -->
+<div class="timeline-entry">
+<div class="dot"></div>
+<div class="timeline-date">1910</div>
+<div class="timeline-header" onclick="toggleEntry(this)">
+<h3 class="timeline-heading"><span class="lang-en">1910 The Great Migration</span><span class="lang-es">1910 La Gran Migración</span></h3>
+<span class="chevron"><svg viewbox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
+</div>
+<div class="timeline-content">
+<div class="card">
+<p><span class="lang-en">Historian Yohuru Williams explains what you need to know about the Great Migration of African Americans from the South to the North after the Civil War.</span><span class="lang-es">El historiador Yohuru Williams explica lo que necesitas saber sobre la Gran Migración de afroamericanos del Sur al Norte después de la Guerra Civil.</span></p><div class="video-wrapper">
+<iframe allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen="" loading="lazy" src="https://www.youtube.com/embed/7TfgJnXlaxo" title="Sound Smart: The Great Migration | History"></iframe>
+</div></div>
+</div>
+</div>
+<!-- ENTRY 6 -->
+<div class="timeline-entry">
+<div class="dot"></div>
+<div class="timeline-date">1920</div>
+<div class="timeline-header" onclick="toggleEntry(this)">
+<h3 class="timeline-heading"><span class="lang-en">1920 Harlem Renaissance</span><span class="lang-es">1920 El Renacimiento de Harlem</span></h3>
+<span class="chevron"><svg viewbox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
+</div>
+<div class="timeline-content">
+<div class="card">
+<h4><a class="participant-link" href="https://www.ourwayoflifearchive.com/s/stories/senj6" rel="noopener" target="_blank"><img alt="SENJ6" class="participant-avatar" loading="lazy" src="https://www.ourwayoflifearchive.com/uploads/b/4d4f27a254ad409573c7c4eb443d718ebb65ef79eb130e662c91851895189621/2024-11-10_20-56-42_1731301015.jpg"/><span class="lang-en">SENJ6 | Harlem Renaissance</span><span class="lang-es">SENJ6 | Renacimiento de Harlem</span></a></h4>
+<p><span class="lang-en">"We stayed together very well. It made you feel safe and wanted and loved."</span><span class="lang-es">"Nos llevábamos muy bien. Te hacía sentir seguro, deseado y amado."</span></p>
+<p><span class="lang-en">I was born in Harlem NY. My neighborhood had tall brick buildings, apartments, very unlike where I live now. Concrete sidewalks, playing jumping rope outside the apartment. I lived on the sixth floor. My mother wanted something from the store, she would throw it out the window in a brown bag, the money and the note, and I would go into the grocery store and get it and then bring it upstairs. It was a close-knit community.</span><span class="lang-es">Nací en Harlem, Nueva York. Mi barrio tenía edificios altos de ladrillo, apartamentos, muy diferente a donde vivo ahora. Aceras de concreto, jugando a la cuerda afuera del apartamento. Vivía en el sexto piso. Mi madre quería algo de la tienda, lo lanzaba por la ventana en una bolsa de papel, el dinero y la nota, y yo iba a la tienda de abarrotes y lo traía y luego lo subía. Era una comunidad muy unida.</span></p>
+<p><span class="lang-en">I could feel safe going to my neighbors and staying there till my mom got home or going to my best friend's mother's house and staying there. You knew everybody, you knew the man who owned a record shop at the corner, Ray and then you knew the man who owned the candy store and you knew Charlie was the butcher and you knew the man who was in the pawnshop and you knew the man who had the photography shop. You knew everybody. We stayed together very well. It made you feel safe and wanted and loved.</span><span class="lang-es">Podía sentirme seguro yendo a casa de mis vecinos y quedándome allí hasta que mi mamá llegara a casa o yendo a casa de la madre de mi mejor amiga y quedándome allí. Conocías a todos, conocías al hombre que tenía una tienda de discos en la esquina, Ray, y luego conocías al hombre que tenía la tienda de caramelos y sabías que Charlie era el carnicero y conocías al hombre que estaba en la casa de empeños y conocías al hombre que tenía la tienda de fotografía. Conocías a todos. Nos llevábamos muy bien. Te hacía sentir seguro, deseado y amado.</span></p>
+<h4><a class="participant-link" href="https://www.ourwayoflifearchive.com/s/stories/wpny" rel="noopener" target="_blank"><img alt="WPNY" class="participant-avatar" loading="lazy" src="https://www.ourwayoflifearchive.com/uploads/b/4d4f27a254ad409573c7c4eb443d718ebb65ef79eb130e662c91851895189621/2024-11-10_20-46-17_1731300393.jpg"/><span class="lang-en">WPNY | Harlem Renaissance</span><span class="lang-es">WPNY | Renacimiento de Harlem</span></a></h4>
+<p><span class="lang-en">"There were people who looked like me that were in charge"</span><span class="lang-es">"Había personas que se parecían a mí que estaban a cargo"</span></p>
+<p><span class="lang-en">I went to an elementary school where the principal was the first Black principal in the city, in the New York City School System. She was very proud, very stately woman, very handsome. Even then, a mature woman like your grandmother might be or something. She would always come around where the kids were. She wasn't like a person who stayed in her office. Her presence, she had great dignity as a person. We were always influenced by that.</span><span class="lang-es">Fui a una escuela primaria donde la directora era la primera directora negra en la ciudad, en el Sistema de Escuelas de la Ciudad de Nueva York. Era una mujer muy orgullosa, muy majestuosa, muy guapa. Incluso entonces, una mujer madura como tu abuela o algo así. Siempre venía donde estaban los niños. No era como una persona que se quedaba en su oficina. Su presencia, tenía una gran dignidad como persona. Siempre fuimos influenciados por eso.</span></p>
+<p><span class="lang-en">It was an all Black school and we would sing the Black national anthem, and we would just sing to our little hearts out so proudly. That was my beginning in elementary school.</span><span class="lang-es">Era una escuela completamente negra y cantábamos el himno nacional negro, y simplemente cantábamos con todo nuestro corazón tan orgullosamente. Ese fue mi comienzo en la escuela primaria.</span></p>
+<p><span class="lang-en">Lift ev'ry voice and sing<br/>'Til earth and heaven ring.</span><span class="lang-es">Alza cada voz y canta<br/>Hasta que cielo y tierra resuenen.</span></p>
+<p><span class="lang-en">There was always this sense that you had to be proud of who you were, and you have to be-- That whole thing of you're responsible to represent your race. I don't know that it was indeed as clear terms, but that influence was there. The pride that there were people who looked like me that were in charge.</span><span class="lang-es">Siempre había este sentimiento de que tenías que estar orgulloso de quién eras, y que tenías que ser-- Todo eso de que eres responsable de representar a tu raza. No sé si lo expresaba en términos tan claros, pero esa influencia estaba ahí. El orgullo de que había personas que se parecían a mí que estaban a cargo.</span></p>
+<div class="video-wrapper">
+<iframe allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen="" loading="lazy" src="https://www.youtube.com/embed/ONgOH_tq7-Q" title="Lift Every Voice and Sing with Lyrics"></iframe>
+</div>
+<div class="video-wrapper">
+<iframe allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen="" loading="lazy" src="https://www.youtube.com/embed/9gboEyrj02g" title="The Harlem Renaissance"></iframe>
+</div>
+<p style="font-size:0.85rem; font-style:italic; color:#8b7355; line-height:1.5; margin-top:0.3rem;"><span class="lang-en">In this episode of Black History in Two Minutes or So hosted by Henry Louis Gates Jr. — with additional commentary from Farah Griffin and Brent Hayes Edwards of Columbia University, and author and journalist Isabel Wilkerson — we look at a new generation of black people whose bold commitment to artistic expression will forever live on. Learn about the Harlem Renaissance.</span><span class="lang-es">En este episodio de Black History in Two Minutes or So, presentado por Henry Louis Gates Jr. —con comentarios adicionales de Farah Griffin y Brent Hayes Edwards de la Universidad de Columbia, y de la autora y periodista Isabel Wilkerson— examinamos una nueva generación de personas negras cuyo compromiso audaz con la expresión artística vivirá para siempre. Aprende sobre el Renacimiento de Harlem.</span></p>
+</div>
+</div>
+</div>
+<!-- ENTRY 7 -->
+<div class="timeline-entry">
+<div class="dot"></div>
+<div class="timeline-date">1924</div>
+<div class="timeline-header" onclick="toggleEntry(this)">
+<h3 class="timeline-heading"><span class="lang-en">1924 The Immigration Act &amp; Border Patrol Established</span><span class="lang-es">1924 La Ley de Inmigración y Establecimiento de la Patrulla Fronteriza</span></h3>
+<span class="chevron"><svg viewbox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
+</div>
+<div class="timeline-content">
+<div class="card">
+<p><span class="lang-en">While the 1924 immigration law spared Mexico a quota, a series of secondary laws — including one that made it a crime to enter the country outside official ports of entry — gave border and customs agents on-the-spot discretion to decide who could enter the country legally. They had the power to turn what had been a routine daily or seasonal event — crossing the border to go to work — into a ritual of abuse.</span><span class="lang-es">Aunque la ley de inmigración de 1924 eximió a México de una cuota, una serie de leyes secundarias —incluyendo una que hizo delito entrar al país fuera de los puertos oficiales de entrada— otorgó a los agentes de aduanas y frontera discreción en el lugar para decidir quién podía entrar al país legalmente. Tenían el poder de convertir lo que había sido un evento rutinario diario o estacional —cruzar la frontera para ir a trabajar— en un ritual de abuso.</span></p>
+<a class="link-preview" href="https://theintercept.com/2019/01/12/border-patrol-history/" rel="noopener" target="_blank">
+<img alt="The Border Patrol Has Been a Cult of Brutality Since 1924" src="https://theintercept.com/wp-content/uploads/2019/01/GettyImages-50526650-1547246131-e1547246270362.jpg?fit=1498%2C747"/>
+<div class="link-preview-text">
+<div class="link-preview-title"><span class="lang-en">The Border Patrol Has Been a Cult of Brutality Since 1924</span><span class="lang-es">La Patrulla Fronteriza Ha Sido un Culto de Brutalidad Desde 1924</span></div>
+<div class="link-preview-desc"><span class="lang-en">Since its founding, the U.S. Border Patrol has arguably been the most politicized and abusive branch of federal law enforcement.</span><span class="lang-es">Desde su fundación, la Patrulla Fronteriza de EE.UU. ha sido posiblemente la rama más politizada y abusiva de la aplicación de la ley federal.</span></div>
+<div class="link-preview-domain">theintercept.com</div>
+</div>
+</a>
+</div>
+</div>
+</div>
+<!-- ENTRY 8 -->
+<div class="timeline-entry">
+<div class="dot"></div>
+<div class="timeline-date">1940</div>
+<div class="timeline-header" onclick="toggleEntry(this)">
+<h3 class="timeline-heading"><span class="lang-en">1940 White Flight</span><span class="lang-es">1940 Éxodo Blanco</span></h3>
+<span class="chevron"><svg viewbox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
+</div>
+<div class="timeline-content">
+<div class="card">
+<h4><a class="participant-link" href="https://www.ourwayoflifearchive.com/s/stories/senj6" rel="noopener" target="_blank"><img alt="SENJ6" class="participant-avatar" loading="lazy" src="https://www.ourwayoflifearchive.com/uploads/b/4d4f27a254ad409573c7c4eb443d718ebb65ef79eb130e662c91851895189621/2024-11-10_20-56-42_1731301015.jpg"/><span class="lang-en">SENJ6 | White Flight</span><span class="lang-es">SENJ6 | Fuga Blanca</span></a></h4>
+<p><span class="lang-en">"Neighbors were very friendly, but they moved out."</span><span class="lang-es">"Los vecinos eran muy amables, pero se mudaron."</span></p>
+<p><span class="lang-en">When we moved to New Jersey we were the first African-American family on this block back in 1954. Our next door neighbors were very friendly, but they moved out. On the other side of us were two brothers who owned my house and the house next door. They were very friendly but they moved out. They weren't mean to us. We didn't have anybody who put a cross on our lawn or threw a brick through our window. We had none of that. They just moved out. They called it a white flight.</span><span class="lang-es">Cuando nos mudamos a Nueva Jersey, éramos la primera familia afroamericana en esta cuadra, allá por 1954. Nuestros vecinos de al lado eran muy amables, pero se mudaron. Del otro lado había dos hermanos que eran dueños de mi casa y de la casa de al lado. Eran muy amables pero se mudaron. No fueron malos con nosotros. No hubo nadie que pusiera una cruz en nuestro patio o que tirara un ladrillo por nuestra ventana. Nada de eso. Simplemente se mudaron. Lo llamaban "fuga blanca".</span></p>
+<p><span class="lang-en">In other words, once any African-American starts moving into a certain area then the white people who own the houses start moving out. That happened, when we came in 1954 it was an all-white block and we were the first to integrate it. By the time the '60s came, there was a white couple, a mixed couple and then it was Johnny across the street but it was predominantly black. Still was a nice neighborhood. I had friends and we had the same rapport with our neighbors that we have now. I could visit a couple of people. It wasn't as intimate as it was in Harlem, New York.</span><span class="lang-es">En otras palabras, una vez que cualquier afroamericano comienza a mudarse a cierta área, la gente blanca que es dueña de las casas comienza a mudarse. Eso pasó cuando llegamos en 1954, era una cuadra completamente blanca y fuimos los primeros en integrarla. Para cuando llegó los años '60, había una pareja blanca, una pareja mixta y luego estaba Johnny al otro lado de la calle, pero era predominantemente negra. Seguía siendo un buen barrio. Tenía amigos y teníamos la misma relación con nuestros vecinos que tenemos ahora. Podía visitar a un par de personas. No era tan íntimo como lo era en Harlem, Nueva York.</span></p>
+<p style="font-size:0.85rem; font-style:italic; color:#8b7355; line-height:1.5; margin-top:0.3rem;"><span class="lang-en">In this video, we cover the concept of white flight, also known as white exodus. There are 3 main reasons for white flight that we cover in this video.</span><span class="lang-es">En este video, cubrimos el concepto de la huida blanca, también conocida como éxodo blanco. Hay 3 razones principales para la huida blanca que cubrimos en este video.</span></p>
+<div class="video-wrapper">
+<iframe allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen="" loading="lazy" src="https://www.youtube.com/embed/lAGsVjoIxFU" title="White Flight Explained"></iframe>
+</div></div>
+</div>
+</div>
+<!-- ENTRY 9 -->
+<div class="timeline-entry">
+<div class="dot"></div>
+<div class="timeline-date">1942</div>
+<div class="timeline-header" onclick="toggleEntry(this)">
+<h3 class="timeline-heading"><span class="lang-en">1942 The Bracero Program</span><span class="lang-es">1942 El Programa Bracero</span></h3>
+<span class="chevron"><svg viewbox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
+</div>
+<div class="timeline-content">
+<div class="card">
+<p><span class="lang-en">America's biggest guest-worker program created to avoid labor shortages during WWII, ended in 1964.</span><span class="lang-es">El programa de trabajadores huéspedes más grande de América, creado para evitar escasez de mano de obra durante la Segunda Guerra Mundial, terminó en 1964.</span></p><div class="video-wrapper">
+<iframe allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen="" loading="lazy" src="https://www.youtube.com/embed/oxEZrpcJpSU" title="The Braceros at 80"></iframe>
+</div></div>
+</div>
+</div>
+<!-- ENTRY 10 -->
+<div class="timeline-entry">
+<div class="dot"></div>
+<div class="timeline-date">1947</div>
+<div class="timeline-header" onclick="toggleEntry(this)">
+<h3 class="timeline-heading"><span class="lang-en">1947 Mendez v. Westminster School District</span><span class="lang-es">1947 Méndez vs. Distrito Escolar de Westminster</span></h3>
+<span class="chevron"><svg viewbox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
+</div>
+<div class="timeline-content">
+<div class="card">
+<p><span class="lang-en">Sylvia Mendez's family sued four school districts for being denied entrance to Westminster Elementary School because they were Mexican. The ruling sets a precedent for the historic Brown v. Board of Education Supreme Court case seven years later.</span><span class="lang-es">La familia de Sylvia Méndez demandó a cuatro distritos escolares por negarles la entrada a la Escuela Primaria Westminster porque eran mexicanos. La sentencia sienta un precedente para el histórico caso de la Corte Suprema Brown v. Board of Education siete años después.</span></p><div class="video-wrapper">
+<iframe allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen="" loading="lazy" src="https://www.youtube.com/embed/SIMWdfSxoh8" title="Voices of History: Sylvia Mendez"></iframe>
+</div></div>
+</div>
+</div>
+<!-- ENTRY 11 -->
+<div class="timeline-entry">
+<div class="dot"></div>
+<div class="timeline-date">1949</div>
+<div class="timeline-header" onclick="toggleEntry(this)">
+<h3 class="timeline-heading"><span class="lang-en">1949 The Groveland Four</span><span class="lang-es">1949 Los Cuatro de Groveland</span></h3>
+<span class="chevron"><svg viewbox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
+</div>
+<div class="timeline-content">
+<div class="card">
+<h4><a class="participant-link" href="https://www.ourwayoflifearchive.com/s/stories/frnj6" rel="noopener" target="_blank"><img alt="FRNJ6" class="participant-avatar" loading="lazy" src="https://www.ourwayoflifearchive.com/uploads/b/4d4f27a254ad409573c7c4eb443d718ebb65ef79eb130e662c91851895189621/2021-05-10_11-51-29_1620661857.png"/><span class="lang-en">FRNJ6 | The Groveland Four</span><span class="lang-es">FRNJ6 | Los Cuatro de Groveland</span></a></h4>
+<p><span class="lang-en">"It was a culture. You knew where you could go and where you couldn't go..."</span><span class="lang-es">"Era una cultura. Sabías a dónde podías ir y a dónde no podías ir..."</span></p>
+<p><span class="lang-en">Everything was segregated at that time. I had no discrimination in school because everybody was Black...Our neighborhood was heavily policed. The sheriff's department did a lot of wrong to us. They had a couple of cases one was the Groveland Four. It happened in the county that I grew up in and it was a couple of guys that were accused of sexual assault and sentenced to death. Two of them were killed by the sheriff's department. It happened in the early '50s or something like that. They had other incidents after that. There's a book about it titled Devil in the Grove by Gilbert King.</span><span class="lang-es">Todo estaba segregado en esa época. No tuve discriminación en la escuela porque todos eran negros... Nuestro barrio estaba fuertemente vigilado. El departamento del sheriff nos hizo mucho daño. Había un par de casos, uno era el de los Cuatro de Groveland. Sucedió en el condado donde crecí y eran un par de chicos que fueron acusados de agresión sexual y condenados a muerte. Dos de ellos fueron asesinados por el departamento del sheriff. Sucedió a principios de los años '50 o algo así. Hubo otros incidentes después de eso. Hay un libro sobre esto titulado "Devil in the Grove" de Gilbert King.</span></p>
+<p><span class="lang-en">It was a culture. You knew where you could go and where you couldn't go, and you just be vigilant to watch what you're doing. You knew your bounds and you stayed within. You knew what you had to do to survive and so, you did that.</span><span class="lang-es">Era una cultura. Sabías a dónde podías ir y a dónde no podías ir, y solo tenías que ser vigilante y observar lo que hacías. Conocías tus límites y te mantenías dentro de ellos. Sabías qué tenías que hacer para sobrevivir y así lo hacías.</span></p>
+<p style="font-size:0.85rem; font-style:italic; color:#8b7355; line-height:1.5; margin-top:0.3rem;"><span class="lang-en">News Clip about the Pardoning of the Groveland Four.<br/><strong>Trigger Warning: Death and Violence</strong></span><span class="lang-es">Noticia sobre el indulto de los Cuatro de Groveland.<br/><strong>Advertencia: Contenido sobre muerte y violencia</strong></span></p>
+<div class="video-wrapper">
+<iframe allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen="" loading="lazy" src="https://www.youtube.com/embed/EQlGZwqlaWo" title="Four black men granted pardons in case seen as example of racial injustice"></iframe>
+</div></div>
+</div>
+</div>
+<!-- ENTRY 12 -->
+<div class="timeline-entry">
+<div class="dot"></div>
+<div class="timeline-date">1952</div>
+<div class="timeline-header" onclick="toggleEntry(this)">
+<h3 class="timeline-heading"><span class="lang-en">1952 Puerto Rico becomes a commonwealth</span><span class="lang-es">1952 Puerto Rico se convierte en estado libre asociado</span></h3>
+<span class="chevron"><svg viewbox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
+</div>
+<div class="timeline-content">
+<div class="card">
+<p><span class="lang-en">In 1898, the United States invaded and colonized Puerto Rico as part of the Spanish American War. In 1917 - Jones Act grants US citizenship to Puerto Ricans. In 1947 - Partial self-government is granted enabling Puerto Ricans to elect their own governor. In 1952, President Luis Muñoz Marín establishes Puerto Rico as a commonwealth of the U.S.</span><span class="lang-es">In 1898, the United States invaded and colonized Puerto Rico as part of the Spanish American War. In 1917 - Jones Act grants US citizenship to Puerto Ricans. In 1947 - Partial self-government is granted enabling Puerto Ricans to elect their own governor. In 1952, President Luis Muñoz Marín establishes Puerto Rico as a commonwealth of the U.S.</span></p>
+<h4><a class="participant-link" href="https://www.ourwayoflifearchive.com/s/stories/ebnj" rel="noopener" target="_blank"><img alt="EBNJ" class="participant-avatar" loading="lazy" src="https://www.ourwayoflifearchive.com/uploads/b/4d4f27a254ad409573c7c4eb443d718ebb65ef79eb130e662c91851895189621/un%20granito%20de%20arena_1626740217.jpg"/><span class="lang-en">EBNJ | Puerto Rico</span><span class="lang-es">EBNJ | Puerto Rico</span></a></h4>
+<p><span class="lang-en">I practically couldn't enjoy childhood because by the time I was nine or ten years old I was already making white rice, beans, when at that age kids today are on their computers and their things. I grew up before my time.</span><span class="lang-es">Yo prácticamente no pude disfrutar de la niñez porque ya a los nueve o diez años ya yo estaba haciendo arroz blanco, habichuelas cuando a esa edad los niños hoy día están con su computadora y sus cosas. Yo crecí antes de tiempo.</span></p>
+<p><span class="lang-en">I worried a lot about my little siblings, and also about my neighbors. Since my dad worked we didn't get help from the Government, even though my mom was sick there was no assistance. The help came after 1952 when Luis Muñoz Marín made the Association with the United States.</span><span class="lang-es">Yo me preocupaba mucho por mis hermanitos, también por mis vecinos. Como mi papá trabajaba no nos daban ayuda el Gobierno, aunque mi mamá estuviera enferma no existía la ayuda. La ayuda llegó después de 1952 que Luis Muñoz Marín hizo la Asociación con Estados Unidos.</span></p>
+<p style="font-size:0.85rem; font-style:italic; color:#8b7355; line-height:1.5; margin-top:0.3rem;"><span class="lang-en">The Last Colony - A Brief History of Puerto Rico's Status</span><span class="lang-es">La Última Colonia - Una Breve Historia del Estatus de Puerto Rico</span></p>
+<div class="video-wrapper">
+<iframe allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen="" loading="lazy" src="https://www.youtube.com/embed/zz830ga1dUs" title="The Last Colony - A Brief History of Puerto Rico's Status"></iframe>
+</div></div>
+</div>
+</div>
+<!-- ENTRY 13 -->
+<div class="timeline-entry">
+<div class="dot"></div>
+<div class="timeline-date">1954 – 1968</div>
+<div class="timeline-header" onclick="toggleEntry(this)">
+<h3 class="timeline-heading"><span class="lang-en">The Civil Rights Movement</span><span class="lang-es">El Movimiento de Derechos Civiles</span></h3>
+<span class="chevron"><svg viewbox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
+</div>
+<div class="timeline-content">
+<div class="card">
+<p><span class="lang-en">"The African American Civil Rights Movement was intened by many of its leaders to include all Americans of color struggling for equality, regardless of their origins. In response to the efforts of Dr. Martin Luther King, among others, Hispanic Americans of various backgrounds began organizing their own struggle for civil equality and fairness."</span><span class="lang-es">"El Movimiento de Derechos Civiles Afroamericano fue concebido por muchos de sus líderes para incluir a todos los estadounidenses de color que luchaban por la igualdad, independientemente de sus orígenes. En respuesta a los esfuerzos del Dr. Martin Luther King, entre otros, los estadounidenses hispanos de diversos orígenes comenzaron a organizar su propia lucha por la igualdad civil y la justicia."</span></p>
+<a class="link-preview" href="https://www.loc.gov/item/ihas.200197398/" rel="noopener" target="_blank">
+<img alt="The Chicano Civil Rights Movement" src="https://lcweb2.loc.gov/natlib/ihas/warehouse/articles/200197398/0001.jpg"/>
+<div class="link-preview-text">
+<div class="link-preview-title"><span class="lang-en">The Chicano Civil Rights Movement</span><span class="lang-es">El Movimiento de Derechos Civiles Chicano</span></div>
+<div class="link-preview-desc"><span class="lang-en">Hispanic Americans of various backgrounds began organizing their own struggle for civil equality and fairness.</span><span class="lang-es">Los hispanoamericanos de diversos orígenes comenzaron a organizar su propia lucha por la igualdad civil y la justicia.</span></div>
+<div class="link-preview-domain">loc.gov</div>
+</div>
+</a>
+<h4><a class="participant-link" href="https://www.ourwayoflifearchive.com/s/stories/rbny7" rel="noopener" target="_blank"><img alt="RBNY7" class="participant-avatar" loading="lazy" src="https://www.ourwayoflifearchive.com/uploads/b/4d4f27a254ad409573c7c4eb443d718ebb65ef79eb130e662c91851895189621/2024-11-10_20-52-31_1731300819.jpg"/><span class="lang-en">RBNY7 | Civil Rights</span><span class="lang-es">RBNY7 | Derechos Civiles</span></a></h4>
+<p><span class="lang-en">"That could have been me in my church, somebody in my church."</span><span class="lang-es">"Eso podría haber sido yo en mi iglesia, alguien en mi iglesia."</span></p>
+<p><span class="lang-en">I also remember watching the Civil Rights riots, watching children getting hosed and the little girl getting blown up in the church. I said, "That could have been me in my church, somebody in my church." I saw how dogs were thrown on people just because they want to sit out at a place to eat, not realizing that in the grade school that I went in, another parent had to get up and say something like that.</span><span class="lang-es">También recuerdo ver los disturbios de los Derechos Civiles, ver a los niños siendo rociados con mangueras y a la niña siendo volada por los aires en la iglesia. Dije, "Eso podría haber sido yo en mi iglesia, alguien en mi iglesia." Vi cómo los perros fueron lanzados sobre la gente solo porque querían sentarse en un lugar para comer, sin darme cuenta de que en la escuela primaria a la que asistí, otro padre tuvo que levantarse y decir algo así.</span></p>
+<p><span class="lang-en">I didn't understand what was going on, but I could feel it. It hurt me that people that looked like me were being shot at, they were being hosed. They were having horses trampled on them. That could have been my mother, that could have been me.</span><span class="lang-es">No entendía qué estaba pasando, pero podía sentirlo. Me dolió que personas que se parecían a mí fueran disparadas, fueran rociadas. Tenían caballos pisoteándolos. Eso podría haber sido mi madre, eso podría haber sido yo.</span></p>
+<h4><a class="participant-link" href="https://www.ourwayoflifearchive.com/s/stories/frnj" rel="noopener" target="_blank"><img alt="FRNJ" class="participant-avatar" loading="lazy" src="https://www.ourwayoflifearchive.com/uploads/b/4d4f27a254ad409573c7c4eb443d718ebb65ef79eb130e662c91851895189621/2021-05-10_11-51-29_1620661857.png"/><span class="lang-en">FRNJ | Civil Rights</span><span class="lang-es">FRNJ | Derechos Civiles</span></a></h4>
+<p><span class="lang-en">"I participated in the Selma to Montgomery March back in '65"</span><span class="lang-es">"Participé en la Marcha de Selma a Montgomery en el '65"</span></p>
+<p><span class="lang-en">I participated in the Selma to Montgomery March back in '65. I was a student at Tuskegee University; the university organized buses, and everybody went. You had a lot of students over there. In fact, a lot of the nursing students were aiding to help marches and things. They had them deployed there. They took a group of nursing students there to help with that.</span><span class="lang-es">Participé en la Marcha de Selma a Montgomery en el '65. Yo era estudiante en la Universidad de Tuskegee; la universidad organizó autobuses, y todos fueron. Había muchos estudiantes por allá. De hecho, muchas de las estudiantes de enfermería estaban ayudando a las marchas y todo eso. Los tenían desplegados allá. Llevaron un grupo de estudiantes de enfermería para ayudar con eso.</span></p>
+<p><span class="lang-en">The marching was from Selma, which was about 40 miles southeast of Montgomery. A lot of students from Tuskegee went over to Montgomery, the capital of Alabama. Everybody was surrounding the capitol, and they didn't want the march there. So, once you got there, if you left, you couldn't come back; that was the way to eliminate people. They had no restroom facilities there, you just had to stay there and endure because there were speeches by Dr. King. It was pretty rough there. They had state troopers and National Guard. Later, state troopers on horseback were riding over folks, and they had cattle prods and all this stuff, kind of wild. People were getting hurt. It wasn't a battle because the students would not have battled. Rarely did violence show up in Martin Luther King rallies. Just in that.</span><span class="lang-es">La marcha fue desde Selma, que estaba a unos 40 millas al sureste de Montgomery. Muchos estudiantes de Tuskegee fueron a Montgomery, la capital de Alabama. Todos rodeaban el capitolio, y no querían la marcha allí. Entonces, una vez que llegabas, si te ibas, no podías regresar; esa era la forma de eliminar a la gente. No había baños allí, simplemente tenías que quedarte y aguantar porque había discursos del Dr. King. Fue bastante difícil allí. Había policías estatales y Guardia Nacional. Más tarde, policías estatales a caballo iban galopando sobre la gente, y tenían bastones de descarga eléctrica y todas esas cosas, algo bastante salvaje. La gente se estaba lastimando. No fue una batalla porque los estudiantes no habrían luchado. Rara vez la violencia apareció en los mítines de Martin Luther King. Solo en ese.</span></p><div class="video-wrapper">
+<iframe allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen="" loading="lazy" src="https://www.youtube.com/embed/-n9c_hKvbh4" title="March On Washington Inspired Chicano Rights Movement"></iframe>
+</div></div>
+</div>
+</div>
+<!-- ENTRY 14 -->
+<div class="timeline-entry">
+<div class="dot"></div>
+<div class="timeline-date">1954</div>
+<div class="timeline-header" onclick="toggleEntry(this)">
+<h3 class="timeline-heading"><span class="lang-en">Brown Vs. BOE of Topeka</span><span class="lang-es">Brown contra la Junta de Educación de Topeka</span></h3>
+<span class="chevron"><svg viewbox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
+</div>
+<div class="timeline-content">
+<div class="card">
+<p><span class="lang-en">Brown v. Board of Education was a case brought to the Supreme Court in 1954 after Linda Brown, an African American student in Kansas, was denied access to the white-only schools nearby her house. Future Supreme Court Justice Thurgood Marshall was the lawyer for the case, and argued that segregated schools were inherently unequal.</span><span class="lang-es">Brown v. Board of Education fue un caso presentado a la Corte Suprema en 1954 después de que Linda Brown, una estudiante afroamericana en Kansas, fue negada el acceso a las escuelas solo para blancos cerca de su casa. El futuro Juez de la Corte Suprema Thurgood Marshall fue el abogado del caso, y argumentó que las escuelas segregadas eran inherentemente desiguales.</span></p>
+<h4><a class="participant-link" href="https://www.ourwayoflifearchive.com/s/stories/rbny7" rel="noopener" target="_blank"><img alt="RBNY7" class="participant-avatar" loading="lazy" src="https://www.ourwayoflifearchive.com/uploads/b/4d4f27a254ad409573c7c4eb443d718ebb65ef79eb130e662c91851895189621/2024-11-10_20-52-31_1731300819.jpg"/><span class="lang-en">RBNY7 | Integration of Schools</span><span class="lang-es">RBNY7 | Integración de Escuelas</span></a></h4>
+<p><span class="lang-en">"You're not going to do that"</span><span class="lang-es">"No vas a hacer eso"</span></p>
+<p><span class="lang-en">I found out recently that one of my other neighbors was responsible for the school that I went to being integrated because we were zoned to go to another school that was further down the street, which was actually not really part of the city school system. But this mother stood up and said, "You're not going to do that. My children are going to go here." So, that's where I went.</span><span class="lang-es">Me enteré hace poco que una de mis otras vecinas fue responsable de que la escuela a la que asistí se integrara porque estábamos asignados a ir a otra escuela que estaba más adelante en la calle, que en realidad no formaba parte del sistema de escuelas públicas. Pero esta madre se levantó y dijo, "No vas a hacer eso. Mis hijos van a ir aquí". Así que, ahí es donde fui.</span></p>
+<h4><a class="participant-link" href="https://www.ourwayoflifearchive.com/s/stories/bmnj" rel="noopener" target="_blank"><img alt="BMNJ" class="participant-avatar" loading="lazy" src="https://www.ourwayoflifearchive.com/uploads/b/4d4f27a254ad409573c7c4eb443d718ebb65ef79eb130e662c91851895189621/image_1620663833.jpg"/><span class="lang-en">BMNJ | Integration of Schools</span><span class="lang-es">BMNJ | Integración de Escuelas</span></a></h4>
+<p><span class="lang-en">"It doesn't take anything away from you."</span><span class="lang-es">"No te quita nada".</span></p>
+<p><span class="lang-en">It became crystal clear of what my parents were saying how we was being systematically held back in all them schools. I'd stay after school, I picked up the violin. I got involved with school life. It was back then, it was a very good education for me.</span><span class="lang-es">Se hizo cristalino lo que mis padres estaban diciendo sobre cómo nos estaban frenando sistemáticamente en todas esas escuelas. Me quedaba después de la escuela, cogí el violín. Me involucraba en la vida escolar. Era en ese entonces, fue una educación muy buena para mí.</span></p>
+<p><span class="lang-en">When we got off the bus, it frightened me because we would be met by the crowd like, "Go back to your school. Get out of here. This is my school." You had also a lot of parents who didn't want to integrate the school. Every time that you heard a snide comment from maybe some of the kids or their parents who was by the bus stop. It might be a voice in the crowd saying, "Look at those kids. They're trying to be white," because we were going to private school. It was almost an immediate response from somewhere out in the crowd saying, "No, those kids are trying to get ahead." That kind of people degrading each other, it was not acceptable, and somebody would definitely speak up about it.</span><span class="lang-es">Cuando bajábamos del autobús, me asustaba porque nos recibía una multitud diciendo, "Vuelvan a su escuela. Salgan de aquí. Esta es mi escuela". También había muchos padres que no querían integrar la escuela. Cada vez que escuchabas un comentario hiriente de algunos de los niños o sus padres que estaban en la parada del autobús. Podría ser una voz en la multitud diciendo, "Miren a esos niños. Están tratando de ser blancos", porque estábamos yendo a escuela privada. Fue casi una respuesta inmediata de alguien en la multitud diciendo, "No, esos niños están tratando de salir adelante". Ese tipo de gente degradándose mutuamente, no era aceptable, y alguien definitivamente hablaría al respecto.</span></p>
+<p><span class="lang-en">I think a lot of times in America, white Americans feel like equality and integration means they're losing something, but we know it's not that. Integration means you're accommodating something else. It doesn't take anything away from you.</span><span class="lang-es">Creo que muchas veces en América, los estadounidenses blancos sienten que igualdad e integración significa que están perdiendo algo, pero sabemos que no es así. Integración significa que estás acogiendo algo más. No te quita nada.</span></p>
+<h4><a class="participant-link" href="https://www.ourwayoflifearchive.com/s/stories/mlnj6" rel="noopener" target="_blank"><img alt="MLNJ6" class="participant-avatar" loading="lazy" src="https://www.ourwayoflifearchive.com/uploads/b/4d4f27a254ad409573c7c4eb443d718ebb65ef79eb130e662c91851895189621/2021-05-10_11-27-04_1620660411.png"/><span class="lang-en">MLNJ6 | Integration of Schools</span><span class="lang-es">MLNJ6 | Integración de Escuelas</span></a></h4>
+<p><span class="lang-en">"That hurt a lot."</span><span class="lang-es">"Eso me dolió mucho".</span></p>
+<p><span class="lang-en">In grammar school, it always bothered me that I wasn't invited to the parties. It was a big thing, a birthday party. The kids would bring the invitations to the class, like have cupcakes that day. I was never invited. Only one person, the whole time I was there, invited me. She was always so nice to me. It meant so much. I guess it goes back to the quote by Maya Angelou, that you always remember how somebody made you feel more than what they did.</span><span class="lang-es">En la escuela primaria, siempre me molestaba que no me invitaran a las fiestas. Era algo importante, una fiesta de cumpleaños. Los niños traían las invitaciones a la clase, como cupcakes ese día. Nunca me invitaban. Una sola persona, todo el tiempo que estuve ahí, me invitó. Siempre fue muy amable conmigo. Significó mucho. Supongo que va de la mano con la cita de Maya Angelou, que siempre recuerdas cómo alguien te hizo sentir más que lo que hizo.</span></p>
+<p><span class="lang-en">We didn't talk about color though. People didn't talk about color. That's how I was treated. I wasn't invited to parties, but she was always so nice to me. She's the only one that invited me all that time. That hurt a lot.</span><span class="lang-es">No hablábamos del color sin embargo. La gente no hablaba del color. Así es cómo fui tratada. No me invitaban a fiestas, pero ella siempre fue muy amable conmigo. Fue la única que me invitó todo ese tiempo. Eso me dolió mucho.</span></p>
+<div class="video-wrapper">
+<iframe allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen="" loading="lazy" src="https://www.youtube.com/embed/1siiQelPHbQ" title="Brown v. Board of Education | BRI's Homework Help Series"></iframe>
+</div></div>
+</div>
+</div>
+<!-- ENTRY 15 -->
+<div class="timeline-entry">
+<div class="dot"></div>
+<div class="timeline-date">1955</div>
+<div class="timeline-header" onclick="toggleEntry(this)">
+<h3 class="timeline-heading"><span class="lang-en">Emmett Till Murdered</span><span class="lang-es">Emmett Till es asesinado</span></h3>
+<span class="chevron"><svg viewbox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
+</div>
+<div class="timeline-content">
+<div class="card">
+<p><span class="lang-en">On August 24, 1955, 14-year-old Emmett Till reportedly flirted with a white cashier in Money, Mississippi. Four days later, two white men tortured and murdered Till. His murder galvanized the emerging Civil Rights Movement.</span><span class="lang-es">El 24 de agosto de 1955, Emmett Till, de 14 años, supuestamente coqueteó con una cajera blanca en Money, Mississippi. Cuatro días después, dos hombres blancos torturaron y asesinaron a Till. Su asesinato galvanizó el emergente Movimiento por los Derechos Civiles.</span></p>
+<h4><a class="participant-link" href="https://www.ourwayoflifearchive.com/s/stories/bmnj" rel="noopener" target="_blank"><img alt="BMNJ" class="participant-avatar" loading="lazy" src="https://www.ourwayoflifearchive.com/uploads/b/4d4f27a254ad409573c7c4eb443d718ebb65ef79eb130e662c91851895189621/image_1620663833.jpg"/><span class="lang-en">BMNJ | Murder of Emmett Till</span><span class="lang-es">BMNJ | Asesinato de Emmett Till</span></a></h4>
+<p><span class="lang-en">"I was afraid of racists."</span><span class="lang-es">"Tenía miedo de los racistas".</span></p>
+<p><span class="lang-en">After Emmet Till is killed, images of his body were printed in popular Black-owned Magazine 'Jet Magazine': "I remember my parents told me to take a look at it and to see how brutal racism could be. That must have been when I was about maybe four or five years old when I remember them sitting down, explaining this picture to me.</span><span class="lang-es">Después de que Emmett Till es asesinado, imágenes de su cuerpo fueron impresas en la popular revista de propiedad negra 'Jet Magazine': "Recuerdo que mis padres me dijeron que lo mirara y que viera cuán brutal podía ser el racismo. Eso debe haber sido cuando tenía tal vez cuatro o cinco años cuando recuerdo que se sentaron, explicándome esta foto.</span></p>
+<p><span class="lang-en">My parents came from an age where you showed the children the ugliness and explained it to them. I could remember being afraid. I wasn't afraid of white people. I was afraid of racists."</span><span class="lang-es">Mis padres vinieron de una época en la que le mostraban a los niños la fealdad y se la explicaban. Recuerdo haber tenido miedo. No tenía miedo de los blancos. Tenía miedo de los racistas".</span></p>
+<h4><a class="participant-link" href="https://www.ourwayoflifearchive.com/s/stories/hsnj" rel="noopener" target="_blank"><img alt="HSNJ" class="participant-avatar" loading="lazy" src="https://www.ourwayoflifearchive.com/uploads/b/4d4f27a254ad409573c7c4eb443d718ebb65ef79eb130e662c91851895189621/jean%20baptiste_1626739279.jpg"/><span class="lang-en">HSNJ | Emmett Till</span><span class="lang-es">HSNJ | Emmett Till</span></a></h4>
+<p><span class="lang-en">"I was 13 years old, I read the story in the Chicago Defender. It was a Black newspaper. It was talked about all over the place. You could hear all the folks in the Black community talking about getting their guns and going down the Mississippi. I would hear my mother talking about it, my mother had a certain class understanding of racism. I can quote her saying, 'They get the Black folks and the White folks fighting each other, while the rich folks are laughing all the way to the bank.'"</span><span class="lang-es">"Tenía 13 años, leí la historia en el Chicago Defender. Era un periódico negro. Se hablaba de ello en todas partes. Podías escuchar a toda la gente de la comunidad negra hablando sobre conseguir sus armas e ir a Mississippi. Escuchaba a mi madre hablar de ello, mi madre tenía una cierta comprensión de clase sobre el racismo. Puedo citar sus palabras diciendo: 'Hacen que los negros y los blancos se peleen entre sí, mientras los ricos se ríen todo el camino hacia el banco'".</span></p>
+<div class="video-wrapper">
+<iframe allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen="" loading="lazy" src="https://www.youtube.com/embed/MGqqOMTreNA" title="Emmett Till - Legacy | American Freedom Stories | Biography | History"></iframe>
+</div></div>
+</div>
+</div>
+<!-- ENTRY 16 -->
+<div class="timeline-entry">
+<div class="dot"></div>
+<div class="timeline-date">1961</div>
+<div class="timeline-header" onclick="toggleEntry(this)">
+<h3 class="timeline-heading"><span class="lang-en">1961 The U.S. increases military in the Vietnam War</span><span class="lang-es">1961 Estados Unidos aumenta su presencia militar en la Guerra de Vietnam</span></h3>
+<span class="chevron"><svg viewbox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
+</div>
+<div class="timeline-content">
+<div class="card">
+<h4><a class="participant-link" href="https://www.ourwayoflifearchive.com/s/stories/hsnj" rel="noopener" target="_blank"><img alt="HSNJ" class="participant-avatar" loading="lazy" src="https://www.ourwayoflifearchive.com/uploads/b/4d4f27a254ad409573c7c4eb443d718ebb65ef79eb130e662c91851895189621/jean%20baptiste_1626739279.jpg"/><span class="lang-en">HSNJ | The Vietnam War</span><span class="lang-es">HSNJ | La Guerra de Vietnam</span></a></h4>
+<p><span class="lang-en">"There I was in Korea, standing up for democracy, peace, and freedom, and we didn't have it back home."</span><span class="lang-es">"Allí estaba yo en Corea, defendiendo la democracia, la paz y la libertad, y no la teníamos en casa".</span></p>
+<p><span class="lang-en">Here's the contradiction. There I was in Korea, standing up for democracy, peace, and freedom, and we didn't have it back home. It was a contradiction, I was embarrassed by that. I really was. There were pictures on television of Bull Connor spraying those kids with hoses down in Alabama. There were pictures of demonstrations and things that I thought— The four Black girls were blown up in a goddamn church in Birmingham, Alabama. I was born in Alabama.</span><span class="lang-es">Aquí está la contradicción. Allí estaba yo en Corea, defendiendo la democracia, la paz y la libertad, y no la teníamos en casa. Era una contradicción, me avergonzaba eso. De verdad que sí. Había fotos en la televisión de Bull Connor rociando a esos niños con mangueras en Alabama. Había fotos de manifestaciones y cosas que pensé— Las cuatro niñas negras fueron voladas en pedazos en una condenada iglesia en Birmingham, Alabama. Nací en Alabama.</span></p>
+<p><span class="lang-en">I was in the military for almost seven years, and during the mid-1960s, I was stationed at Fort Sheridan in Chicago, which is way on the North End. From there, I went up to Milwaukee, where this Catholic priest, Father John Groppi, organized a young antiracist group, the NAACP Youth Council. They were holding open housing marches. There used to be these restrictive covenants, like segregated neighborhoods were enforced, both legally and socially. This group was organizing against those segregated neighborhoods. I was able to participate in two of those marches. Being there just gave me a sense of commitment to fight against racism and for equality. It was in my personal interest, and I thought that it was wrong for people to be discriminated against based on their color and their history. I didn't believe in this. I bought into the idea that we're all created equal and that we're all endowed with certain unalienable rights. I believed that stuff, and so I tried to act on it.</span><span class="lang-es">Estuve en el ejército durante casi siete años, y a mediados de los años 60, estuve estacionado en Fort Sheridan en Chicago, que queda muy al norte. De allí, me fui a Milwaukee, donde un sacerdote católico, el Padre John Groppi, organizó un grupo joven antiracista, el Consejo de Jóvenes de la NAACP. Estaban organizando marchas por vivienda abierta. Solía haber estos pactos restrictivos, como barrios segregados que se hacían cumplir, tanto legal como socialmente. Este grupo estaba organizándose en contra de esos barrios segregados. Pude participar en dos de esas marchas. El estar allí simplemente me dio un sentido de compromiso para luchar contra el racismo y por la igualdad. Era de mi interés personal, y pensé que estaba mal que la gente fuera discriminada por su color e historia. No creía en esto. Acepté la idea de que todos somos creados iguales y que todos estamos dotados de ciertos derechos inalienables. Creía en eso, así que traté de actuar en consecuencia.</span></p>
+<h4><a class="participant-link" href="https://www.ourwayoflifearchive.com/s/stories/etny" rel="noopener" target="_blank"><img alt="ETNY" class="participant-avatar" loading="lazy" src="https://www.ourwayoflifearchive.com/uploads/b/4d4f27a254ad409573c7c4eb443d718ebb65ef79eb130e662c91851895189621/2021-07-19_19-55-12_1626738877.jpg"/><span class="lang-en">ETNY | The Vietnam War</span><span class="lang-es">ETNY | La Guerra de Vietnam</span></a></h4>
+<p><span class="lang-en">"I really didn't think about anything other than being a wife and a mother."</span><span class="lang-es">"Realmente no pensaba en nada más que en ser esposa y madre."</span></p>
+<p><span class="lang-en">When I was in my 20s I was thinking about getting married and having children, then my husband went straight to Vietnam after he graduated. As a naïve person at that time, I really didn't think about a lot of stuff for the future. A lot of things were happening back then that I really didn't think about anything other than being a wife and a mother. I loved Angela Davis at that time but I didn't think about being an activist then. It was a lot of things happening back in the '60s that I really didn't consider in my future. This African American woman (Angela Davis), she had this big afro and at that time, I had a big afro. I saw that she was free, but I guess it's cause I was the third child, I was sheltered. We worked at Rockefeller University as waitresses, my uncle was the chef at the University. After my husband came home from Vietnam, we got married and my sister got me a job with the Martin Luther King Health Center.</span><span class="lang-es">Cuando tenía 20 años estaba pensando en casarme y tener hijos, luego mi esposo se fue directamente a Vietnam después de graduarse. Como persona ingenua en ese momento, realmente no pensaba mucho en el futuro. Muchas cosas estaban sucediendo en ese entonces que realmente no pensaba en nada más que en ser esposa y madre. Me encantaba Angela Davis en ese momento pero no pensaba en ser activista entonces. Había muchas cosas sucediendo en los años 60 que realmente no consideré en mi futuro. Esta mujer afroamericana (Angela Davis), tenía este enorme afro y en ese momento, yo también tenía un afro grande. Vi que ella era libre, pero supongo que es porque era la tercera hija, estaba protegida. Trabajamos en la Universidad Rockefeller como meseras, mi tío era el chef de la Universidad. Después de que mi esposo regresó de Vietnam, nos casamos y mi hermana me consiguió un trabajo en el Centro de Salud Martin Luther King.</span></p>
+<h4><a class="participant-link" href="https://www.ourwayoflifearchive.com/s/stories/wpny" rel="noopener" target="_blank"><img alt="WPNY" class="participant-avatar" loading="lazy" src="https://www.ourwayoflifearchive.com/uploads/b/4d4f27a254ad409573c7c4eb443d718ebb65ef79eb130e662c91851895189621/2024-11-10_20-46-17_1731300393.jpg"/><span class="lang-en">WPNY | Alternative Schools</span><span class="lang-es">WPNY | Escuelas Alternativas</span></a></h4>
+<p><span class="lang-en">"They were not being accepted in white institutions."</span><span class="lang-es">"No eran aceptados en instituciones blancas."</span></p>
+<p><span class="lang-en">There is not much information on the alternative school movement of the 1960s. The participant below provides her own account of her involvement in this movement.</span><span class="lang-es">No hay mucha información sobre el movimiento de escuelas alternativas de los años 60. La participante a continuación proporciona su propio relato de su participación en este movimiento.</span></p>
+<p><span class="lang-en">That must have been the late 60s, early 70s, there were lots of independent, ethnic based schools around the United States. Native Americans developed their own schools. I'm not sure if in the Puerto Rican community. Mexicans developed their own schools. And we were part of that network of what they called independent freestanding schools. Many offered accreditations. We started out applying for accreditation, and we did get the certificate to function as an accrediting institution, but we decided just to be a community education program, not to worry about degrees.</span><span class="lang-es">Eso debe haber sido a finales de los 60, principios de los 70, había muchas escuelas independientes, basadas en etnias en todo Estados Unidos. Los nativos americanos desarrollaron sus propias escuelas. No estoy segura si en la comunidad puertorriqueña. Los mexicanos desarrollaron sus propias escuelas. Y éramos parte de esa red de lo que llamaban escuelas independientes autónomas. Muchas ofrecían acreditaciones. Comenzamos solicitando acreditación, e hicimos obtener el certificado para funcionar como institución acreditadora, pero decidimos ser simplemente un programa de educación comunitaria, sin preocuparnos por grados.</span></p>
+<p><span class="lang-en">They're now structured. But they started out as alternative schools. The thing was to get people of color into educational programs, because they were not being accepted in white institutions. At that point, they were not being accepted, and many did not have the adequate background, say, to compete in a traditional B.A. program. So many of the other school in the network developed their curriculum, and we developed our curriculum also. Once they were accredited there was no need to go to a traditional program. There was a whole network of alternative educational programs, like Boricua College which still exists.</span><span class="lang-es">Ahora están estructuradas. Pero comenzaron como escuelas alternativas. La cuestión era meter a personas de color en programas educativos, porque no eran aceptados en instituciones blancas. En ese momento, no eran aceptados, y muchos no tenían el trasfondo adecuado, digamos, para competir en un programa tradicional de B.A. Entonces muchas de las otras escuelas en la red desarrollaron su currículo, y nosotros también desarrollamos nuestro currículo. Una vez que fueron acreditadas, no había necesidad de ir a un programa tradicional. Había toda una red de programas educativos alternativos, como Boricua College que todavía existe.</span></p>
+<p style="font-size:0.85rem; font-style:italic; color:#8b7355; line-height:1.5; margin-top:0.3rem;"><span class="lang-en">Clip is from the Documentary "No Vietnamese ever called me n*****" (1968). Filmed at an anti-war march from Harlem to the United Nations in 1967 on the occasion of Martin Luther King's speech at the U.N in which he questioned the disproportionate percentage of Black soldiers in combat in Vietnam.<br/><br/>In U.S. military advisers, present in small numbers throughout the 1950s, were introduced on a large scale beginning in 1961</span><span class="lang-es">El clip es del documental "No Vietnamese ever called me n*****" (1968). Filmado en una marcha contra la guerra de Harlem a las Naciones Unidas en 1967 con motivo del discurso de Martin Luther King en la ONU en el que cuestionaba el porcentaje desproporcionado de soldados negros en combate en Vietnam.<br/><br/>Los asesores militares estadounidenses, presentes en pequeños números durante los años 50, fueron introducidos a gran escala a partir de 1961.</span></p>
+<div class="video-wrapper">
+<iframe allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen="" loading="lazy" src="https://www.youtube.com/embed/zu9009glvCA" title="No Vietnamese Ever Called Me N*****"></iframe>
+</div></div>
+</div>
+</div>
+<!-- ENTRY 17 -->
+<div class="timeline-entry">
+<div class="dot"></div>
+<div class="timeline-date">1964</div>
+<div class="timeline-header" onclick="toggleEntry(this)">
+<h3 class="timeline-heading"><span class="lang-en">1964 Malcolm X — 'The Ballot or the Bullet'</span><span class="lang-es">1964 Malcolm X — 'La Papeleta o la Bala'</span></h3>
+<span class="chevron"><svg viewbox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
+</div>
+<div class="timeline-content">
+<div class="card">
+<p><span class="lang-en">On April 12, 1964, one month after splitting with the NOI, Malcolm X gave his "Ballot or the Bullet" speech at King Solomon Baptist Church in Detroit.</span><span class="lang-es">El 12 de abril de 1964, un mes después de separarse de la NOI, Malcolm X pronunció su discurso "Urna o Bala" en la Iglesia Bautista King Solomon en Detroit.</span></p>
+<h4><a class="participant-link" href="https://www.ourwayoflifearchive.com/s/stories/mlnj" rel="noopener" target="_blank"><img alt="MLNJ" class="participant-avatar" loading="lazy" src="https://www.ourwayoflifearchive.com/uploads/b/4d4f27a254ad409573c7c4eb443d718ebb65ef79eb130e662c91851895189621/2021-05-10_11-27-04_1620660411.png"/><span class="lang-en">MLNJ | Malcolm X</span><span class="lang-es">MLNJ | Malcolm X</span></a></h4>
+<p><span class="lang-en">"They taught you how to live in a racist society"</span><span class="lang-es">"Te enseñaron cómo vivir en una sociedad racista"</span></p>
+<p><span class="lang-en">My family, they were so excited about hearing Malcolm X speak. We would go to my aunt's on Sunday to see him speak on TV, they loved Malcolm X. I saw him being assassinated on TV. I don't know if you've heard of Ossie Davis, very famous actor. He gave the eulogy at Malcolm X's funeral. I showed the film of Malcolm X, where he delivered that eulogy.</span><span class="lang-es">Mi familia estaba muy emocionada por escuchar hablar a Malcolm X. Íbamos a casa de mi tía los domingos para verlo hablar por televisión, les encantaba Malcolm X. Lo vi siendo asesinado por televisión. No sé si has oído hablar de Ossie Davis, un actor muy famoso. Dio el panegírico en el funeral de Malcolm X. Mostré la película de Malcolm X, donde pronunció ese panegírico.</span></p>
+<p><span class="lang-en">I knew Malcom X's wife, Dr. Betty Shabazz, she lived in Mount Vernon and went to the same hairdresser I went to. We went on the National Black Holistic Retreats at King's Lodge. A group of 12 African-American men started it, during a time where Black people could not go to any resort or lodge for vacations or anything. We would go there to hear famous speakers and do yoga in the morning that was afro-centric. These retreats were only available in two places where Blacks could go to have a good time. They had workshops on relationships, healthy eating, healthy living, things about racism like maybe how you have to combat racism as a person, as a couple, if you're a parent.</span><span class="lang-es">Conocía a la esposa de Malcolm X, Dra. Betty Shabazz, vivía en Mount Vernon e iba a la misma peluquería que yo. Asistimos a los Retiros Holísticos Negros Nacionales en King's Lodge. Un grupo de 12 hombres afroamericanos lo iniciaron, en una época en la que los negros no podían ir a ningún resort o lodge para vacaciones o nada. Íbamos allí para escuchar a oradores famosos y hacer yoga por la mañana que era afrocéntrico. Estos retiros solo estaban disponibles en dos lugares donde los negros podían ir a pasarlo bien. Tenían talleres sobre relaciones, alimentación saludable, vida saludable, cosas sobre el racismo como quizás cómo tienes que combatir el racismo como persona, como pareja, si eres padre.</span></p>
+<p><span class="lang-en">They used to have discussion on the killings and the things we see now that are not new. Like, what you do if the police stopped you. They would tell you, "You don't move your hand. And they always want to say you're reaching for a gun." It's called the black book, and this lady came up to speak, she had done the black book. Things like this. Black boys are usually the ones that are threatened, so they would speak about the Black Whooping and what to do if the police stopped you. They taught you how to live in a racist society and how to cope as a Black person in America. You got so much out of it, you felt so much pride after going to them. It was a safe place to go.</span><span class="lang-es">Solían tener discusiones sobre los asesinatos y las cosas que vemos ahora que no son nuevas. Como, qué haces si la policía te detiene. Te dirían, "No muevas tu mano. Y siempre quieren decir que estás buscando un arma". Se llama el libro negro, y esta señora vino a hablar, ella había hecho el libro negro. Cosas como estas. Los chicos negros generalmente son los que están amenazados, así que hablaban sobre los Azotes Negros y qué hacer si la policía te detiene. Te enseñaban cómo vivir en una sociedad racista y cómo sobrellevar como persona negra en América. Sacabas mucho de ello, te sentías tan orgulloso después de asistir a ellos. Era un lugar seguro para ir.</span></p><div class="video-wrapper">
+<iframe allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen="" loading="lazy" src="https://www.youtube.com/embed/8zLQLUpNGsc" title="Malcolm X - The Ballot or the Bullet"></iframe>
+</div></div>
+</div>
+</div>
+<!-- ENTRY 18 -->
+<div class="timeline-entry">
+<div class="dot"></div>
+<div class="timeline-date">1966</div>
+<div class="timeline-header" onclick="toggleEntry(this)">
+<h3 class="timeline-heading"><span class="lang-en">1966 Kwanzaa is Founded</span><span class="lang-es">1966 Se funda Kwanzaa</span></h3>
+<span class="chevron"><svg viewbox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
+</div>
+<div class="timeline-content">
+<div class="card">
+<p><span class="lang-en">Kwanzaa annual holiday, affirming African-American and social values that is celebrated primarily in the United States from December 26 to January 1 both the name and the celebration were devised in 1966 by Maulana Karenga, a professor of Africana studies at California State University in Long Beach and an important figure in Afrocentrism.</span><span class="lang-es">Kwanzaa es un día festivo anual que afirma los valores afroamericanos y sociales que se celebra principalmente en los Estados Unidos del 26 de diciembre al 1 de enero, tanto el nombre como la celebración fueron creados en 1966 por Maulana Karenga, profesor de estudios africanos en la Universidad Estatal de California en Long Beach y una figura importante en el afrocentrismo.</span></p>
+<h4><a class="participant-link" href="https://www.ourwayoflifearchive.com/s/stories/mlnj6" rel="noopener" target="_blank"><img alt="MLNJ6" class="participant-avatar" loading="lazy" src="https://www.ourwayoflifearchive.com/uploads/b/4d4f27a254ad409573c7c4eb443d718ebb65ef79eb130e662c91851895189621/2021-05-10_11-27-04_1620660411.png"/><span class="lang-en">MLNJ6 | Kwanzaa is Founded</span><span class="lang-es">MLNJ6 | Se Funda Kwanzaa</span></a></h4>
+<p><span class="lang-en">"We all have to be united to come together to do anything."</span><span class="lang-es">"Todos tenemos que estar unidos para reunirnos y hacer algo".</span></p>
+<p><span class="lang-en">Kwanzaa is seven days, people have said you can take each principle and let that highlight your day, and that is so true. The founder, Dr. Maulana Karenga who founded Kwanzaa in 1966, he would come up here every year from California. The 55th Kwanzaa is coming up in December 26 through January 1st and each day has a significance.</span><span class="lang-es">Kwanzaa tiene siete días, la gente ha dicho que puedes tomar cada principio y dejar que destaque tu día, y eso es muy cierto. El fundador, Dr. Maulana Karenga, quien fundó Kwanzaa en 1966, vendría aquí cada año desde California. El 55 Kwanzaa que se aproxima será del 26 de diciembre al 1 de enero y cada día tiene un significado.</span></p>
+<p><span class="lang-en">The first day starts with Sunday, Umoja, unity "What can I do today to think more of unity in my family, in my community?" It makes you more aware. To be asking, they say, is to be conscious. You have to know what's going on, and to be aware of what's happening, and to be aware of doing better. We all have to be united to come together to do anything. It's taken from the harvest festivals in Africa.</span><span class="lang-es">El primer día comienza con el domingo, Umoja, unidad "¿Qué puedo hacer hoy para pensar más en la unidad en mi familia, en mi comunidad?" Te hace más consciente. Para preguntar, dicen, es ser consciente. Tienes que saber qué está pasando, y ser consciente de lo que está sucediendo, y ser consciente de hacerlo mejor. Todos tenemos que estar unidos para reunirnos y hacer algo. Se toma de los festivales de cosecha en África.</span></p>
+<p><span class="lang-en">Kuumba, another of the Kwanzaa principles, means creativity, and to always do as much as we can in the way we can, in order to leave our community more beautiful and beneficial than we inherited it. I feel like this is part of civic participation, we want things to be better because of what work we're doing. The volunteer work, whatever works to make it better than we inherited it.</span><span class="lang-es">Kuumba, otro de los principios de Kwanzaa, significa creatividad, y siempre hacer todo lo que podamos de la manera que podamos, para dejar nuestra comunidad más bella y beneficiosa de lo que la heredamos. Siento que esto es parte de la participación cívica, queremos que las cosas sean mejores por el trabajo que estamos haciendo. El trabajo voluntario, lo que sea que funcione para hacerlo mejor de lo que lo heredamos.</span></p><div class="video-wrapper">
+<iframe allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen="" loading="lazy" src="https://www.youtube.com/embed/soDTe6RO7Y8" title="Unpacking the Future of Kwanzaa in the Black Community"></iframe>
+</div></div>
+</div>
+</div>
+<!-- ENTRY 19 -->
+<div class="timeline-entry">
+<div class="dot"></div>
+<div class="timeline-date">1966 &amp; 1968</div>
+<div class="timeline-header" onclick="toggleEntry(this)">
+<h3 class="timeline-heading"><span class="lang-en">The Black Panthers &amp; The Young Lords</span><span class="lang-es">Los Panteras Negras y Los Young Lords</span></h3>
+<span class="chevron"><svg viewbox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
+</div>
+<div class="timeline-content">
+<div class="card">
+<p><span class="lang-en">"...the Black Panther Party created what they called "community survival programs" was by occupying abandoned or dilapidated buildings in poor areas and remodeling the structures into child care or resource distribution centers…</span><span class="lang-es">"...el Partido de las Panteras Negras creó lo que llamaban 'programas de supervivencia comunitaria' fue ocupando edificios abandonados o deteriorados en áreas pobres y remodelando las estructuras en centros de cuidado infantil o distribución de recursos…</span></p>
+<p><span class="lang-en">Using the model of the Black Panther Party, the Young Lords, a Puerto Rican civil rights and community organization founded in September 1968, prioritized change in their local communities "through 'serve the people' programs."</span><span class="lang-es">Utilizando el modelo del Partido de las Panteras Negras, los Young Lords, una organización de derechos civiles y comunitarios puertorriqueña fundada en septiembre de 1968, priorizaron el cambio en sus comunidades locales "a través de programas de 'servir al pueblo'".</span></p>
+<p><span class="lang-en"><a href="https://digitalchicagohistory.org/exhibits/show/young-lords/young-lords-and-black-panthers" rel="noopener" target="_blank">Young Lords and Black Panthers — Digital Chicago History</a></span><span class="lang-es"><a href="https://digitalchicagohistory.org/exhibits/show/young-lords/young-lords-and-black-panthers" rel="noopener" target="_blank">Young Lords y Black Panthers — Digital Chicago History</a></span></p><div class="video-wrapper">
+<iframe allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen="" loading="lazy" src="https://www.youtube.com/embed/9B5413gggl8" title="The Young Lords"></iframe>
+</div><div class="video-wrapper">
+<iframe allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen="" loading="lazy" src="https://www.youtube.com/embed/4e7gm5JZc9M" title="What You Don't Know About The Black Panthers | AJ+"></iframe>
+</div></div>
+</div>
+</div>
+<!-- ENTRY 20 -->
+<div class="timeline-entry">
+<div class="dot"></div>
+<div class="timeline-date">1967</div>
+<div class="timeline-header" onclick="toggleEntry(this)">
+<h3 class="timeline-heading"><span class="lang-en">1967 Adam Clayton Powell 'What's In Your Hand' Speech</span><span class="lang-es">1967 Discurso de Adam Clayton Powell 'Lo que tienes en tu mano'</span></h3>
+<span class="chevron"><svg viewbox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
+</div>
+<div class="timeline-content">
+<div class="card">
+<p><span class="lang-en">Adam Clayton Powell Junior (November 29, 1908 - April 4, 1972) was an American Baptist pastor and politician who represented the Harlem Neighbourhood of New York City in the United States House of Representatives from 1943 until 1971.</span><span class="lang-es">Adam Clayton Powell Junior (29 de noviembre de 1908 - 4 de abril de 1972) fue un pastor bautista estadounidense y político que representó el barrio de Harlem en la ciudad de Nueva York en la Cámara de Representantes de los Estados Unidos desde 1943 hasta 1971.</span></p>
+<h4><a class="participant-link" href="https://www.ourwayoflifearchive.com/s/stories/mlnj" rel="noopener" target="_blank"><img alt="MLNJ" class="participant-avatar" loading="lazy" src="https://www.ourwayoflifearchive.com/uploads/b/4d4f27a254ad409573c7c4eb443d718ebb65ef79eb130e662c91851895189621/2021-05-10_11-27-04_1620660411.png"/><span class="lang-en">MLNJ | Adam Clayton Powell</span><span class="lang-es">MLNJ | Adam Clayton Powell</span></a></h4>
+<p><span class="lang-en">Adam Clayton Powell was so big, because he said, "Work where you buy." We couldn't get jobs in none of those stores. This was in the '60s. I'm not talking about olden history. We could spend our money, but you couldn't go in and try on anything. You could go in and buy it. They wanted you in and out of those stores. Adam Clayton Powell talked about what's in your hand. What's in your hand? There's something in your hand that you can work with or do or give or share. When you have something going on for you, what's in your hand. That's a very famous speech. He was a famous African American civil rights leader in Harlem, became a congressman. He says don't shop where you can't work. We couldn't work in any of those stores. None of them would hire us to work. He's the one who fought to change legislation.</span><span class="lang-es">Adam Clayton Powell era tan importante porque dijo, "Trabaja donde compras". No podíamos conseguir empleos en ninguna de esas tiendas. Esto fue en los años 60. No estoy hablando de la historia antigua. Podíamos gastar nuestro dinero, pero no podías entrar e intentar nada. Podías entrar y comprarlo. Querían que entraras y salieras de esas tiendas. Adam Clayton Powell hablaba de lo que tienes en la mano. ¿Qué tienes en la mano? Hay algo en tu mano con lo que puedes trabajar, hacer, dar o compartir. Cuando tienes algo a tu favor, lo que tienes en la mano. Ese es un discurso muy famoso. Fue un famoso líder de derechos civiles afroamericano en Harlem, se convirtió en congresista. Dice no compres donde no puedas trabajar. No podíamos trabajar en ninguna de esas tiendas. Ninguna de ellas nos contrataría para trabajar. Él fue quien luchó para cambiar la legislación.</span></p>
+<p><span class="lang-en">This is why I work with young people because they don't feel they're somebody. They don't know who they are. You have to know who you are, and from where you came. This helps you to know where you're going. People talk about today, "Oh Black Lives Matter. Every life matters." Sure it does, but we haven't-- That's why so many people have so much low self-esteem. My parents talked about it. It's not that long ago that Black people weren't allowed to eat in White Castle and other restaurants. People would go in, sit at the counter and be arrested. I saw them sitting at the counter in White Castle. We were parked across the street. I saw them being arrested.</span><span class="lang-es">Por eso trabajo con jóvenes porque no sienten que sean alguien. No saben quiénes son. Tienes que saber quién eres y de dónde viniste. Esto te ayuda a saber hacia dónde vas. La gente habla hoy, "Oh, Las Vidas Negras Importan. Cada vida importa". Claro que sí, pero no hemos-- Por eso muchas personas tienen tanta baja autoestima. Mis padres hablaban de eso. No hace mucho tiempo que las personas negras no podían comer en White Castle y otros restaurantes. La gente entraría, se sentaría en el mostrador y sería arrestada. Los vi sentados en el mostrador de White Castle. Estábamos estacionados al otro lado de la calle. Los vi siendo arrestados.</span></p><div class="video-wrapper">
+<iframe allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen="" loading="lazy" src="https://www.youtube.com/embed/fkpHpkZ_Udw" title="WHAT'S IN YOUR HAND--Classic Adam Clayton Powell, Jr."></iframe>
+</div></div>
+</div>
+</div>
+<!-- ENTRY 21 -->
+<div class="timeline-entry">
+<div class="dot"></div>
+<div class="timeline-date">1969</div>
+<div class="timeline-header" onclick="toggleEntry(this)">
+<h3 class="timeline-heading"><span class="lang-en">1969 Stonewall Riots</span><span class="lang-es">1969 Disturbios de Stonewall</span></h3>
+<span class="chevron"><svg viewbox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
+</div>
+<div class="timeline-content">
+<div class="card">
+<p><span class="lang-en">Fifty years on from the landmark Stonewall riots, the circumstances for NYC's LGBT+ culture have changed exponentially. i-D celebrates the freedom given to today's young LGBT+ population as a result of the previous generation's fight.</span><span class="lang-es">Cincuenta años después de los históricos disturbios de Stonewall, las circunstancias para la cultura LGBT+ de Nueva York han cambiado exponencialmente. i-D celebra la libertad otorgada a la población LGBT+ joven de hoy como resultado de la lucha de la generación anterior.</span></p>
+<h4><a class="participant-link" href="https://www.ourwayoflifearchive.com/s/stories/rbny7" rel="noopener" target="_blank"><img alt="RBNY7" class="participant-avatar" loading="lazy" src="https://www.ourwayoflifearchive.com/uploads/b/4d4f27a254ad409573c7c4eb443d718ebb65ef79eb130e662c91851895189621/2024-11-10_20-52-31_1731300819.jpg"/><span class="lang-en">RBNY7 | Stonewall Riots</span><span class="lang-es">RBNY7 | Disturbios de Stonewall</span></a></h4>
+<p><span class="lang-en">"Stonewall had happened just two years before here in New York City."</span><span class="lang-es">"Stonewall había ocurrido hace apenas dos años aquí en la ciudad de Nueva York".</span></p>
+<p><span class="lang-en">I was president of the Gay Liberation Front. We applied for funding and space in the student funded student union, and we were denied. William Kunstler, a famous civil rights lawyer, represented us. We lost the case, so we changed tactics. We formed a speaker's Bureau that did teaching at various schools and universities around the state...And I wrote an op-ed in Newsweek and in the student newspaper. And I listed all of the groups that got funding. I ended my statements with, "The only reason we didn't get funding was because we were queer." I embarrassed the university and we got funding and space the very next year. My mother said, "Stand up for what you believe." And I did, because I said, "I had put up with this shit as a kid, hiding this all the time."</span><span class="lang-es">Yo era presidente del Frente de Liberación Gay. Solicitamos financiamiento y espacio en la unión estudiantil financiada por estudiantes, y nos lo negaron. William Kunstler, un famoso abogado de derechos civiles, nos representó. Perdimos el caso, así que cambiamos tácticas. Formamos una Oficina de Oradores que daba charlas en varias escuelas y universidades en todo el estado... Y escribí un artículo de opinión en Newsweek y en el periódico estudiantil. Y enumeré todos los grupos que recibieron financiamiento. Terminé mis declaraciones con, "La única razón por la que no obtuvimos financiamiento fue porque somos queer". Avergoncé a la universidad y obtuvimos financiamiento y espacio al año siguiente. Mi madre dijo, "Defiende en lo que crees". Y lo hice, porque dije, "He aguantado esta mierda de niño, escondiendo esto todo el tiempo".</span></p>
+<p><span class="lang-en">Stonewall had happened just two years before here in New York City. So that was my impetus. I said, "Hey, if they can do that in New York, but I'm here and this is affecting me. I'm going to do something." And I did it in Kansas in 1971. I was 19 years old and we sued the university for funding and space. This was something that we didn't have before, but I had been bullied, and not being able to be myself, and I was not going to stand for that anymore.</span><span class="lang-es">Stonewall había ocurrido hace apenas dos años aquí en la ciudad de Nueva York. Así que eso fue mi impulso. Dije, "Oye, si pueden hacer eso en Nueva York, pero estoy aquí y esto me afecta. Voy a hacer algo". Y lo hice en Kansas en 1971. Tenía 19 años y demandamos a la universidad por financiamiento y espacio. Esto era algo que no teníamos antes, pero había sido intimidado y no poder ser yo mismo, y no iba a tolerar eso nunca más.</span></p>
+<p><span class="lang-en">The people who were responsible for Stonewall happening were young, queer, trans people who could not go anywhere else. They were not allowed in the other white bars all over town, so the Stonewall was the only place that they could go. The mafia ran it and they were taking advantage of them, and the police would come every now and then do raids, shakeups, and that sort of thing. Until one night, these children, literally children, runaway youth, some of them, were just fed up with the police coming and bullying them, and they decided to fight back because they had nothing else to lose. That's what it was. They had nothing else to lose and said, "We're not going to put up with this." So they fought back.</span><span class="lang-es">Las personas responsables de que sucediera Stonewall eran jóvenes, personas queer y trans que no podían ir a ningún otro lado. No se les permitía entrar en los otros bares blancos por toda la ciudad, así que Stonewall era el único lugar al que podían ir. La mafia lo dirigía y estaban aprovechándose de ellos, y la policía vendría de vez en cuando a hacer redadas, allanamientos, ese tipo de cosas. Hasta que una noche, estos niños, literalmente niños, algunos de ellos jóvenes fugitivos, simplemente estaban hartos de que la policía viniera y los intimidara, y decidieron luchar porque no tenían nada que perder. Eso fue. No tenían nada que perder y dijeron, "No vamos a tolerar esto". Así que lucharon.</span></p><div class="video-wrapper">
+<iframe allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen="" loading="lazy" src="https://www.youtube.com/embed/zHK2WwINSic" title="The True Story Behind The Stonewall Riots | i-D"></iframe>
+</div></div>
+</div>
+</div>
+<!-- ENTRY 22 -->
+<div class="timeline-entry">
+<div class="dot"></div>
+<div class="timeline-date">1970</div>
+<div class="timeline-header" onclick="toggleEntry(this)">
+<h3 class="timeline-heading"><span class="lang-en">1970 Christopher Street Liberation Day</span><span class="lang-es">1970 Día de la Liberación de Christopher Street</span></h3>
+<span class="chevron"><svg viewbox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
+</div>
+<div class="timeline-content">
+<div class="card">
+<p><span class="lang-en">On Sunday, June 28, 1970, queer activists in New York City held the first pride celebration to honor and remember the events of Stonewall.</span><span class="lang-es">El domingo, 28 de junio de 1970, activistas queer en la ciudad de Nueva York celebraron la primera celebración del orgullo para honrar y recordar los eventos de Stonewall.</span></p>
+<p><span class="lang-en">"Circle of Life Celebration &amp; Pride Memorial honors and acknowledges the older members of the LGBTQ community, including, as they say, 'elders, ancestors and allies of color,' to ensure that their lives and works are commemorated."</span><span class="lang-es">"Circle of Life Celebration &amp; Pride Memorial honra y reconoce a los miembros mayores de la comunidad LGBTQ, incluyendo, como dicen, 'ancianos, antepasados y aliados de color', para garantizar que sus vidas y obras sean conmemoradas".</span></p>
+<div class="video-wrapper">
+<iframe allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen="" loading="lazy" src="https://www.youtube.com/embed/zpwKozB7SFA" title="Circle of Life &amp; Pride Memorial is Honoring Its Elders | BK Live"></iframe>
+</div></div>
+</div>
+</div>
+<!-- ENTRY 23 -->
+<div class="timeline-entry">
+<div class="dot"></div>
+<div class="timeline-date">1982</div>
+<div class="timeline-header" onclick="toggleEntry(this)">
+<h3 class="timeline-heading"><span class="lang-en">1982 HIV/AIDS Epidemic</span><span class="lang-es">Epidemia de VIH/SIDA de 1982</span></h3>
+<span class="chevron"><svg viewbox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
+</div>
+<div class="timeline-content">
+<div class="card">
+<p><span class="lang-en">While sporadic cases of AIDS were documented prior to 1970, available data suggests that the current epidemic started in the mid-to-late 1970s. By 1980, HIV may have already spread to five continents (North America, South America, Europe, Africa, and Australia). In this period, between 100,000 and 300,000 people could have already been infected.</span><span class="lang-es">Aunque se documentaron casos esporádicos de SIDA antes de 1970, los datos disponibles sugieren que la epidemia actual comenzó a mediados o finales de los años 70. Para 1980, el VIH ya podría haberse propagado a cinco continentes (América del Norte, América del Sur, Europa, África y Australia). En este período, entre 100,000 y 300,000 personas podrían haber estado ya infectadas.</span></p>
+<h4><a class="participant-link" href="https://www.ourwayoflifearchive.com/s/stories/emnj" rel="noopener" target="_blank"><img alt="EMNJ" class="participant-avatar" loading="lazy" src="https://www.ourwayoflifearchive.com/uploads/b/4d4f27a254ad409573c7c4eb443d718ebb65ef79eb130e662c91851895189621/2021-05-10_12-06-35_1620662777.jpg"/><span class="lang-en">EMNJ | HIV AIDS Epidemic</span><span class="lang-es">EMNJ | Epidemia de VIH SIDA</span></a></h4>
+<p><span class="lang-en">"But once I found out there was a program..."</span><span class="lang-es">"Pero una vez que descubrí que había un programa..."</span></p>
+<p><span class="lang-en">"Back then I didn't know I had HIV, which I did. I got it before, when the fire happened, when I was two years old. I found out like five years ago that it was through a blood transfusion. Then when I found out I really stayed away from people. I would be scared to talk to people, because you don't want to tell everybody your business. We don't tell everybody. I stigmatized myself, but once I found out there was a program, that's where I made more friends."</span><span class="lang-es">"En ese entonces no sabía que tenía VIH, pero sí lo tenía. Lo contraí antes, cuando pasó el incendio, cuando tenía dos años. Me enteré hace cinco años que fue por una transfusión de sangre. Entonces cuando me enteré, realmente me alejé de la gente. Me daba miedo hablar con la gente, porque no quieres contarle tu vida a todo el mundo. No le contamos a todo el mundo. Me estigmaticé a mí misma, pero una vez que descubrí que había un programa, ahí fue donde hice más amigos."</span></p>
+<h4><a class="participant-link" href="https://www.ourwayoflifearchive.com/s/stories/lrnj" rel="noopener" target="_blank"><img alt="LRNJ" class="participant-avatar" loading="lazy" src="https://images.unsplash.com/photo-1615897570582-285ffe259530?crop=entropy&amp;cs=tinysrgb&amp;fit=max&amp;fm=jpg&amp;ixid=Mnw0NjE4NHwwfDF8c2VhcmNofDJ8fGZvb2QlMjBwYW50cnl8ZW58MHx8fHwxNjI2NzQwNjUx&amp;ixlib=rb-1.2.1&amp;q=80&amp;w=1080"/><span class="lang-en">LRNJ | HIV/AIDS</span><span class="lang-es">LRNJ | VIH/SIDA</span></a></h4>
+<p><span class="lang-en">"I lost nine people..."</span><span class="lang-es">"Perdí a nueve personas..."</span></p>
+<p><span class="lang-en">When the AIDS epidemic came, there was no cure and it was very fast, happened very fast. I lost nine people that worked for me. They were my friends. It happened very fast back in the late 80s, early 90s. '93, '94, '95. We were faced with a lot of pain because not only I'm losing employees, but I'm losing my friends. They were my friends because there were a group of people that we got along, we had a great time, they were artists, they were good people, they didn't hurt nobody, and unfortunately this happened so fast that it took their life, there was no solution for it right away. Through a lot of stuff that I did in my salon I'd contribute to the AIDS society. We did events and I provided a lot to them, taking care of them physically. Taking them to my house and provided for them so they felt secure.</span><span class="lang-es">Cuando llegó la epidemia del SIDA, no había cura y fue muy rápido, pasó muy rápido. Perdí a nueve personas que trabajaban para mí. Eran mis amigos. Pasó muy rápido a finales de los 80, principios de los 90. '93, '94, '95. Enfrentamos mucho dolor porque no solo estaba perdiendo empleados, sino que estaba perdiendo mis amigos. Eran mis amigos porque eran un grupo de personas con las que nos llevábamos bien, nos lo pasábamos genial, eran artistas, eran buenas personas, no le hacían daño a nadie, y desafortunadamente pasó tan rápido que se llevó sus vidas, no había solución inmediata para ello. A través de muchas cosas que hice en mi salón contribuí a la sociedad del SIDA. Hicimos eventos y les proporcioné mucho, cuidándolos físicamente. Los llevaba a mi casa y les proveía para que se sintieran seguros.</span></p>
+<h4><a class="participant-link" href="https://www.ourwayoflifearchive.com/s/stories/rbny" rel="noopener" target="_blank"><img alt="RBNY" class="participant-avatar" loading="lazy" src="https://www.ourwayoflifearchive.com/uploads/b/4d4f27a254ad409573c7c4eb443d718ebb65ef79eb130e662c91851895189621/2024-11-10_20-52-31_1731300819.jpg"/><span class="lang-en">RBNY | HIV/AIDS</span><span class="lang-es">RBNY | VIH/SIDA</span></a></h4>
+<p><span class="lang-en">"It Doesn't Have to be That Way"</span><span class="lang-es">"No Tiene que Ser Así"</span></p>
+<p><span class="lang-en">On August 15, 1986, thirty four years ago, I was told to get my affairs in order because I would be dead in two years. I was 34 when I was diagnosed with HIV+. At that time death from HIV was almost certain. The doctor cautioned me to be careful around my nieces, aged 1 and 2. What the flip did that mean? Don't touch them. Don't be in the same room? I got this diagnosis while visiting my parents in Kansas City, KS. I had been living and performing around Europe since 1980. I was living in Athens, Greece when I visited my parents. There was no support system at that time. I returned to perform in Athens until 1990.</span><span class="lang-es">El 15 de agosto de 1986, hace treinta y cuatro años, me dijeron que pusiera mis asuntos en orden porque estaría muerto en dos años. Tenía 34 años cuando me diagnosticaron VIH+. En ese momento, la muerte por VIH era casi segura. El doctor me advirtió que tuviera cuidado alrededor de mis sobrinas, de 1 y 2 años de edad. ¿Qué diablos significaba eso? No las toques. ¿No estar en la misma habitación? Recibí este diagnóstico mientras visitaba a mis padres en Kansas City, KS. Había estado viviendo y actuando por toda Europa desde 1980. Estaba viviendo en Atenas, Grecia cuando visité a mis padres. No había sistema de apoyo en ese momento. Volví a actuar en Atenas hasta 1990.</span></p>
+<p><span class="lang-en">I have been HIV+ for half of my 68 years. I have been unable to transmit HIV for 17 of those years. I have had no AIDS related illnesses during this time. Scripture says that things that are meant to be bad or defeat me, Creator can turn to good. It was/is my spirituality that gives me clarity and grounds me when shit happens.</span><span class="lang-es">He tenido VIH+ durante la mitad de mis 68 años. No he podido transmitir el VIH durante 17 de esos años. No he tenido enfermedades relacionadas con el SIDA durante este tiempo. La Escritura dice que las cosas que están destinadas a serme malas o a derrotarme, el Creador puede convertirlas en bien. Fue y es mi espiritualidad la que me da claridad y me ancla cuando la mierda sucede.</span></p>
+<p><span class="lang-en">This just focused me in a way that, okay, I know that death inevitable, so now let me make sure that I do as much as I can with the time that I have here. That's why I'm here, and every chance I get, as I'm doing now, I'm telling my story.</span><span class="lang-es">Esto simplemente me enfocó de una manera que, bueno, sé que la muerte es inevitable, así que ahora déjame asegurarme de hacer todo lo que pueda con el tiempo que tengo aquí. Por eso estoy aquí, y cada vez que tengo la oportunidad, como estoy haciendo ahora, estoy contando mi historia.</span></p>
+<p><span class="lang-en">This is not an accident. This is all part of the divine plan for my life. It's the three of us working together, you can't beat us. My mother, spirit, and myself, you can't beat us, and I love my life. I am living my life like it is golden because my life IS golden.</span><span class="lang-es">Esto no es un accidente. Todo esto es parte del plan divino para mi vida. Somos los tres trabajando juntos, no pueden vencernos. Mi madre, el espíritu, y yo, no pueden vencernos, y amo mi vida. Estoy viviendo mi vida como si fuera oro porque mi vida ES oro.</span></p><div class="video-wrapper">
+<iframe allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen="" loading="lazy" src="https://www.youtube.com/embed/ETsCtPDMzoA" title="HIV survivors reflect on 40 years of AIDS epidemic l ABC News"></iframe>
+</div></div>
+</div>
+</div>
+<!-- ENTRY 24 -->
+<div class="timeline-entry">
+<div class="dot"></div>
+<div class="timeline-date">1986</div>
+<div class="timeline-header" onclick="toggleEntry(this)">
+<h3 class="timeline-heading"><span class="lang-en">1986 Reagan signs the Immigration Reform and Control Act</span><span class="lang-es">1986 Reagan firma la Ley de Reforma y Control de Inmigración</span></h3>
+<span class="chevron"><svg viewbox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
+</div>
+<div class="timeline-content">
+<div class="card">
+<p><span class="lang-en">1988 - undocumented immigrants in the United States rush to beat the filing deadline to register for an amnesty program established by the administration of President Ronald Reagan</span><span class="lang-es">1988 - inmigrantes indocumentados en Estados Unidos se apresuran a cumplir con la fecha límite de registro para un programa de amnistía establecido por la administración del presidente Ronald Reagan</span></p>
+<h4><a class="participant-link" href="https://www.ourwayoflifearchive.com/s/stories/ncnj" rel="noopener" target="_blank"><img alt="NCNJ" class="participant-avatar" loading="lazy" src="https://www.ourwayoflifearchive.com/uploads/b/4d4f27a254ad409573c7c4eb443d718ebb65ef79eb130e662c91851895189621/Resized_Resized_20210308_132735003001_1620660343.jpg"/><span class="lang-en">NCNJ | Immigration Reform</span><span class="lang-es">NCNJ | Reforma Migratoria</span></a></h4>
+<p><span class="lang-en">"Help with studying for American citizenship."</span><span class="lang-es">"Ayudar con estudios para la ciudadanía americana."</span></p>
+<p><span class="lang-en">In Puerto Rico, since I was a salesman I visited homes, and I've always been drawn to reading and preparing myself, studying something that could be useful for me and for other people. For example, I began to study the questions for American citizenship. There were 100 questions and they came with some books. I wasn't a citizen back then, I was just a resident. At that moment I wasn't interested in being a citizen, because I had the resident card, which allowed me to come and go at any time, and I went on like that for about 15 years. I would come and go from the country, because as a salesman they would reward me each year with international trips, twice or once a year. I worried about selling a lot to win those trips and earn enough money to help my daughters pay for their studies.</span><span class="lang-es">En Puerto Rico, como era vendedor visitaba los hogares, y siempre me ha atraído leer y prepararme, estudiar algo que puede ser útil para mí y para otras personas. Por ejemplo, yo empecé a estudiar las preguntas para la ciudadanía americana. Eran 100 preguntas y llevaban unos libros. Yo no era ciudadano en ese entonces, era residente nada más. En ese momento no me interesaba ser ciudadano, porque tenía la tarjeta de residente, que entraba y salía en cualquier momento, y así pasé como unos 15 años. Yo entraba y salía del país, porque como era vendedor me premiaban cada año con viajes internacionales, dos o una vez al año. Yo me preocupaba por vender bastante para ganarme esos viajes y ganar suficiente dinero para ayudar a mis hijas pagar sus estudios.</span></p>
+<p><span class="lang-en">I said, "I'll become a citizen, I'll be more secure," and I started studying the questions. When I studied them, in the homes I would visit, the conversation would come up that "I'm studying for citizenship" and I would tell them, "Where are you in it? Do you want me to help you? I've studied them too." Already we were forming a little group, two, three, "I'm going to call a leader to come. What days can you make it?", "Saturdays, after 6:00 PM". Like that, they would bring a friend, two friends, three friends. There came a moment when I had eight in the group and we would study the citizenship questions and I would help them.</span><span class="lang-es">Yo dije, "Me hago ciudadano, estoy más seguro", y empecé a estudiar las preguntas. Cuando las estudié, a los hogares que llegaba, entraba la conversación de que "Estoy estudiando para ciudadanía" y yo les decía, "¿Por dónde vas? ¿Quieres que te ayude? Yo también las he estudiado". Ya formábamos un grupito dos, tres, "Voy a llamar a un líder para que venga. ¿Qué días puedes?", "Los sábados, después de las 6:00 PM". Así, llevaban una amiga, dos amigas, tres amigas. Llegó un momento que tenía ocho en el grupo y estudiábamos las preguntas de la ciudadanía y les ayudaba.</span></p><div class="video-wrapper">
+<iframe allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen="" loading="lazy" src="https://www.youtube.com/embed/ClPc4Rbjd0k" title="Before They Were Called Dreamers - Ronald Reagan Endorsed Amnesty for Illegal Immigrants Too"></iframe>
+</div></div>
+</div>
+</div>
+<!-- ENTRY 25 -->
+<div class="timeline-entry">
+<div class="dot"></div>
+<div class="timeline-date">1994</div>
+<div class="timeline-header" onclick="toggleEntry(this)">
+<h3 class="timeline-heading"><span class="lang-en">The 1994 Crime Bill</span><span class="lang-es">La Ley de Delitos de 1994</span></h3>
+<span class="chevron"><svg viewbox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
+</div>
+<div class="timeline-content">
+<div class="card">
+<p><span class="lang-en">The Violent Crime Control and Law Enforcement Act of 1994, allocated $12 Billion for states to build more prisons, and hire more police force. During a time, when crime rates were decreasing</span><span class="lang-es">La Ley de Control de Delitos Violentos y Cumplimiento de la Ley de 1994 asignó $12 mil millones a los estados para construir más prisiones y contratar más personal policial. Durante una época en que las tasas de criminalidad estaban disminuyendo</span></p><div class="video-wrapper">
+<iframe allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen="" loading="lazy" src="https://www.youtube.com/embed/0DcN6wNKxZA" title="What Is The 1994 Crime Bill? | NBC News Now"></iframe>
+</div></div>
+</div>
+</div>
+<!-- ENTRY 26 -->
+<div class="timeline-entry">
+<div class="dot"></div>
+<div class="timeline-date">2001</div>
+<div class="timeline-header" onclick="toggleEntry(this)">
+<h3 class="timeline-heading"><span class="lang-en">2001 The DREAM Act is Introduced</span><span class="lang-es">2001 Se introduce la Ley DREAM</span></h3>
+<span class="chevron"><svg viewbox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
+</div>
+<div class="timeline-content">
+<div class="card">
+<p><span class="lang-en">"The first version of the Development, Relief, and Education for Alien Minors (DREAM) Act was introduced in 2001. In part because of the publicity around that bill, young undocumented immigrants have been referred to as 'Dreamers.' Over the last 20 years, at least 11 versions of the Dream Act have been introduced in Congress. While the various versions of the bill have contained some key differences, they all would have provided a pathway to legal status for undocumented people who came to this country as children."</span><span class="lang-es">"La primera versión de la Ley de Desarrollo, Alivio y Educación para Menores Extranjeros (DREAM) fue presentada en 2001. En parte debido a la publicidad alrededor de ese proyecto de ley, los jóvenes inmigrantes indocumentados han sido llamados 'Dreamers'. Durante los últimos 20 años, al menos 11 versiones de la Ley DREAM han sido presentadas en el Congreso. Aunque las diversas versiones del proyecto de ley han contenido algunas diferencias clave, todas habrían proporcionado un camino hacia el estatus legal para personas indocumentadas que vinieron a este país siendo niños".</span></p>
+<p><span class="lang-en"><a href="https://www.americanimmigrationcouncil.org/" rel="noopener" target="_blank">American Immigration Council</a></span><span class="lang-es"><a href="https://www.americanimmigrationcouncil.org/" rel="noopener" target="_blank">Consejo Estadounidense de Inmigración</a></span></p><div class="video-wrapper">
+<iframe allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen="" loading="lazy" src="https://www.youtube.com/embed/iz2yr-vPOeo" title="Immigration Reform: The Fight to Pass the Dream Act"></iframe>
+</div></div>
+</div>
+</div>
+<!-- ENTRY 27 -->
+<div class="timeline-entry">
+<div class="dot"></div>
+<div class="timeline-date">2003</div>
+<div class="timeline-header" onclick="toggleEntry(this)">
+<h3 class="timeline-heading"><span class="lang-en">2003 ICE is Established</span><span class="lang-es">2003 Se establece ICE</span></h3>
+<span class="chevron"><svg viewbox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
+</div>
+<div class="timeline-content">
+<div class="card">
+<p><span class="lang-en">Abolish ICE: Why We Need to Abolish Immigrations and Customs Enforcement</span><span class="lang-es">Abolir ICE: Por qué necesitamos abolir Inmigración y Control de Aduanas</span></p>
+<p><span class="lang-en">"ICE, or Immigration and Customs Enforcement, was created in 2003, as part of post-9/11 legislation that housed immigration enforcement under the Department of Homeland Security," he explained. "This signaled a shift towards viewing immigrants as the threat to national security."</span><span class="lang-es">"ICE, o Inmigración y Control de Aduanas, fue creado en 2003, como parte de la legislación posterior al 11 de septiembre que colocó la aplicación de la ley de inmigración bajo el Departamento de Seguridad Nacional", explicó. "Esto señaló un cambio hacia ver a los inmigrantes como una amenaza a la seguridad nacional".</span></p>
+<h4><a class="participant-link" href="https://www.ourwayoflifearchive.com/s/stories/dhnj" rel="noopener" target="_blank"><span class="lang-en">DHNJ | Abolish ICE</span><span class="lang-es">DHNJ | Abolir ICE</span></a></h4>
+<p><span class="lang-en">"Te va a agarrar la migra"</span><span class="lang-es">"Te va a agarrar la migra"</span></p>
+<p><span class="lang-en">I would tell my friends, I would tell them about the time the police caught me, and how expensive the ticket was for me. I invite them to participate in the organization to help eliminate the problem of licenses. Some do go and others don't, then they say "Don't go, immigration is going to catch you." It's the fear they have. I've been going and immigration has never shown up. But the same thing used to happen to me, when they told me to go to the march, I would say, "No, it's difficult, the police are going to come." I thought the police were going to catch us, because it's a public commotion. But I began to analyze the words the president said about free speech, where are our free speech rights? I'm going to participate to see what happens, anyway I can't work, if they send me to the doctor, so be it. That's why I participated.</span><span class="lang-es">Les platicaba a mis amigos, les contaba de la vez cuando me agarro la policía, y lo caro que me salió el ticket. Les invito a que participen en la organización para ayudar a eliminar el problema de las licencias. Algunos si van y otros no, luego dicen "No vayas, te va a agarrar la migra". Es el miedo que tienen. Yo he estado yendo y nunca se presenta la migra. Pero a mi me pasaba los mismo, cuando me decían de ir a la marcha, yo decía, "No, está difícil, va a llegar la policía". Pensaba que nos iba a agarrar la policía, porque es escándalo público. Pero comencé a analizar las palabras que decía el presidente que hay libre expresión, ¿dónde están nuestros derechos de la libre expresión? Yo voy a participar a ver qué pasa, como quiera no puedo trabajar, si me mandan para el médico, ya ni modo. Por eso participé.</span></p><div class="video-wrapper">
+<iframe allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen="" loading="lazy" src="https://www.youtube.com/embed/JEQZP3QtvwM" title="Abolish ICE: Why We Need to Abolish Immigrations and Customs Enforcement | Op-Ed | NowThis"></iframe>
+</div></div>
+</div>
+</div>
+<!-- ENTRY 28 -->
+<div class="timeline-entry">
+<div class="dot"></div>
+<div class="timeline-date">2005</div>
+<div class="timeline-header" onclick="toggleEntry(this)">
+<h3 class="timeline-heading"><span class="lang-en">2005 Hurricane Katrina Devastates New Orleans Community</span><span class="lang-es">2005 El huracán Katrina devastó la comunidad de Nueva Orleans</span></h3>
+<span class="chevron"><svg viewbox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
+</div>
+<div class="timeline-content">
+<div class="card">
+<h4><a class="participant-link" href="https://www.ourwayoflifearchive.com/s/stories/bmnj6" rel="noopener" target="_blank"><img alt="BMNJ6" class="participant-avatar" loading="lazy" src="https://www.ourwayoflifearchive.com/uploads/b/4d4f27a254ad409573c7c4eb443d718ebb65ef79eb130e662c91851895189621/image_1620663833.jpg"/><span class="lang-en">BMNJ6 | Hurricane Katrina</span><span class="lang-es">BMNJ6 | Huracán Katrina</span></a></h4>
+<p><span class="lang-en">"The next day we sat down and talked about it. He showed me the bill and showed me these thousands of dollars was going to go here for somebody to put a new garbage can there. This one was thousands of dollars to paint a road there. All this stuff was everywhere but those people that had got flooded out in Louisiana. After he explained it all to me, I told him, I said, "But look, if this bill doesn't get signed," I said, "Those people don't get the money." I read in the paper the next day that he signed onto it. I tell people how sometimes when they say one person don't matter, yes, one person does matter. I feel like perhaps a family out of Katrina got a check because I helped in passing the law because I said something.</span><span class="lang-es">"Al día siguiente nos sentamos y hablamos sobre eso. Él me mostró el proyecto de ley y me mostró que miles de dólares iban a ir aquí para que alguien pusiera un nuevo bote de basura allá. Este otro era miles de dólares para pintar una carretera allá. Todo esto estaba por todas partes pero esa gente que había quedado inundada en Luisiana. Después de que él me lo explicó todo, le dije, dije, "Pero mira, si este proyecto de ley no se firma," dije, "Esa gente no recibe el dinero." Leí en el periódico al día siguiente que él lo firmó. Le digo a la gente cómo a veces cuando dicen que una persona no importa, sí, una persona sí importa. Siento que quizás una familia de Katrina recibió un cheque porque yo ayudé a pasar la ley porque dije algo.</span></p>
+<p><span class="lang-en">It encourages me to keep doing what I do. I've seen I can help. I've had losses [laughs]. Since the last time I'm going to people as politicians to sign on for this and it didn't happen but still you keep going. You keep going, this is what I have to do."</span><span class="lang-es">Me anima a seguir haciendo lo que hago. He visto que puedo ayudar. He tenido pérdidas [se ríe]. Desde la última vez voy a políticos para que firmen por esto y no sucedió pero aún así sigues adelante. Sigues adelante, esto es lo que tengo que hacer."</span></p><div class="video-wrapper">
+<iframe allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen="" loading="lazy" src="https://www.youtube.com/embed/Am-hb3ZCPUQ" title="Hurricane Katrina: Superdome Survivor | History"></iframe>
+</div>
+<p style="font-size:0.85rem; font-style:italic; color:#8b7355; line-height:1.5; margin-top:0.3rem;"><span class="lang-en">Hurricane Katrina: Superdome Survivor — History Channel<br/><br/>When Hurricane Katrina forced New Orleans poet Shelton Alexander to evacuate his home, he took his truck and video camera to the Superdome. He escaped the chaotic shelter a few days later with a truckload of people and video documentation of history.</span><span class="lang-es">Huracán Katrina: Sobreviviente del Superdome — History Channel<br/><br/>Cuando el Huracán Katrina obligó al poeta de Nueva Orleans Shelton Alexander a evacuar su hogar, tomó su camión y cámara de video al Superdome. Escapó del refugio caótico unos días después con un camión lleno de personas y documentación en video de la historia.</span></p>
+</div>
+</div>
+</div>
+<!-- ENTRY 29 -->
+<div class="timeline-entry">
+<div class="dot"></div>
+<div class="timeline-date">2008</div>
+<div class="timeline-header" onclick="toggleEntry(this)">
+<h3 class="timeline-heading"><span class="lang-en">2008 President Barack Obama is Elected</span><span class="lang-es">2008 Barack Obama es elegido presidente</span></h3>
+<span class="chevron"><svg viewbox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
+</div>
+<div class="timeline-content">
+<div class="card">
+<h4><a class="participant-link" href="https://www.ourwayoflifearchive.com/s/stories/senj6" rel="noopener" target="_blank"><img alt="SENJ6" class="participant-avatar" loading="lazy" src="https://www.ourwayoflifearchive.com/uploads/b/4d4f27a254ad409573c7c4eb443d718ebb65ef79eb130e662c91851895189621/2024-11-10_20-56-42_1731301015.jpg"/><span class="lang-en">SENJ6 2008 | Obama's Election</span><span class="lang-es">SENJ6 2008 | La Elección de Obama</span></a></h4>
+<p><span class="lang-en">My greatest joy was in 2008. They weren't doing anything down here but up in Rockland County where I used to attend church up there, one of the unions up there ran a bus to Pennsylvania to campaign for Barack Obama. I was on that bus, my girlfriend and I, and they put us off in a certain neighborhood. If I tell you that some of those people sicced dogs on us I wouldn't be lying. Pennsylvania wasn't a state that was going to vote for Barack Obama. I think that's why they sent us there, but those people were mean spirited.</span><span class="lang-es">Mi mayor alegría fue en 2008. No estaban haciendo nada aquí abajo pero arriba en el Condado de Rockland donde solía asistir a la iglesia allá, uno de los sindicatos de allá organizó un autobús a Pensilvania para hacer campaña por Barack Obama. Yo estaba en ese autobús, mi novia y yo, y nos dejaron en cierto vecindario. Si te digo que algunos de esos vecinos soltaron perros sobre nosotros no estaría mintiendo. Pensilvania no era un estado que fuera a votar por Barack Obama. Creo que por eso nos enviaron allá, pero esa gente fue de mal corazón.</span></p>
+<p><span class="lang-en">I certainly wasn't about to be bitten by a dog but I really-- A first African American president, I would have done anything. It signaled a new era, we thought finally we have somebody who maybe would look out for some of the things we needed, for the DACA students. The immigrants, those young people who have come here and been here all their lives but are not citizens but maybe he would do something for them and he did. Now the Supreme court has given them a say but he initiated that program.</span><span class="lang-es">Ciertamente no estaba por ser mordido por un perro pero realmente-- Un primer presidente afroamericano, hubiera hecho cualquier cosa. Señaló una nueva era, pensamos que finalmente tenemos a alguien que tal vez se preocupe por algunas de las cosas que necesitábamos, por los estudiantes de DACA. Los inmigrantes, esos jóvenes que han venido aquí y han estado aquí toda su vida pero no son ciudadanos pero quizás él haría algo por ellos e hizo. Ahora la Corte Suprema les ha dado voz pero él inició ese programa.</span></p>
+<p><span class="lang-en">I did voter registration for Barack. I had voter registration at the church and I asked some of my Hispanic friends to come so they could interpret for the Spanish people who showed up.</span><span class="lang-es">Hice registro de votantes para Barack. Tenía registro de votantes en la iglesia y pedí a algunos de mis amigos hispanos que vinieran para que pudieran interpretar para las personas de habla hispana que se presentaran.</span></p>
+<h4><a class="participant-link" href="https://www.ourwayoflifearchive.com/s/stories/etny6" rel="noopener" target="_blank"><img alt="ETNY6" class="participant-avatar" loading="lazy" src="https://www.ourwayoflifearchive.com/uploads/b/4d4f27a254ad409573c7c4eb443d718ebb65ef79eb130e662c91851895189621/2021-07-19_19-55-12_1626738877.jpg"/><span class="lang-en">ETNY6 2008 | Obama's Election</span><span class="lang-es">ETNY6 2008 | La Elección de Obama</span></a></h4>
+<p><span class="lang-en">"That was the highlight of my life that I went on that trip knowing that he was the first black president and I was alive to go to that bus outing. We as black people we have to remember we got to work hard at a lot of things that's out there for us, but we have to cherish some of the stuff that's been happening for us all."</span><span class="lang-es">"Ese fue el punto culminante de mi vida que fui a ese viaje sabiendo que él era el primer presidente negro y estuve vivo para ir a ese paseo en autobús. Nosotros como personas negras tenemos que recordar que tenemos que trabajar duro en muchas de las cosas que hay para nosotros, pero tenemos que apreciar algunas de las cosas que han estado sucediendo para nosotros."</span></p>
+<div class="video-wrapper">
+<iframe allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen="" loading="lazy" src="https://www.youtube.com/embed/vsPbmUhwUtg" title="Relive The Historic Moment Obama Won The 2008 Election"></iframe>
+</div>
+<p style="font-size:0.85rem; font-style:italic; color:#8b7355; line-height:1.5; margin-top:0.3rem;"><span class="lang-en">The Historic Moment Obama Won The 2008 Election — On election night in 2008, when then Senator Barack Obama won Virginia, it became apparent that he would go on to win the election. Here's a look back at that historic moment.</span><span class="lang-es">El Momento Histórico en que Obama Ganó la Elección de 2008 — En la noche de las elecciones de 2008, cuando el entonces Senador Barack Obama ganó Virginia, quedó claro que seguiría adelante para ganar la elección. Aquí hay una mirada retrospectiva a ese momento histórico.</span></p>
+</div>
+</div>
+</div>
+<!-- ENTRY 30 -->
+<div class="timeline-entry">
+<div class="dot"></div>
+<div class="timeline-date">2012</div>
+<div class="timeline-header" onclick="toggleEntry(this)">
+<h3 class="timeline-heading"><span class="lang-en">2012 DACA is established</span><span class="lang-es">2012 Se establece DACA</span></h3>
+<span class="chevron"><svg viewbox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
+</div>
+<div class="timeline-content">
+<div class="card">
+<p><span class="lang-en">Nearly 800,000 immigrant kids who were once undocumented have been able to live in the US without constant fear of deportation because of DACA. CNN's Vanessa Yurkevich explains the Deferred Action for Childhood Arrivals (DACA) program.</span><span class="lang-es">Casi 800,000 niños inmigrantes que una vez fueron indocumentados han podido vivir en los EE.UU. sin miedo constante a la deportación gracias a DACA. La corresponsal de CNN Vanessa Yurkevich explica el programa de Acción Diferida para los Llegados en la Infancia (DACA).</span></p>
+<h4><a class="participant-link" href="https://www.ourwayoflifearchive.com/s/stories/bmnj6" rel="noopener" target="_blank"><img alt="BMNJ6" class="participant-avatar" loading="lazy" src="https://www.ourwayoflifearchive.com/uploads/b/4d4f27a254ad409573c7c4eb443d718ebb65ef79eb130e662c91851895189621/image_1620663833.jpg"/><span class="lang-en">BMNJ6 | DACA</span><span class="lang-es">BMNJ6 | DACA</span></a></h4>
+<p><span class="lang-en">"Everybody has something to give."</span><span class="lang-es">"Todos tienen algo que aportar."</span></p>
+<p><span class="lang-en">I know when I was fighting for DACA students. These are people who have come usually by their parent, they have been brought here, that by them succeeding, the DACA student that you help succeed may be the one that cures the cancer you're going to get. The person you help along the way may be the one to help you. We're different pieces of the puzzle. When I was younger, I had an incident where somebody tried to rob me. They end up hurting me and I had to end up going to the hospital. The person who took me to the hospital was, what we often refer to as the neighborhood bum. He was the one in the corner, the one, they ask you for money. This man, he saved my life.</span><span class="lang-es">Sé que cuando estaba luchando por los estudiantes de DACA. Estas son personas que generalmente han venido traídas por sus padres, las han traído aquí, y por el hecho de que ellos tengan éxito, el estudiante de DACA al que ayudas a tener éxito puede ser el que cure el cáncer que vas a tener. La persona a la que ayudas en el camino puede ser la que te ayude a ti. Somos diferentes piezas del rompecabezas. Cuando era más joven, tuve un incidente donde alguien intentó robarme. Terminaron hiriéndome y tuve que terminar yendo al hospital. La persona que me llevó al hospital fue lo que a menudo nos referimos como el indigente del barrio. Fue el que estaba en la esquina, el que te pide dinero. Este hombre, él me salvó la vida.</span></p>
+<p><span class="lang-en">It proved the point that everybody has something to give. You realize that these experiences are many. No matter who you are, you can give something. It taught me that everybody has worth and I can't be the one to judge somebody else's work because you never know.</span><span class="lang-es">Eso comprobó el punto de que todos tienen algo que aportar. Te das cuenta de que estas experiencias son muchas. Sin importar quién seas, puedes aportar algo. Me enseñó que todos tienen valor y no puedo ser yo quien juzgue el trabajo de otra persona porque nunca se sabe.</span></p><div class="video-wrapper">
+<iframe allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen="" loading="lazy" src="https://www.youtube.com/embed/QJCyApAugdY" title="What is DACA?"></iframe>
+</div></div>
+</div>
+</div>
+<!-- ENTRY 31 -->
+<div class="timeline-entry">
+<div class="dot"></div>
+<div class="timeline-date">2019</div>
+<div class="timeline-header" onclick="toggleEntry(this)">
+<h3 class="timeline-heading"><span class="lang-en">2019 New Jersey signs Licenses for All!</span><span class="lang-es">2019 Nueva Jersey firma "Licenses for All"</span></h3>
+<span class="chevron"><svg viewbox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
+</div>
+<div class="timeline-content">
+<div class="card">
+<p><span class="lang-en">"Nearly 750,000 people will be affected by the law, which passed in December 2019 and will also benefit certain senior citizens, formerly incarcerated residents, transgender people whose documents may not match their given gender identity, domestic violence survivors who are unable to retrieve legal documents, homeless people, veterans and low-income residents who cannot afford to recover legal papers."</span><span class="lang-es">"Casi 750,000 personas serán afectadas por la ley, que fue aprobada en diciembre de 2019 y también beneficiará a ciertos adultos mayores, residentes previamente encarcelados, personas transgénero cuyos documentos pueden no coincidir con su identidad de género, sobrevivientes de violencia doméstica que no pueden obtener documentos legales, personas sin hogar, veteranos y residentes de bajos ingresos que no pueden permitirse recuperar documentos legales."</span></p>
+<h4><a class="participant-link" href="https://www.ourwayoflifearchive.com/s/stories/dhnj" rel="noopener" target="_blank"><span class="lang-en">DHNJ | Licenses for All</span><span class="lang-es">DHNJ | Licencias para Todos</span></a></h4>
+<p><span class="lang-en">"The law for licenses for everyone was won."</span><span class="lang-es">"Se ganó la ley de licencias para todos."</span></p>
+<p><span class="lang-en">The last one I remember most is when the law for licenses for everyone was won, and even my grandson was jumping with joy. They told us no, they would never give licenses to everyone, but you have to try, if you don't try, they won't listen to us. They have to listen to us, because like a child who doesn't cry doesn't get a bottle, that's how they had us.</span><span class="lang-es">La última que recuerdo más, es cuándo se ganó la ley de licencias para todos, y hasta el nieto estaba brincando de gusto. Nos decían que no, nunca van a dar licencias para todos, pero hay que tratar, si uno no trata, no nos van a oír. Nos tienen que oír, porque como niño que no llora no le dan mamila, así nos tenían.</span></p><div class="video-wrapper">
+<iframe allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen="" loading="lazy" src="https://www.youtube.com/embed/_uVp29dytMo" title="MVC delays driver's licenses for NJ undocumented immigrants"></iframe>
+</div></div>
+</div>
+</div>
+<!-- ENTRY 32 -->
+<div class="timeline-entry">
+<div class="dot"></div>
+<div class="timeline-date">2020</div>
+<div class="timeline-header" onclick="toggleEntry(this)">
+<h3 class="timeline-heading"><span class="lang-en">2020 New Jersey restores voting rights to former felons</span><span class="lang-es">2020 Nueva Jersey restaura derechos de voto a ex delincuentes</span></h3>
+<span class="chevron"><svg viewbox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
+</div>
+<div class="timeline-content">
+<div class="card">
+<p><span class="lang-en">"Two years after the New Jersey Institute for Social Justice and its partners launched the 1844 No More campaign to restore voting rights for those with criminal convictions, the New Jersey Assembly today passed legislation (A5823) to restore the vote to people on parole and probation."</span><span class="lang-es">"Dos años después de que el New Jersey Institute for Social Justice y sus socios lanzaran la campaña 1844 No More para restaurar los derechos de voto para aquellos con antecedentes penales, la Asamblea de Nueva Jersey hoy aprobó la legislación (A5823) para restaurar el voto a personas en libertad condicional y en prueba."</span></p>
+<p><span class="lang-en"><a href="https://www.njisj.org/" rel="noopener" target="_blank">New Jersey Institute for Social Justice</a></span><span class="lang-es"><a href="https://www.njisj.org/" rel="noopener" target="_blank">New Jersey Institute for Social Justice</a></span></p>
+<h4><a class="participant-link" href="https://www.ourwayoflifearchive.com/s/stories/bmnj" rel="noopener" target="_blank"><img alt="BMNJ" class="participant-avatar" loading="lazy" src="https://www.ourwayoflifearchive.com/uploads/b/4d4f27a254ad409573c7c4eb443d718ebb65ef79eb130e662c91851895189621/image_1620663833.jpg"/><span class="lang-en">BMNJ | Voting Rights</span><span class="lang-es">BMNJ | Derechos de Voto</span></a></h4>
+<p><span class="lang-en">"It restored the right to vote for 83,000 former felons."</span><span class="lang-es">"Restauró el derecho al voto para 83,000 antiguos delincuentes."</span></p>
+<p><span class="lang-en">Prior to COVID, I've gone to my state legislator, my national legislator, and spoke one on one with Senators, Governors, Congresspeople to lobby on behalf of our (NAACP) causes. Just before COVID shut us down, we were trying to get former felons the right to vote. They were not legally able to vote. We were trying to get them the right to vote. I've done this on the state level. I've gone back to Trenton and talked to our congressional representatives, our assembly representatives, our state representatives. I have gone to their offices and met with them on local sites and explained why we felt they should pass this legislation. They finally passed it. Around the end of February, early March, and it restored the right to vote for 83,000 former felons.</span><span class="lang-es">Antes de COVID, he ido a mi legislador estatal, mi legislador nacional, y hablé uno a uno con Senadores, Gobernadores, Miembros del Congreso para cabildear en nombre de nuestras causas de la NAACP. Justo antes de que COVID nos cerrara, estábamos tratando de darle a los antiguos delincuentes el derecho al voto. No estaban legalmente autorizados a votar. Estábamos tratando de darles el derecho al voto. Lo he hecho a nivel estatal. He vuelto a Trenton y hablé con nuestros representantes del congreso, nuestros representantes de la asamblea, nuestros representantes estatales. He ido a sus oficinas y me he reunido con ellos en sitios locales y expliqué por qué sentíamos que deberían aprobar esta legislación. Finalmente la aprobaron. A finales de febrero, principios de marzo, y restauró el derecho al voto para 83,000 antiguos delincuentes.</span></p>
+<p><span class="lang-en">I remember when they passed that voting rights act, giving felons the right to vote. I was down in Trenton at the statehouse when that bill passed and was finally signed by the governor. I've seen guys and women who have come out of jail and worked with us trying to get the right to vote. When Governor Murphy put his name on that paper, I've seen people who were grown men and women be like, "Wow, I can do this." I've seen the tears rolling down their faces. That's how important it was. It meant they can be part of society again.</span><span class="lang-es">Recuerdo cuando aprobaron esa ley de derechos de voto, dándole a los delincuentes el derecho al voto. Estuve en Trenton en el edificio de la legislatura cuando ese proyecto de ley fue aprobado y finalmente firmado por el gobernador. He visto hombres y mujeres que han salido de la cárcel y trabajaron con nosotros tratando de obtener el derecho al voto. Cuando el Gobernador Murphy puso su nombre en ese papel, vi a personas que eran hombres y mujeres adultos diciendo, "Vaya, puedo hacer esto." He visto las lágrimas corriendo por sus caras. Así de importante era. Significaba que podían ser parte de la sociedad nuevamente.</span></p><div class="video-wrapper">
+<iframe allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen="" loading="lazy" src="https://www.youtube.com/embed/ISeSMrEr9hw" title="The Cost Of Restoring Voting Rights To Former Felons"></iframe>
+</div></div>
+</div>
+</div>
+<!-- ENTRY 33 -->
+<div class="timeline-entry">
+<div class="dot"></div>
+<div class="timeline-date">Ongoing</div>
+<div class="timeline-header" onclick="toggleEntry(this)">
+<h3 class="timeline-heading"><span class="lang-en">Covid-19 Pandemic</span><span class="lang-es">Pandemia de Covid-19</span></h3>
+<span class="chevron"><svg viewbox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
+</div>
+<div class="timeline-content">
+<div class="card">
+<p><span class="lang-en">The COVID-19 is an ongoing pandemic caused by severe acute respiratory syndrome coronavirus 2 (SARS-CoV-2). It was first identified in December 2019 in Wuhan, China. The World Health Organization declared the outbreak a Public Health Emergency of International Concern in January 2020 and a pandemic in March 2020.</span><span class="lang-es">El COVID-19 es una pandemia en curso causada por el síndrome respiratorio agudo severo coronavirus 2 (SARS-CoV-2). Fue identificado por primera vez en diciembre de 2019 en Wuhan, China. La Organización Mundial de la Salud declaró el brote una Emergencia de Salud Pública de Preocupación Internacional en enero de 2020 y una pandemia en marzo de 2020.</span></p>
+<p><span class="lang-en">It has disproportionately affected Latinx, Black, and Indigenous communities.</span><span class="lang-es">Ha afectado desproporcionadamente a las comunidades Latinx, negras e indígenas.</span></p>
+<h4><a class="participant-link" href="https://www.ourwayoflifearchive.com/s/stories/ncnj" rel="noopener" target="_blank"><img alt="NCNJ" class="participant-avatar" loading="lazy" src="https://www.ourwayoflifearchive.com/uploads/b/4d4f27a254ad409573c7c4eb443d718ebb65ef79eb130e662c91851895189621/Resized_Resized_20210308_132735003001_1620660343.jpg"/><span class="lang-en">NCNJ | COVID-19</span><span class="lang-es">NCNJ | COVID-19</span></a></h4>
+<p><span class="lang-en">"How can they manage to survive?"</span><span class="lang-es">"¿Cómo ellos pueden estar pasándola para sobrevivir?"</span></p>
+<p><span class="lang-en">At the beginning, things were tight, everyone was out of work. At the church, the brothers who are part of a group weren't receiving collection benefits. They are Hispanic seniors over 60 years old, one is 85 years old, another is 70 and another is 65 years old. Some don't have legal documents. I asked myself, if they can't receive help from the Government, no food stamps, nothing, and they're out of work, how can they manage to survive? I called them to ask how they were doing, if they were working, "No, brother, we're not working," "But you can't be collecting either?", "No, we can't collect," "Don't worry." Since I had some savings, I started sending them USD 40 or USD 50 every two weeks to four brothers. Then, I would go to the supermarket to buy with my own money and I would buy USD 15 or USD 20 of groceries, and I would take them to distribute.</span><span class="lang-es">Al principio, las cosas estaban apretando, todos estaban sin trabajo. En la iglesia, los hermanos que somos parte de un grupo no estaban recibiendo los beneficios de colección. Son Hispanos mayores de 60 años, uno tiene 85 años, el otro tiene 70 y el otro tiene 65 años. Algunos no tienen documentos legales. Yo preguntaba, si ellos no pueden recibir ayuda del Gobierno, ni cupones, ni esto, y están sin trabajo, ¿cómo ellos pueden estar pasándola para sobrevivir? Les llamé para preguntarles que cómo les estaba yendo, si estaban trabajando, "No, hermano, no estamos trabajando", "Pero ¿tampoco pueden estar colectando?", "No, no podemos colectar", "No se preocupen". Como yo tengo unos ahorritos, empecé a enviarles USD 40 o USD 50 cada dos semanas a cuatro hermanos. Luego, iba al supermercado a comprar de mi dinero y compraba USD 15 o USD 20 de compras, y se los llevaba a repartir.</span></p>
+<p><span class="lang-en">Then, I realized that at certain Baptist churches, around my building, they were providing food. Then, I went and they gave me one for myself and I asked them if they could give me two or three more and yes, they would give them to me. I would go to another church and so on until I gathered 10 bags. What I was missing, I would go buy to complete some bags and then I would go distribute them.</span><span class="lang-es">Luego, me di cuenta de que en ciertas iglesias bautistas, alrededor de mi building, estaban proporcionando alimentos. Luego, fui y me dieron uno para mí y les pregunté si me podían dar dos o tres más y sí, me las daban. Me iba a otra iglesia y así hasta que reunía 10 bolsas. Lo que me faltaba, yo pasaba a comprar para completar unas bolsas y luego me iba a repartirlas.</span></p><div class="video-wrapper">
+<iframe allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen="" loading="lazy" src="https://www.youtube.com/embed/rJKDJlrBfxI" title="COVID Exposes Significant Racial Health Inequities as Black, Brown &amp; Indigenous People Suffer Most"></iframe>
+</div></div>
+</div>
+</div>
+<!-- ENTRY 34 -->
+<div class="timeline-entry">
+<div class="dot"></div>
+<div class="timeline-date">Ongoing</div>
+<div class="timeline-header" onclick="toggleEntry(this)">
+<h3 class="timeline-heading"><span class="lang-en">Black Lives Matter</span><span class="lang-es">Black Lives Matter</span></h3>
+<span class="chevron"><svg viewbox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
+</div>
+<div class="timeline-content">
+<div class="card">
+<p><span class="lang-en">"#BlackLivesMatter was founded in 2013 in response to the acquittal of Trayvon Martin's murderer. Black Lives Matter Global Network Foundation, Inc. is a global organization in the US, UK, and Canada, whose mission is to eradicate white supremacy and build local power to intervene in violence inflicted on Black communities by the state and vigilantes."</span><span class="lang-es">"#BlackLivesMatter fue fundado en 2013 en respuesta a la absolución del asesino de Trayvon Martin. Black Lives Matter Global Network Foundation, Inc. es una organización global en EE.UU., Reino Unido y Canadá, cuya misión es erradicar la supremacía blanca y construir poder local para intervenir en la violencia infligida en las comunidades negras por el estado y los vigilantes."</span></p>
+<p><span class="lang-en"><a href="https://blacklivesmatter.com/" rel="noopener" target="_blank">blacklivesmatter.com</a></span><span class="lang-es"><a href="https://blacklivesmatter.com/" rel="noopener" target="_blank">blacklivesmatter.com</a></span></p>
+<h4><a class="participant-link" href="https://www.ourwayoflifearchive.com/s/stories/etny" rel="noopener" target="_blank"><img alt="ETNY" class="participant-avatar" loading="lazy" src="https://www.ourwayoflifearchive.com/uploads/b/4d4f27a254ad409573c7c4eb443d718ebb65ef79eb130e662c91851895189621/2021-07-19_19-55-12_1626738877.jpg"/><span class="lang-en">ETNY | BLM</span><span class="lang-es">ETNY | BLM</span></a></h4>
+<p><span class="lang-en">"I also became involved with Mothers on the Move, doing demonstrations for my son's death."</span><span class="lang-es">"También me involucrE con Mothers on the Move, haciendo demostraciones por la muerte de mi hijo."</span></p>
+<p><span class="lang-en">I didn't go to this protest [BLM protests in NYC]. But I went to quite a few. I walked with Al Chapman and various other people. I also became involved with Mothers on the Move, doing demonstrations for my son's death. We had marched because of the gun violence and it's not just for police officers, people in general. Then I ran into Margarita Rosario, I ran into Carl. A lot of the Mothers On the Move. A lot of the mothers who's children have been killed and all these marches. I became friends with a lot of them. And we developed a friendship during those times.</span><span class="lang-es">No fui a esta protesta [protestas de BLM en Nueva York]. Pero fui a bastantes. Caminé con Al Chapman y varias otras personas. También me involucré con Mothers on the Move, haciendo demostraciones por la muerte de mi hijo. Habíamos marchado por la violencia armada y no es solo por oficiales de policía, gente en general. Entonces me encontré con Margarita Rosario, me encontré con Carl. Muchas de las Mothers On the Move. Muchas de las madres cuyos hijos han sido asesinados y todas estas marchas. Me hice amiga de muchas de ellas. Y desarrollamos una amistad durante esos tiempos.</span></p>
+<p><span class="lang-en">My child was not killed by the police, but regardless killing is a sin no matter who you are. And that child's supposed to still be alive because you are older than that. So you already expected to die before that younger person in your family. And these mother feels the same way. So, that brought a lot on our body.</span><span class="lang-es">Mi hijo no fue asesinado por la policía, pero sin importar eso, matar es un pecado sin importar quién seas. Y ese niño se suponía que aún estaría vivo porque eres más viejo que eso. Entonces ya esperabas morir antes que esa persona más joven en tu familia. Y estas madres sienten lo mismo. Entonces, eso trajo mucho a nuestro cuerpo.</span></p>
+<p><span class="lang-en">We could be fighting, but still it brings a lot on us that it makes our bodies deteriorate. Because knowing that you don't have an answer, to these people or yourself, why my child has been killed. But that's enough to last me for the rest of my life until the day I die, that my child's been killed at 17 and I'm 72, and he's dead. The system is broken. The system is broken. When you think that you have the facts, the facts is supposed to be true. And when you go in court and find out that this child only got 19 months for killing my child. Why are they letting guns in the hands of children or anybody who shouldn't have those guns? Now, that police officer who killed that young man, he didn't use a gun. He used his body. So that alone, that's telling you, "I can do anything I want."</span><span class="lang-es">Podríamos estar peleando, pero aún así nos trae mucho que hace que nuestros cuerpos se deterioren. Porque saber que no tienes una respuesta, a estas personas o a ti mismo, por qué mi hijo ha sido asesinado. Pero eso es suficiente para durar el resto de mi vida hasta el día que muera, que mi hijo fue asesinado a los 17 y yo tengo 72, y está muerto. El sistema está roto. El sistema está roto. Cuando piensas que tienes los hechos, los hechos se suponía que eran verdaderos. Y cuando vas a la corte y descubres que este niño solo recibió 19 meses por matar a mi hijo. ¿Por qué están dejando armas en las manos de niños o de cualquiera que no debería tener esas armas? Ahora, ese oficial de policía que mató a ese joven, no usó un arma. Usó su cuerpo. Entonces solo eso, eso te está diciendo, "Puedo hacer lo que quiera."</span></p>
+<p><span class="lang-en">[Advice from this elder mother]<br/>"Activism takes a toll on the body and on the mind. What keeps me going is my believe in the Lord, he has been keeping me going to understand what I'm doing. Now I am passing on the knowledge, I have made my bed. I am throwing it at you. It's your bed but take it easy. Take it easy. Don't get yourself killed in the meantime. Take it easy and love your family."</span><span class="lang-es">[Consejo de esta madre mayor]<br/>"El activismo cobra un precio en el cuerpo y en la mente. Lo que me mantiene adelante es mi creencia en el Señor, él me ha estado manteniendo para entender lo que estoy haciendo. Ahora estoy transmitiendo el conocimiento, he hecho mi cama. La estoy tirando hacia ti. Es tu cama pero tómalo con calma. Tómalo con calma. No te hagas matar en el proceso. Tómalo con calma y ama a tu familia."</span></p>
+<div class="video-wrapper">
+<iframe allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen="" loading="lazy" src="https://www.youtube.com/embed/wPu6-1yy8-o" title="History of Policing in America | Throughline | NPR"></iframe>
+</div></div>
+</div>
+</div>
+<!-- ADD NEW ENTRIES HERE -->
+</div>
+<!-- /.timeline -->
+</div>
+<!-- /.timeline-wrapper -->
+<script>
+      function setLang(lang) {
+        document.body.classList.remove('lang-en', 'lang-es');
+        document.body.classList.add('lang-' + lang);
+        document.querySelectorAll('.lang-toggle button').forEach(function(btn) {
+          btn.classList.toggle('active', btn.dataset.lang === lang);
+        });
+      }
+
+
+      /**
+       * Toggle a timeline entry open/closed.
+       * Called from the onclick on each .timeline-header.
+       */
+      function toggleEntry(headerEl) {
+        var entry = headerEl.closest(".timeline-entry");
+        var content = entry.querySelector(
+          ".timeline-content",
+        );
+
+        if (entry.classList.contains("open")) {
+          // Collapse: animate max-height back to 0
+          content.style.maxHeight =
+            content.scrollHeight + "px";
+          // Force reflow so the browser registers the starting value
+          content.offsetHeight; // eslint-disable-line no-unused-expressions
+          content.style.maxHeight = "0";
+          entry.classList.remove("open");
+        } else {
+          // Expand: set max-height to the content's natural height
+          entry.classList.add("open");
+          content.style.maxHeight =
+            content.scrollHeight + "px";
+
+          // After the transition ends, switch to 'none' so dynamically
+          // loaded content (images, videos) isn't clipped.
+          content.addEventListener(
+            "transitionend",
+            function handler() {
+              if (entry.classList.contains("open")) {
+                content.style.maxHeight = "none";
+              }
+              content.removeEventListener(
+                "transitionend",
+                handler,
+              );
+            },
+          );
+        }
+      }
+    </script>
+</body>
+</html>
