@@ -1129,6 +1129,20 @@
       activeRecorder = null;
     }
 
+    // ── Iframe auto-resize for embedding ─────────
+    function notifyHeight() {
+      if (window.parent !== window) {
+        window.parent.postMessage({
+          type: 'resize',
+          height: document.body.scrollHeight
+        }, '*');
+      }
+    }
+    window.addEventListener('load', notifyHeight);
+    new MutationObserver(notifyHeight).observe(document.body, {
+      childList: true, subtree: true, attributes: true
+    });
+    window.addEventListener('transitionend', notifyHeight);
   </script>
 </body>
 </html>
