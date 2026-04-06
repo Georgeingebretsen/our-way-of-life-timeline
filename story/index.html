@@ -403,6 +403,59 @@
     }
 
     /* ============================================
+       BASIC INFO FIELDS
+       ============================================ */
+    .basic-fields {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    .basic-field {
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+    }
+
+    .basic-field.full-width {
+      grid-column: 1 / -1;
+    }
+
+    .basic-field label {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #5c3a1e;
+    }
+
+    .basic-field input,
+    .basic-field select {
+      padding: 0.6rem 0.9rem;
+      border: 2px solid #ece4d8;
+      border-radius: 6px;
+      font-family: "Libre Franklin", sans-serif;
+      font-size: 0.95rem;
+      color: #2d2d2d;
+      background: #fff;
+      transition: border-color 0.2s ease;
+    }
+
+    .basic-field input:focus,
+    .basic-field select:focus {
+      outline: none;
+      border-color: #daa520;
+    }
+
+    .basic-field input::placeholder { color: #bfae94; }
+
+    .prompt-sub {
+      font-size: 0.9rem;
+      color: #8b7355;
+      margin-top: -0.8rem;
+      margin-bottom: 1.2rem;
+      line-height: 1.5;
+    }
+
+    /* ============================================
        RESPONSIVE
        ============================================ */
     @media (max-width: 600px) {
@@ -414,6 +467,8 @@
       .story-card { flex: 0 0 240px; }
 
       .btn-row { flex-wrap: wrap; }
+
+      .basic-fields { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -461,34 +516,50 @@
        FORM
        ============================================ -->
   <div class="form-container" id="formContainer">
-    <div class="progress-label" id="progressLabel">1 of 6</div>
+    <div class="progress-label" id="progressLabel">1 of 9</div>
     <div class="progress-bar" id="progressBar"></div>
 
-    <!-- SECTION 1: Early Life -->
-    <div class="form-section active" data-section="early-life">
+    <!-- SECTION 1: Basic Information -->
+    <div class="form-section active" data-section="basic-info">
+      <div class="section-label">Basic Information</div>
+      <div class="prompt-text">Let's start with a few basics about you.</div>
+      <div class="basic-fields">
+        <div class="basic-field">
+          <label for="age">What is your age?</label>
+          <input type="number" id="age" name="age" placeholder="e.g. 65" min="1" max="120" />
+        </div>
+        <div class="basic-field">
+          <label for="gender">What is your gender?</label>
+          <input type="text" id="gender" name="gender" placeholder="e.g. Female" />
+        </div>
+        <div class="basic-field full-width">
+          <label for="ethnicity">How would you describe your race or ethnicity?</label>
+          <input type="text" id="ethnicity" name="ethnicity" placeholder="e.g. African American, Puerto Rican, etc." />
+        </div>
+        <div class="basic-field full-width">
+          <label for="languages">What languages do you speak?</label>
+          <input type="text" id="languages" name="languages" placeholder="e.g. English, Spanish" />
+        </div>
+        <div class="basic-field">
+          <label for="years-us">Years in the United States?</label>
+          <input type="number" id="years-us" name="years-us" placeholder="e.g. 40" min="0" />
+        </div>
+        <div class="basic-field">
+          <label for="years-city">Years in your current city/town?</label>
+          <input type="number" id="years-city" name="years-city" placeholder="e.g. 20" min="0" />
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-skip" onclick="navigate(1, true)">Skip</button>
+        <button class="btn btn-next" onclick="navigate(1)">Next</button>
+      </div>
+    </div>
+
+    <!-- SECTION 2: Early Life -->
+    <div class="form-section" data-section="early-life">
       <div class="section-label">Early Life</div>
-      <div class="prompt-text">Tell us about where you grew up. What was your neighborhood like?</div>
-      <textarea class="answer-area" placeholder="Type your answer here..."></textarea>
-      <div class="recorder-section">
-        <div class="or-divider">or</div>
-        <button class="record-btn" onclick="toggleRecording(this)">
-          <svg class="mic-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
-          <span class="pulse-dot"></span>
-          <span class="btn-label">Record your answer</span>
-        </button>
-        <div class="recording-status"></div>
-        <div class="transcription-preview"></div>
-      </div>
-      <div class="btn-row">
-        <button class="btn btn-skip" onclick="navigate(1, true)">Skip</button>
-        <button class="btn btn-next" onclick="navigate(1)">Next</button>
-      </div>
-    </div>
-
-    <!-- SECTION 2: Family & Community -->
-    <div class="form-section" data-section="family-community">
-      <div class="section-label">Family & Community</div>
-      <div class="prompt-text">Who were the important people in your community growing up? What did they teach you?</div>
+      <div class="prompt-text">What can you tell me about the culture of the country where you grew up?</div>
+      <div class="prompt-sub">How did that compare to your own personal experiences in your neighborhood growing up?</div>
       <textarea class="answer-area" placeholder="Type your answer here..."></textarea>
       <div class="recorder-section">
         <div class="or-divider">or</div>
@@ -507,10 +578,11 @@
       </div>
     </div>
 
-    <!-- SECTION 3: Challenges -->
-    <div class="form-section" data-section="challenges">
-      <div class="section-label">Challenges</div>
-      <div class="prompt-text">What obstacles or injustices have you faced in your life? How did you respond?</div>
+    <!-- SECTION 3: First Experiences with Helping Others -->
+    <div class="form-section" data-section="first-helping">
+      <div class="section-label">First Experiences with Helping Others</div>
+      <div class="prompt-text">Can you tell me about one of the first times you got involved in helping others or making a difference?</div>
+      <div class="prompt-sub">What motivated you at the time (personal experiences, family, culture, or social/political influences)?</div>
       <textarea class="answer-area" placeholder="Type your answer here..."></textarea>
       <div class="recorder-section">
         <div class="or-divider">or</div>
@@ -529,10 +601,11 @@
       </div>
     </div>
 
-    <!-- SECTION 4: Civic Life -->
-    <div class="form-section" data-section="civic-life">
-      <div class="section-label">Civic Life</div>
-      <div class="prompt-text">Have you been involved in activism, voting, or community organizing? Tell us about it.</div>
+    <!-- SECTION 4: Influences and Motivations -->
+    <div class="form-section" data-section="influences">
+      <div class="section-label">Influences and Motivations</div>
+      <div class="prompt-text">Who or what influenced how you think about your role in society and contributing to others?</div>
+      <div class="prompt-sub">How old were you when these influences became important? Has your understanding of your role in contributing to society changed over time? If so, how?</div>
       <textarea class="answer-area" placeholder="Type your answer here..."></textarea>
       <div class="recorder-section">
         <div class="or-divider">or</div>
@@ -551,10 +624,11 @@
       </div>
     </div>
 
-    <!-- SECTION 5: Culture & Identity -->
-    <div class="form-section" data-section="culture-identity">
-      <div class="section-label">Culture & Identity</div>
-      <div class="prompt-text">What traditions, values, or cultural practices are most important to you? What do you want the next generation to know?</div>
+    <!-- SECTION 5: Life Transitions & Turning Points -->
+    <div class="form-section" data-section="turning-points">
+      <div class="section-label">Life Transitions & Turning Points</div>
+      <div class="prompt-text">Can you share an experience in your life that changed how you contribute to your community or society?</div>
+      <div class="prompt-sub">How did that experience affect you emotionally, and what changed in your actions or perspective?</div>
       <textarea class="answer-area" placeholder="Type your answer here..."></textarea>
       <div class="recorder-section">
         <div class="or-divider">or</div>
@@ -573,10 +647,80 @@
       </div>
     </div>
 
-    <!-- SECTION 6: Looking Forward -->
-    <div class="form-section" data-section="looking-forward">
-      <div class="section-label">Looking Forward</div>
-      <div class="prompt-text">What gives you hope? What message would you leave for future generations?</div>
+    <!-- SECTION 6: Identity & Civic Participation -->
+    <div class="form-section" data-section="identity-civic">
+      <div class="section-label">Identity & Civic Participation</div>
+      <div class="prompt-text">Thinking about your identity (age, race/ethnicity, gender, language, or health), can you describe a time when these aspects shaped your participation in a community or civic activity?</div>
+      <div class="prompt-sub">Were there times when your identity encouraged you or led others to call on you to get involved? Were there also times when your identity made it harder to participate or made you feel excluded?</div>
+      <textarea class="answer-area" placeholder="Type your answer here..."></textarea>
+      <div class="recorder-section">
+        <div class="or-divider">or</div>
+        <button class="record-btn" onclick="toggleRecording(this)">
+          <svg class="mic-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+          <span class="pulse-dot"></span>
+          <span class="btn-label">Record your answer</span>
+        </button>
+        <div class="recording-status"></div>
+        <div class="transcription-preview"></div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-back" onclick="navigate(-1)">Back</button>
+        <button class="btn btn-skip" onclick="navigate(1, true)">Skip</button>
+        <button class="btn btn-next" onclick="navigate(1)">Next</button>
+      </div>
+    </div>
+
+    <!-- SECTION 7: Meaningful Contributions -->
+    <div class="form-section" data-section="meaningful-contributions">
+      <div class="section-label">Meaningful Contributions</div>
+      <div class="prompt-text">In the past year or so, what community involvement or contribution has been most meaningful to you?</div>
+      <div class="prompt-sub">What made that experience stand out, and how did it make you feel?</div>
+      <textarea class="answer-area" placeholder="Type your answer here..."></textarea>
+      <div class="recorder-section">
+        <div class="or-divider">or</div>
+        <button class="record-btn" onclick="toggleRecording(this)">
+          <svg class="mic-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+          <span class="pulse-dot"></span>
+          <span class="btn-label">Record your answer</span>
+        </button>
+        <div class="recording-status"></div>
+        <div class="transcription-preview"></div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-back" onclick="navigate(-1)">Back</button>
+        <button class="btn btn-skip" onclick="navigate(1, true)">Skip</button>
+        <button class="btn btn-next" onclick="navigate(1)">Next</button>
+      </div>
+    </div>
+
+    <!-- SECTION 8: Reflections -->
+    <div class="form-section" data-section="reflections">
+      <div class="section-label">Reflections</div>
+      <div class="prompt-text">What does civic participation mean to you personally?</div>
+      <div class="prompt-sub">What advice would you give others about the importance of contributing to the community beyond family and work?</div>
+      <textarea class="answer-area" placeholder="Type your answer here..."></textarea>
+      <div class="recorder-section">
+        <div class="or-divider">or</div>
+        <button class="record-btn" onclick="toggleRecording(this)">
+          <svg class="mic-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+          <span class="pulse-dot"></span>
+          <span class="btn-label">Record your answer</span>
+        </button>
+        <div class="recording-status"></div>
+        <div class="transcription-preview"></div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-back" onclick="navigate(-1)">Back</button>
+        <button class="btn btn-skip" onclick="navigate(1, true)">Skip</button>
+        <button class="btn btn-next" onclick="navigate(1)">Next</button>
+      </div>
+    </div>
+
+    <!-- SECTION 9: Community Support & Future Participation -->
+    <div class="form-section" data-section="community-support">
+      <div class="section-label">Community Support & Future Participation</div>
+      <div class="prompt-text">What kinds of support do you think are needed to help people, especially older adults, stay involved in their communities?</div>
+      <div class="prompt-sub">What would make it easier for more people to participate?</div>
       <textarea class="answer-area" placeholder="Type your answer here..."></textarea>
       <div class="recorder-section">
         <div class="or-divider">or</div>
@@ -640,9 +784,19 @@
     function saveCurrentResponse() {
       var section = sections[currentIndex];
       var key = section.getAttribute('data-section');
+
+      // Handle basic-info section with individual fields
+      if (key === 'basic-info') {
+        var fields = section.querySelectorAll('input');
+        fields.forEach(function(f) {
+          if (f.value.trim()) responses[f.name] = f.value.trim();
+        });
+        return;
+      }
+
       var textarea = section.querySelector('.answer-area');
       var transcription = section.querySelector('.transcription-preview');
-      var text = textarea.value.trim();
+      var text = textarea ? textarea.value.trim() : '';
       if (!text && transcription && transcription.textContent.trim()) {
         text = transcription.textContent.trim();
       }
