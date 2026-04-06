@@ -113,6 +113,68 @@
     }
 
     /* ============================================
+       APPROVED STORIES
+       ============================================ */
+    .approved-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1.2rem;
+    }
+
+    .approved-card {
+      background: #fef3c7;
+      border: 1px solid #f0e4c8;
+      border-radius: 10px;
+      padding: 1.5rem;
+      box-shadow: 0 2px 8px rgba(92,58,30,0.08);
+    }
+
+    .approved-card .approved-meta {
+      display: flex;
+      gap: 0.8rem;
+      align-items: center;
+      margin-bottom: 0.8rem;
+      font-size: 0.82rem;
+      color: #8b7355;
+      font-weight: 600;
+    }
+
+    .approved-card .approved-meta .badge {
+      background: #daa520;
+      color: #fff;
+      padding: 0.15rem 0.5rem;
+      border-radius: 4px;
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .approved-card .approved-excerpt {
+      font-style: italic;
+      font-size: 1rem;
+      color: #5c3a1e;
+      line-height: 1.7;
+      margin-bottom: 0.5rem;
+    }
+
+    .approved-card .approved-section-label {
+      font-size: 0.78rem;
+      color: #daa520;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-top: 1rem;
+      margin-bottom: 0.3rem;
+    }
+
+    .approved-card .approved-text {
+      font-size: 0.95rem;
+      color: #2d2d2d;
+      line-height: 1.7;
+      margin-bottom: 0.6rem;
+    }
+
+    /* ============================================
        FORM CONTAINER
        ============================================ */
     .form-container {
@@ -555,6 +617,16 @@
 </div>
 </div>
 <!-- ============================================
+       APPROVED COMMUNITY STORIES
+       ============================================ -->
+<div class="approved-stories" id="approvedStories" style="display:none;">
+  <div class="featured-stories">
+    <h3 data-i18n="approved-heading">Voices from Our Community</h3>
+    <div id="approvedList" class="approved-list"></div>
+  </div>
+</div>
+
+<!-- ============================================
        FORM
        ============================================ -->
 <div class="form-container" id="formContainer">
@@ -845,6 +917,7 @@
       "word-of":           { en: "of", es: "de", zh: "/" },
       "completion-title":  { en: "Thank You", es: "Gracias", zh: "感谢您" },
       "completion-desc":   { en: "Your story has been recorded. Every voice helps weave the fabric of our shared history.", es: "Su historia ha sido registrada. Cada voz ayuda a tejer el tejido de nuestra historia compartida.", zh: "您的故事已被记录。每一个声音都在编织我们共同的历史。" },
+      "approved-heading":  { en: "Voices from Our Community", es: "Voces de Nuestra Comunidad", zh: "来自社区的声音" },
       "ph-age":            { en: "e.g. 65", es: "ej. 65", zh: "例如 65" },
       "ph-gender":         { en: "e.g. Female", es: "ej. Femenino", zh: "例如 女性" },
       "ph-ethnicity":      { en: "e.g. African American, Puerto Rican, etc.", es: "ej. Afroamericano/a, puertorriqueño/a, etc.", zh: "例如 非裔美国人、波多黎各裔等" },
@@ -1093,6 +1166,82 @@
 
       activeRecorder = null;
     }
+
+    // ── Load Approved Stories ────────────────────
+    (function loadApprovedStories() {
+      fetch('/.netlify/functions/approved-stories')
+        .then(function(res) { return res.json(); })
+        .then(function(data) {
+          if (!data.stories || data.stories.length === 0) return;
+
+          var container = document.getElementById('approvedList');
+          var wrapper = document.getElementById('approvedStories');
+
+          var sectionLabels = {
+            earlyLife: 'Early Life',
+            firstHelping: 'First Experiences Helping Others',
+            influences: 'Influences & Motivations',
+            turningPoints: 'Life Transitions',
+            identityCivic: 'Identity & Civic Participation',
+            meaningfulContributions: 'Meaningful Contributions',
+            reflections: 'Reflections',
+            communitySupport: 'Community Support'
+          };
+
+          data.stories.forEach(function(story) {
+            var card = document.createElement('div');
+            card.className = 'approved-card';
+
+            // Meta line
+            var meta = document.createElement('div');
+            meta.className = 'approved-meta';
+            var parts = [];
+            if (story.ethnicity) parts.push(story.ethnicity);
+            if (story.age) parts.push('Age ' + story.age);
+            if (story.language && story.language !== 'English') {
+              var badge = document.createElement('span');
+              badge.className = 'badge';
+              badge.textContent = story.language;
+              meta.appendChild(badge);
+            }
+            if (parts.length) {
+              var span = document.createElement('span');
+              span.textContent = parts.join(' \u00B7 ');
+              meta.appendChild(span);
+            }
+            if (meta.children.length) card.appendChild(meta);
+
+            // Story sections
+            var hasContent = false;
+            var storyFields = ['earlyLife','firstHelping','influences','turningPoints','identityCivic','meaningfulContributions','reflections','communitySupport'];
+            storyFields.forEach(function(key) {
+              if (story[key]) {
+                hasContent = true;
+                var label = document.createElement('div');
+                label.className = 'approved-section-label';
+                label.textContent = sectionLabels[key] || key;
+                card.appendChild(label);
+
+                var text = document.createElement('div');
+                text.className = 'approved-text';
+                text.textContent = story[key];
+                card.appendChild(text);
+              }
+            });
+
+            if (hasContent) {
+              container.appendChild(card);
+            }
+          });
+
+          if (container.children.length > 0) {
+            wrapper.style.display = 'block';
+          }
+        })
+        .catch(function(err) {
+          console.log('Could not load approved stories:', err);
+        });
+    })();
   </script>
 </body>
 </html>
