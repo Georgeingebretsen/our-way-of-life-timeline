@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Share Your Story — Our Way of Life</title>
+  <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;0,8..60,700;1,8..60,400&family=Libre+Franklin:ital,wght@0,300;0,400;0,600;0,700;1,400&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { overflow-y: scroll; }
+
+    body {
+      font-family: "Libre Franklin", sans-serif;
+      background-color: #fffcf5;
+      color: #2d2d2d;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ============================================
+       HEADER
+       ============================================ */
+    .page-header {
+      text-align: center;
+      padding: 2.5rem 1.5rem 1rem;
+      max-width: 700px;
+      margin: 0 auto;
+    }
+
+    .page-header h1 {
+      font-family: "Source Serif 4", Georgia, serif;
+      font-size: 2.2rem;
+      font-weight: 700;
+      color: #5c3a1e;
+      margin-bottom: 0;
+    }
+
+    .page-header h2 {
+      font-family: "Source Serif 4", Georgia, serif;
+      font-size: 2.2rem;
+      font-weight: 700;
+      color: #c4751a;
+      text-decoration: underline;
+      text-decoration-color: #c4751a;
+      text-underline-offset: 0.35rem;
+      text-decoration-thickness: 2px;
+      margin-bottom: 1rem;
+    }
+
+    .page-header p {
+      font-size: 1.05rem;
+      color: #8b7355;
+      font-weight: 300;
+      max-width: 520px;
+      margin: 0 auto 2rem;
+    }
+
+    /* ============================================
+       FEATURED STORIES (top)
+       ============================================ */
+    .featured-stories {
+      max-width: 700px;
+      margin: 0 auto 2.5rem;
+      padding: 0 1.5rem;
+    }
+
+    .featured-stories h3 {
+      font-family: "Source Serif 4", Georgia, serif;
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: #5c3a1e;
+      margin-bottom: 1rem;
+      text-align: center;
+    }
+
+    .story-carousel {
+      display: flex;
+      gap: 1rem;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      padding-bottom: 0.5rem;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .story-carousel::-webkit-scrollbar { height: 4px; }
+    .story-carousel::-webkit-scrollbar-track { background: transparent; }
+    .story-carousel::-webkit-scrollbar-thumb { background: #daa520; border-radius: 2px; }
+
+    .story-card {
+      flex: 0 0 280px;
+      scroll-snap-align: start;
+      background: #fef3c7;
+      border: 1px solid #f0e4c8;
+      border-radius: 10px;
+      padding: 1.3rem;
+      box-shadow: 0 2px 8px rgba(92,58,30,0.08);
+    }
+
+    .story-card .quote {
+      font-style: italic;
+      font-size: 0.95rem;
+      color: #5c3a1e;
+      line-height: 1.6;
+      margin-bottom: 0.8rem;
+    }
+
+    .story-card .attribution {
+      font-size: 0.8rem;
+      color: #8b7355;
+      font-weight: 600;
+    }
+
+    /* ============================================
+       FORM CONTAINER
+       ============================================ */
+    .form-container {
+      max-width: 700px;
+      margin: 0 auto 4rem;
+      padding: 0 1.5rem;
+    }
+
+    /* ============================================
+       PROGRESS BAR
+       ============================================ */
+    .progress-bar {
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+      margin-bottom: 2rem;
+    }
+
+    .progress-step {
+      flex: 1;
+      height: 4px;
+      border-radius: 2px;
+      background: #ece4d8;
+      transition: background 0.3s ease;
+    }
+
+    .progress-step.done { background: #daa520; }
+    .progress-step.active { background: #e8a317; }
+
+    .progress-label {
+      font-size: 0.78rem;
+      color: #8b7355;
+      text-align: right;
+      margin-bottom: 0.3rem;
+    }
+
+    /* ============================================
+       SECTION / PROMPT
+       ============================================ */
+    .form-section {
+      display: none;
+    }
+
+    .form-section.active {
+      display: block;
+      animation: fadeIn 0.35s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .section-label {
+      font-family: "Libre Franklin", sans-serif;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: #daa520;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 0.4rem;
+    }
+
+    .prompt-text {
+      font-family: "Source Serif 4", Georgia, serif;
+      font-size: 1.4rem;
+      font-weight: 600;
+      color: #5c3a1e;
+      margin-bottom: 1.5rem;
+      line-height: 1.4;
+    }
+
+    /* ============================================
+       TEXT INPUT
+       ============================================ */
+    .answer-area {
+      width: 100%;
+      min-height: 140px;
+      border: 2px solid #ece4d8;
+      border-radius: 8px;
+      padding: 1rem 1.2rem;
+      font-family: "Libre Franklin", sans-serif;
+      font-size: 1rem;
+      line-height: 1.7;
+      color: #2d2d2d;
+      background: #fff;
+      resize: vertical;
+      transition: border-color 0.2s ease;
+    }
+
+    .answer-area:focus {
+      outline: none;
+      border-color: #daa520;
+    }
+
+    .answer-area::placeholder {
+      color: #bfae94;
+    }
+
+    /* ============================================
+       VOICE RECORDER
+       ============================================ */
+    .recorder-section {
+      margin-top: 1rem;
+    }
+
+    .or-divider {
+      text-align: center;
+      font-size: 0.85rem;
+      color: #8b7355;
+      margin: 1rem 0;
+      position: relative;
+    }
+
+    .or-divider::before,
+    .or-divider::after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      width: 40%;
+      height: 1px;
+      background: #ece4d8;
+    }
+
+    .or-divider::before { left: 0; }
+    .or-divider::after { right: 0; }
+
+    .record-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.6rem;
+      width: 100%;
+      padding: 0.9rem 1.5rem;
+      border: 2px solid #ece4d8;
+      border-radius: 8px;
+      background: #fff;
+      font-family: "Libre Franklin", sans-serif;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #5c3a1e;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .record-btn:hover {
+      border-color: #daa520;
+      background: #fffbeb;
+    }
+
+    .record-btn.recording {
+      border-color: #e05050;
+      background: #fef2f2;
+      color: #c43030;
+    }
+
+    .record-btn .mic-icon {
+      width: 20px;
+      height: 20px;
+    }
+
+    .record-btn .pulse-dot {
+      display: none;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #e05050;
+      animation: pulse 1s ease-in-out infinite;
+    }
+
+    .record-btn.recording .pulse-dot { display: inline-block; }
+    .record-btn.recording .mic-icon { display: none; }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.4); opacity: 0.6; }
+    }
+
+    .recording-status {
+      text-align: center;
+      font-size: 0.82rem;
+      color: #8b7355;
+      margin-top: 0.5rem;
+      min-height: 1.2em;
+    }
+
+    .transcription-preview {
+      margin-top: 0.8rem;
+      padding: 0.8rem 1rem;
+      background: #fef9ee;
+      border: 1px dashed #daa520;
+      border-radius: 6px;
+      font-size: 0.92rem;
+      font-style: italic;
+      color: #5c3a1e;
+      line-height: 1.6;
+      display: none;
+    }
+
+    .transcription-preview.visible { display: block; }
+
+    /* ============================================
+       BUTTONS
+       ============================================ */
+    .btn-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 2rem;
+      gap: 1rem;
+    }
+
+    .btn {
+      font-family: "Libre Franklin", sans-serif;
+      font-size: 0.9rem;
+      font-weight: 600;
+      padding: 0.65rem 1.8rem;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border: none;
+    }
+
+    .btn-next {
+      background: #daa520;
+      color: #fff;
+    }
+
+    .btn-next:hover { background: #c49418; }
+
+    .btn-skip {
+      background: transparent;
+      color: #8b7355;
+      border: 1px solid #ece4d8;
+    }
+
+    .btn-skip:hover {
+      background: #faf5ec;
+      border-color: #daa520;
+    }
+
+    .btn-back {
+      background: transparent;
+      color: #8b7355;
+      padding: 0.65rem 1rem;
+    }
+
+    .btn-back:hover { color: #5c3a1e; }
+
+    .btn-submit {
+      background: #5c3a1e;
+      color: #fff;
+      padding: 0.75rem 2.5rem;
+      font-size: 1rem;
+    }
+
+    .btn-submit:hover { background: #4a2e17; }
+
+    /* ============================================
+       COMPLETION SCREEN
+       ============================================ */
+    .completion {
+      display: none;
+      text-align: center;
+      padding: 3rem 1.5rem;
+      max-width: 700px;
+      margin: 0 auto;
+    }
+
+    .completion.active { display: block; }
+
+    .completion h2 {
+      font-family: "Source Serif 4", Georgia, serif;
+      font-size: 1.8rem;
+      color: #5c3a1e;
+      margin-bottom: 0.8rem;
+    }
+
+    .completion p {
+      font-size: 1.05rem;
+      color: #8b7355;
+      max-width: 450px;
+      margin: 0 auto;
+    }
+
+    .checkmark {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+    }
+
+    /* ============================================
+       RESPONSIVE
+       ============================================ */
+    @media (max-width: 600px) {
+      .page-header h1,
+      .page-header h2 { font-size: 1.7rem; }
+
+      .prompt-text { font-size: 1.2rem; }
+
+      .story-card { flex: 0 0 240px; }
+
+      .btn-row { flex-wrap: wrap; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ============================================
+       HEADER
+       ============================================ -->
+  <div class="page-header">
+    <h1>Our Way of Life</h1>
+    <h2>Share Your Story</h2>
+    <p>Your voice matters. Answer as many or as few prompts as you'd like — type your response or record it with your voice.</p>
+  </div>
+
+  <!-- ============================================
+       FEATURED STORIES
+       ============================================ -->
+  <div class="featured-stories">
+    <h3>Stories from Our Community</h3>
+    <div class="story-carousel">
+      <div class="story-card">
+        <div class="quote">"We stayed together very well. It made you feel safe and wanted and loved."</div>
+        <div class="attribution">— SENJ6, on growing up in Harlem</div>
+      </div>
+      <div class="story-card">
+        <div class="quote">"I was afraid of racists."</div>
+        <div class="attribution">— BMNJ, on the murder of Emmett Till</div>
+      </div>
+      <div class="story-card">
+        <div class="quote">"It doesn't take anything away from you."</div>
+        <div class="attribution">— BMNJ, on school integration</div>
+      </div>
+      <div class="story-card">
+        <div class="quote">"Everybody has something to give."</div>
+        <div class="attribution">— BMNJ6, on DACA</div>
+      </div>
+      <div class="story-card">
+        <div class="quote">"One person does matter."</div>
+        <div class="attribution">— BMNJ6, on Hurricane Katrina</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================
+       FORM
+       ============================================ -->
+  <div class="form-container" id="formContainer">
+    <div class="progress-label" id="progressLabel">1 of 6</div>
+    <div class="progress-bar" id="progressBar"></div>
+
+    <!-- SECTION 1: Early Life -->
+    <div class="form-section active" data-section="early-life">
+      <div class="section-label">Early Life</div>
+      <div class="prompt-text">Tell us about where you grew up. What was your neighborhood like?</div>
+      <textarea class="answer-area" placeholder="Type your answer here..."></textarea>
+      <div class="recorder-section">
+        <div class="or-divider">or</div>
+        <button class="record-btn" onclick="toggleRecording(this)">
+          <svg class="mic-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+          <span class="pulse-dot"></span>
+          <span class="btn-label">Record your answer</span>
+        </button>
+        <div class="recording-status"></div>
+        <div class="transcription-preview"></div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-skip" onclick="navigate(1, true)">Skip</button>
+        <button class="btn btn-next" onclick="navigate(1)">Next</button>
+      </div>
+    </div>
+
+    <!-- SECTION 2: Family & Community -->
+    <div class="form-section" data-section="family-community">
+      <div class="section-label">Family & Community</div>
+      <div class="prompt-text">Who were the important people in your community growing up? What did they teach you?</div>
+      <textarea class="answer-area" placeholder="Type your answer here..."></textarea>
+      <div class="recorder-section">
+        <div class="or-divider">or</div>
+        <button class="record-btn" onclick="toggleRecording(this)">
+          <svg class="mic-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+          <span class="pulse-dot"></span>
+          <span class="btn-label">Record your answer</span>
+        </button>
+        <div class="recording-status"></div>
+        <div class="transcription-preview"></div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-back" onclick="navigate(-1)">Back</button>
+        <button class="btn btn-skip" onclick="navigate(1, true)">Skip</button>
+        <button class="btn btn-next" onclick="navigate(1)">Next</button>
+      </div>
+    </div>
+
+    <!-- SECTION 3: Challenges -->
+    <div class="form-section" data-section="challenges">
+      <div class="section-label">Challenges</div>
+      <div class="prompt-text">What obstacles or injustices have you faced in your life? How did you respond?</div>
+      <textarea class="answer-area" placeholder="Type your answer here..."></textarea>
+      <div class="recorder-section">
+        <div class="or-divider">or</div>
+        <button class="record-btn" onclick="toggleRecording(this)">
+          <svg class="mic-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+          <span class="pulse-dot"></span>
+          <span class="btn-label">Record your answer</span>
+        </button>
+        <div class="recording-status"></div>
+        <div class="transcription-preview"></div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-back" onclick="navigate(-1)">Back</button>
+        <button class="btn btn-skip" onclick="navigate(1, true)">Skip</button>
+        <button class="btn btn-next" onclick="navigate(1)">Next</button>
+      </div>
+    </div>
+
+    <!-- SECTION 4: Civic Life -->
+    <div class="form-section" data-section="civic-life">
+      <div class="section-label">Civic Life</div>
+      <div class="prompt-text">Have you been involved in activism, voting, or community organizing? Tell us about it.</div>
+      <textarea class="answer-area" placeholder="Type your answer here..."></textarea>
+      <div class="recorder-section">
+        <div class="or-divider">or</div>
+        <button class="record-btn" onclick="toggleRecording(this)">
+          <svg class="mic-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+          <span class="pulse-dot"></span>
+          <span class="btn-label">Record your answer</span>
+        </button>
+        <div class="recording-status"></div>
+        <div class="transcription-preview"></div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-back" onclick="navigate(-1)">Back</button>
+        <button class="btn btn-skip" onclick="navigate(1, true)">Skip</button>
+        <button class="btn btn-next" onclick="navigate(1)">Next</button>
+      </div>
+    </div>
+
+    <!-- SECTION 5: Culture & Identity -->
+    <div class="form-section" data-section="culture-identity">
+      <div class="section-label">Culture & Identity</div>
+      <div class="prompt-text">What traditions, values, or cultural practices are most important to you? What do you want the next generation to know?</div>
+      <textarea class="answer-area" placeholder="Type your answer here..."></textarea>
+      <div class="recorder-section">
+        <div class="or-divider">or</div>
+        <button class="record-btn" onclick="toggleRecording(this)">
+          <svg class="mic-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+          <span class="pulse-dot"></span>
+          <span class="btn-label">Record your answer</span>
+        </button>
+        <div class="recording-status"></div>
+        <div class="transcription-preview"></div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-back" onclick="navigate(-1)">Back</button>
+        <button class="btn btn-skip" onclick="navigate(1, true)">Skip</button>
+        <button class="btn btn-next" onclick="navigate(1)">Next</button>
+      </div>
+    </div>
+
+    <!-- SECTION 6: Looking Forward -->
+    <div class="form-section" data-section="looking-forward">
+      <div class="section-label">Looking Forward</div>
+      <div class="prompt-text">What gives you hope? What message would you leave for future generations?</div>
+      <textarea class="answer-area" placeholder="Type your answer here..."></textarea>
+      <div class="recorder-section">
+        <div class="or-divider">or</div>
+        <button class="record-btn" onclick="toggleRecording(this)">
+          <svg class="mic-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+          <span class="pulse-dot"></span>
+          <span class="btn-label">Record your answer</span>
+        </button>
+        <div class="recording-status"></div>
+        <div class="transcription-preview"></div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-back" onclick="navigate(-1)">Back</button>
+        <button class="btn btn-submit" onclick="submitForm()">Submit Your Story</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================
+       COMPLETION
+       ============================================ -->
+  <div class="completion" id="completion">
+    <div class="checkmark">&#10003;</div>
+    <h2>Thank You</h2>
+    <p>Your story has been recorded. Every voice helps weave the fabric of our shared history.</p>
+  </div>
+
+  <!-- ============================================
+       JAVASCRIPT
+       ============================================ -->
+  <script>
+    var sections = document.querySelectorAll('.form-section');
+    var currentIndex = 0;
+    var totalSections = sections.length;
+    var responses = {};
+    var audioBlobs = {};
+
+    // Active recording state
+    var activeRecorder = null;
+    var activeRecognition = null;
+
+    // Build progress bar
+    var progressBar = document.getElementById('progressBar');
+    for (var i = 0; i < totalSections; i++) {
+      var step = document.createElement('div');
+      step.className = 'progress-step' + (i === 0 ? ' active' : '');
+      progressBar.appendChild(step);
+    }
+
+    function updateProgress() {
+      var steps = progressBar.querySelectorAll('.progress-step');
+      for (var i = 0; i < steps.length; i++) {
+        steps[i].className = 'progress-step';
+        if (i < currentIndex) steps[i].classList.add('done');
+        if (i === currentIndex) steps[i].classList.add('active');
+      }
+      document.getElementById('progressLabel').textContent =
+        (currentIndex + 1) + ' of ' + totalSections;
+    }
+
+    function saveCurrentResponse() {
+      var section = sections[currentIndex];
+      var key = section.getAttribute('data-section');
+      var textarea = section.querySelector('.answer-area');
+      var transcription = section.querySelector('.transcription-preview');
+      var text = textarea.value.trim();
+      if (!text && transcription && transcription.textContent.trim()) {
+        text = transcription.textContent.trim();
+      }
+      if (text) responses[key] = text;
+    }
+
+    function navigate(direction, isSkip) {
+      // Stop any active recording
+      if (activeRecorder) stopRecording();
+
+      if (!isSkip) saveCurrentResponse();
+
+      var nextIndex = currentIndex + direction;
+      if (nextIndex < 0 || nextIndex >= totalSections) return;
+
+      sections[currentIndex].classList.remove('active');
+      currentIndex = nextIndex;
+      sections[currentIndex].classList.add('active');
+      updateProgress();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function submitForm() {
+      saveCurrentResponse();
+
+      // Log responses (replace with actual submission later)
+      console.log('Story responses:', responses);
+      console.log('Audio blobs:', audioBlobs);
+
+      // Show completion
+      document.getElementById('formContainer').style.display = 'none';
+      document.getElementById('completion').classList.add('active');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // ── Voice Recording ──────────────────────────
+    function toggleRecording(btn) {
+      if (btn.classList.contains('recording')) {
+        stopRecording();
+      } else {
+        startRecording(btn);
+      }
+    }
+
+    function startRecording(btn) {
+      var section = btn.closest('.form-section');
+      var statusEl = section.querySelector('.recording-status');
+      var previewEl = section.querySelector('.transcription-preview');
+      var label = btn.querySelector('.btn-label');
+
+      // Request microphone
+      navigator.mediaDevices.getUserMedia({ audio: true })
+        .then(function(stream) {
+          btn.classList.add('recording');
+          label.textContent = 'Stop recording';
+          statusEl.textContent = 'Listening...';
+          previewEl.textContent = '';
+          previewEl.classList.add('visible');
+
+          // MediaRecorder for audio capture
+          var recorder = new MediaRecorder(stream);
+          var chunks = [];
+          recorder.ondataavailable = function(e) { chunks.push(e.data); };
+          recorder.onstop = function() {
+            var blob = new Blob(chunks, { type: 'audio/webm' });
+            var key = section.getAttribute('data-section');
+            audioBlobs[key] = blob;
+            stream.getTracks().forEach(function(t) { t.stop(); });
+          };
+          recorder.start();
+          activeRecorder = { recorder: recorder, btn: btn, section: section };
+
+          // SpeechRecognition for live transcription
+          var SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+          if (SpeechRecognition) {
+            var recognition = new SpeechRecognition();
+            recognition.continuous = true;
+            recognition.interimResults = true;
+            recognition.lang = 'en-US';
+
+            var finalTranscript = '';
+            recognition.onresult = function(event) {
+              var interim = '';
+              for (var i = event.resultIndex; i < event.results.length; i++) {
+                if (event.results[i].isFinal) {
+                  finalTranscript += event.results[i][0].transcript + ' ';
+                } else {
+                  interim += event.results[i][0].transcript;
+                }
+              }
+              previewEl.textContent = finalTranscript + interim;
+            };
+
+            recognition.onerror = function(e) {
+              if (e.error !== 'aborted') {
+                statusEl.textContent = 'Speech recognition unavailable — audio still recording.';
+              }
+            };
+
+            recognition.onend = function() {
+              // Auto-restart if still recording
+              if (btn.classList.contains('recording')) {
+                try { recognition.start(); } catch(e) {}
+              }
+            };
+
+            recognition.start();
+            activeRecognition = recognition;
+          } else {
+            statusEl.textContent = 'Recording audio (transcription not supported in this browser)';
+          }
+        })
+        .catch(function(err) {
+          statusEl.textContent = 'Microphone access denied. Please allow microphone access.';
+          console.error('Mic error:', err);
+        });
+    }
+
+    function stopRecording() {
+      if (!activeRecorder) return;
+
+      var btn = activeRecorder.btn;
+      var section = activeRecorder.section;
+      var statusEl = section.querySelector('.recording-status');
+      var previewEl = section.querySelector('.transcription-preview');
+      var textarea = section.querySelector('.answer-area');
+      var label = btn.querySelector('.btn-label');
+
+      btn.classList.remove('recording');
+      label.textContent = 'Record your answer';
+      statusEl.textContent = 'Recording saved.';
+
+      activeRecorder.recorder.stop();
+
+      if (activeRecognition) {
+        try { activeRecognition.stop(); } catch(e) {}
+        activeRecognition = null;
+      }
+
+      // Copy transcription to textarea if textarea is empty
+      if (!textarea.value.trim() && previewEl.textContent.trim()) {
+        textarea.value = previewEl.textContent.trim();
+      }
+
+      activeRecorder = null;
+    }
+  </script>
+</body>
+</html>
