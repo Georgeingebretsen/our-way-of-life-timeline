@@ -32,7 +32,7 @@ exports.handler = async (event) => {
 
   const fields = {
     "Submitted At": now,
-    "Status": "Todo",
+    "Review Status": "Pending",
     "Language": data.language || "English",
   };
 
