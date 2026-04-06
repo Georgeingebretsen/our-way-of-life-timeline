@@ -15,7 +15,7 @@ exports.handler = async () => {
 
   try {
     const url = new URL(`https://api.airtable.com/v0/${BASE_ID}/${encodeURIComponent(TABLE_NAME)}`);
-    url.searchParams.set("filterByFormula", '{Status} = "Approved"');
+    url.searchParams.set("filterByFormula", '{Status} = "Done"');
     url.searchParams.set("sort[0][field]", "Submitted At");
     url.searchParams.set("sort[0][direction]", "desc");
 
