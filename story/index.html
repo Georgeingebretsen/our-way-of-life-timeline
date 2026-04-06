@@ -952,14 +952,34 @@
     function submitForm() {
       saveCurrentResponse();
 
-      // Log responses (replace with actual submission later)
-      console.log('Story responses:', responses);
-      console.log('Audio blobs:', audioBlobs);
+      // Add current language
+      responses.language = currentLang === 'es' ? 'Spanish' : currentLang === 'zh' ? 'Mandarin' : 'English';
 
-      // Show completion
-      document.getElementById('formContainer').style.display = 'none';
-      document.getElementById('completion').classList.add('active');
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      // Disable submit button
+      var submitBtn = document.querySelector('.btn-submit');
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = currentLang === 'es' ? 'Enviando...' : currentLang === 'zh' ? '提交中...' : 'Submitting...';
+      }
+
+      fetch('/.netlify/functions/submit-story', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(responses),
+      })
+        .then(function(res) { return res.json(); })
+        .then(function(data) {
+          document.getElementById('formContainer').style.display = 'none';
+          document.getElementById('completion').classList.add('active');
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        })
+        .catch(function(err) {
+          console.error('Submit error:', err);
+          // Show completion anyway so user isn't stuck
+          document.getElementById('formContainer').style.display = 'none';
+          document.getElementById('completion').classList.add('active');
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
     }
 
     // ── Voice Recording ──────────────────────────
