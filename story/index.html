@@ -589,16 +589,6 @@
 <p data-i18n="header-desc">Your voice matters. Answer as many or as few prompts as you'd like — type your response or record it with your voice.</p>
 </div>
 <!-- ============================================
-       APPROVED COMMUNITY STORIES
-       ============================================ -->
-<div class="approved-stories" id="approvedStories" style="display:none;">
-  <div class="featured-stories">
-    <h3 data-i18n="approved-heading">Voices from Our Community</h3>
-    <div id="approvedList" class="approved-list"></div>
-  </div>
-</div>
-
-<!-- ============================================
        FORM
        ============================================ -->
 <div class="form-container" id="formContainer">
@@ -1139,81 +1129,6 @@
       activeRecorder = null;
     }
 
-    // ── Load Approved Stories ────────────────────
-    (function loadApprovedStories() {
-      fetch('/.netlify/functions/approved-stories')
-        .then(function(res) { return res.json(); })
-        .then(function(data) {
-          if (!data.stories || data.stories.length === 0) return;
-
-          var container = document.getElementById('approvedList');
-          var wrapper = document.getElementById('approvedStories');
-
-          var sectionLabels = {
-            earlyLife: 'Early Life',
-            firstHelping: 'First Experiences Helping Others',
-            influences: 'Influences & Motivations',
-            turningPoints: 'Life Transitions',
-            identityCivic: 'Identity & Civic Participation',
-            meaningfulContributions: 'Meaningful Contributions',
-            reflections: 'Reflections',
-            communitySupport: 'Community Support'
-          };
-
-          data.stories.forEach(function(story) {
-            var card = document.createElement('div');
-            card.className = 'approved-card';
-
-            // Meta line
-            var meta = document.createElement('div');
-            meta.className = 'approved-meta';
-            var parts = [];
-            if (story.ethnicity) parts.push(story.ethnicity);
-            if (story.age) parts.push('Age ' + story.age);
-            if (story.language && story.language !== 'English') {
-              var badge = document.createElement('span');
-              badge.className = 'badge';
-              badge.textContent = story.language;
-              meta.appendChild(badge);
-            }
-            if (parts.length) {
-              var span = document.createElement('span');
-              span.textContent = parts.join(' \u00B7 ');
-              meta.appendChild(span);
-            }
-            if (meta.children.length) card.appendChild(meta);
-
-            // Story sections
-            var hasContent = false;
-            var storyFields = ['earlyLife','firstHelping','influences','turningPoints','identityCivic','meaningfulContributions','reflections','communitySupport'];
-            storyFields.forEach(function(key) {
-              if (story[key]) {
-                hasContent = true;
-                var label = document.createElement('div');
-                label.className = 'approved-section-label';
-                label.textContent = sectionLabels[key] || key;
-                card.appendChild(label);
-
-                var text = document.createElement('div');
-                text.className = 'approved-text';
-                text.textContent = story[key];
-                card.appendChild(text);
-              }
-            });
-
-            if (hasContent) {
-              container.appendChild(card);
-            }
-          });
-
-          if (container.children.length > 0) {
-            wrapper.style.display = 'block';
-          }
-        })
-        .catch(function(err) {
-          console.log('Could not load approved stories:', err);
-        });
-    })();
   </script>
 </body>
 </html>
