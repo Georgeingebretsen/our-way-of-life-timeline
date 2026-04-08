@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>The Strikers of Coachella — A Visual Companion</title>
+  <meta name="description" content="A digital magazine inspired by Christian O. Paiz's The Strikers of Coachella: A Rank-and-File History of the UFW Movement." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,600&family=Special+Elite&display=swap"
+    rel="stylesheet"
+  />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main id="app" data-state="closed">
+    <!-- ============================== STATE 1: CLOSED BOOK ============================== -->
+    <section class="stage stage-closed" aria-label="Closed book">
+      <div class="closed-wrap">
+        <div class="book-3d" id="closedBook" role="button" tabindex="0" aria-label="Open the book">
+          <div class="book-cover">
+            <!-- Cover: 1973 United Farm Workers Strike Support Committee
+                 dance benefit poster, Internet Archive item calacsp_000133.
+                 Public Domain — no restrictions on use. -->
+            <img class="cover-art-img"
+                 src="images/28_ufw_dance_benefit_poster_1973.jpg"
+                 alt="1973 United Farm Workers Strike Support Committee dance benefit poster, with the UFW eagle flag and two silhouetted faces. Public Domain via Internet Archive."/>
+            <div class="cover-text">
+              <p class="cover-byline">a visual companion · after the book by <span>christian o. paiz</span></p>
+            </div>
+          </div>
+          <div class="book-side"></div>
+          <div class="book-pages"></div>
+        </div>
+        <p class="open-hint">click the book to open</p>
+      </div>
+    </section>
+
+    <!-- ============================== STATE 2: OPEN SPREAD ============================== -->
+    <section class="stage stage-spread" aria-label="Open book">
+      <div class="spread-frame">
+        <div class="spread-book" id="spreadBook">
+          <!-- spreads injected by JS -->
+        </div>
+      </div>
+      <nav class="spread-nav" aria-label="Spread navigation">
+        <button class="nav-btn" id="spreadPrev" aria-label="Previous spread">←</button>
+        <span class="page-indicator" id="spreadIndicator">1 / 5</span>
+        <button class="nav-btn" id="spreadNext" aria-label="Next spread">→</button>
+        <button class="nav-btn ghost" id="closeBook">close book</button>
+      </nav>
+      <p class="zoom-hint">click any page to read it up close</p>
+    </section>
+
+    <!-- ============================== STATE 3: ZOOMED PAGE ============================== -->
+    <section class="stage stage-zoom" aria-label="Zoomed page">
+      <article class="zoomed-page" id="zoomedPage">
+        <!-- injected by JS -->
+      </article>
+      <nav class="zoom-nav" aria-label="Page navigation">
+        <button class="nav-btn ghost" id="zoomBack">← back to book</button>
+        <button class="nav-btn" id="zoomPrev" aria-label="Previous page">←</button>
+        <span class="page-indicator" id="zoomIndicator">1 / 10</span>
+        <button class="nav-btn" id="zoomNext" aria-label="Next page">→</button>
+      </nav>
+    </section>
+  </main>
+
+  <!-- ============================== AUDIO PLAYER ============================== -->
+  <aside class="player" id="audioPlayer" aria-label="78 RPM record player">
+    <button class="player-btn" id="playerToggle" aria-label="Play / pause">
+      <svg class="vinyl" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <circle cx="20" cy="20" r="19" fill="#1a0f08"/>
+        <circle cx="20" cy="20" r="14" fill="none" stroke="#3a2515" stroke-width="0.4"/>
+        <circle cx="20" cy="20" r="11" fill="none" stroke="#3a2515" stroke-width="0.4"/>
+        <circle cx="20" cy="20" r="8"  fill="none" stroke="#3a2515" stroke-width="0.4"/>
+        <circle cx="20" cy="20" r="5" fill="#c8102e"/>
+        <circle cx="20" cy="20" r="1" fill="#1a0f08"/>
+      </svg>
+    </button>
+    <div class="player-meta">
+      <p class="player-title">No Te Necesito Más</p>
+      <p class="player-sub">Los Jaibos · 78 RPM · Internet Archive</p>
+    </div>
+    <audio id="bgAudio" preload="metadata" crossorigin="anonymous">
+      <source src="https://archive.org/download/78_no-te-nesecito-mas-i-dont-need-you-anymore_los-jaibos-ventura-roja-gilberto-peinado_gbia0542426a/NO%20TE%20NESECITO%20MAS%20%28I%20don%27t%20need%20you%20anymore.mp3" type="audio/mpeg"/>
+    </audio>
+  </aside>
+
+  <script src="script.js"></script>
+</body>
+</html>

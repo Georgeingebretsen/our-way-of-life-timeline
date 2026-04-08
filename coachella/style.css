@@ -1,0 +1,1403 @@
+/* ============================================================
+   The Strikers of Coachella — A Visual Companion
+   Lo-fi / DIY zine aesthetic
+   ============================================================ */
+
+:root {
+  --paper:        #f1e3c4;
+  --paper-deep:   #e6d3a8;
+  --paper-edge:   #c9b787;
+  --ink:          #2b1a0e;
+  --ink-soft:     #5a4231;
+  --huelga:       #c8102e;
+  --huelga-deep:  #962033;
+  --gold:         #d4a437;
+  --sky:          #b8c5cc;
+  --shadow:       rgba(43, 26, 14, 0.35);
+  --shadow-deep:  rgba(0, 0, 0, 0.55);
+
+  --serif:    'EB Garamond', Garamond, Georgia, serif;
+  --display:  'EB Garamond', Garamond, Georgia, serif;
+  --slab:     'EB Garamond', Georgia, serif;
+  --typer:    'Special Elite', 'Courier New', monospace;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  height: 100%;
+  font-family: var(--serif);
+  color: var(--ink);
+  background: #1a0f08;
+  overflow: hidden;
+}
+
+body {
+  /* moody gallery wall background */
+  background:
+    radial-gradient(ellipse at center, #2b1810 0%, #110805 100%);
+  background-attachment: fixed;
+}
+
+#app {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+  perspective: 2400px;
+}
+
+/* ============================================================
+   STAGE STATES — only one visible at a time
+   ============================================================ */
+
+.stage {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.6s ease;
+}
+
+#app[data-state="closed"] .stage-closed,
+#app[data-state="opening"] .stage-closed,
+#app[data-state="spread"]  .stage-spread,
+#app[data-state="zooming"] .stage-zoom,
+#app[data-state="zoomed"]  .stage-zoom {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+#app[data-state="opening"] .stage-closed { transition-delay: 0s; }
+#app[data-state="spread"]  .stage-spread { transition-delay: 0.4s; }
+
+/* ============================================================
+   STATE 1 — CLOSED BOOK
+   ============================================================ */
+
+.closed-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 30px;
+}
+
+.book-3d {
+  position: relative;
+  width: 540px;
+  height: 770px;
+  cursor: pointer;
+  transform-style: preserve-3d;
+  transform: rotateX(8deg) rotateY(-22deg);
+  transition: transform 0.8s cubic-bezier(0.7, 0, 0.3, 1);
+  filter: drop-shadow(28px 38px 50px rgba(0,0,0,0.7));
+}
+
+.book-3d:hover {
+  transform: rotateX(6deg) rotateY(-16deg) translateY(-6px);
+}
+
+.book-3d:focus { outline: none; }
+.book-3d:focus-visible { outline: 3px solid var(--gold); outline-offset: 14px; }
+
+#app[data-state="opening"] .book-3d {
+  transform: rotateX(0deg) rotateY(0deg) translateZ(50px) scale(1.05);
+}
+
+.book-cover {
+  position: absolute;
+  inset: 0;
+  background: #000;
+  border-radius: 2px 6px 6px 2px;
+  overflow: hidden;
+  transform-origin: left center;
+  transition: transform 0.9s cubic-bezier(0.6, 0, 0.2, 1);
+  backface-visibility: hidden;
+  box-shadow:
+    inset 0 0 80px rgba(0,0,0,0.6),
+    inset 8px 0 12px rgba(0,0,0,0.55);
+}
+
+#app[data-state="opening"] .book-cover {
+  transform: rotateY(-160deg);
+}
+
+.cover-art-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;       /* show the whole poster, no cropping */
+  object-position: center center;
+  display: block;
+  background: #000;
+}
+
+/* The poster has its own typography, so the byline is hidden on the
+   cover and lives only on the inside title page. */
+.cover-text {
+  display: none;
+}
+
+/* book side / pages stack — give it 3D depth */
+.book-side {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  width: 24px;
+  background: linear-gradient(to right, #b89d65, #e6d3a8 30%, #b89d65);
+  transform: rotateY(90deg) translateZ(-12px) translateX(12px);
+  transform-origin: right center;
+}
+
+.book-pages {
+  position: absolute;
+  inset: 4px 14px 4px 4px;
+  background: repeating-linear-gradient(
+    to bottom,
+    #f5ead0 0,
+    #f5ead0 2px,
+    #d8c389 2px,
+    #d8c389 3px
+  );
+  transform: translateZ(-2px);
+  z-index: -1;
+}
+
+.open-hint {
+  font-family: var(--typer);
+  font-size: 13px;
+  letter-spacing: 2px;
+  color: var(--paper);
+  opacity: 0.65;
+  text-transform: lowercase;
+  animation: pulse 2.4s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.4; }
+  50%      { opacity: 0.85; }
+}
+
+/* ============================================================
+   STATE 2 — OPEN SPREAD
+   ============================================================ */
+
+.spread-frame {
+  width: min(96vw, 1100px);
+  height: min(78vh, 660px);
+  position: relative;
+}
+
+.spread-book {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  border-radius: 4px;
+  background: #2b1810;
+  padding: 14px;
+  box-shadow:
+    0 30px 60px rgba(0,0,0,0.7),
+    0 6px 12px rgba(0,0,0,0.4);
+}
+
+.spread {
+  display: none;
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+.spread.active {
+  display: flex;
+}
+
+.spread::before {
+  /* center spine shadow */
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 30px;
+  transform: translateX(-50%);
+  background: linear-gradient(to right,
+    transparent,
+    rgba(0,0,0,0.45) 50%,
+    transparent);
+  pointer-events: none;
+  z-index: 5;
+}
+
+.page {
+  flex: 1 1 50%;
+  height: 100%;
+  background: var(--paper);
+  position: relative;
+  cursor: zoom-in;
+  overflow: hidden;
+  transition: transform 0.4s ease, box-shadow 0.4s ease;
+  /* paper grain via subtle gradients */
+  background-image:
+    radial-gradient(ellipse at 20% 30%, rgba(255,255,255,0.4), transparent 60%),
+    radial-gradient(ellipse at 80% 70%, rgba(43,26,14,0.08), transparent 60%);
+}
+
+.page.left  { border-radius: 3px 0 0 3px; box-shadow: inset -8px 0 14px rgba(43,26,14,0.18); }
+.page.right { border-radius: 0 3px 3px 0; box-shadow: inset  8px 0 14px rgba(43,26,14,0.18); }
+
+.page:hover {
+  transform: translateY(-2px);
+}
+
+.page:hover::after {
+  content: '↗ click to read';
+  position: absolute;
+  bottom: 14px;
+  right: 18px;
+  font-family: var(--typer);
+  font-size: 10px;
+  letter-spacing: 1px;
+  background: var(--ink);
+  color: var(--paper);
+  padding: 6px 10px;
+  border-radius: 2px;
+  pointer-events: none;
+  opacity: 0.9;
+}
+
+/* page small (preview) styling */
+.page .page-inner {
+  padding: 24px 28px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  font-size: 11px;
+  line-height: 1.5;
+  color: var(--ink);
+  /* shrink content visually for preview */
+  transform-origin: center;
+}
+.zoomed-page {
+  display: flex;
+  flex-direction: column;
+}
+
+.page .page-num {
+  position: absolute;
+  bottom: 14px;
+  font-family: var(--typer);
+  font-size: 10px;
+  letter-spacing: 2px;
+  color: var(--ink-soft);
+  opacity: 0.8;
+}
+.page.left  .page-num { left: 24px; }
+.page.right .page-num { right: 24px; }
+
+.spread-nav {
+  margin-top: 28px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.zoom-hint {
+  margin-top: 12px;
+  font-family: var(--typer);
+  font-size: 11px;
+  letter-spacing: 1.5px;
+  color: var(--paper);
+  opacity: 0.55;
+}
+
+.nav-btn {
+  font-family: var(--typer);
+  font-size: 12px;
+  letter-spacing: 1.5px;
+  color: var(--paper);
+  background: transparent;
+  border: 1px solid var(--paper);
+  padding: 8px 16px;
+  cursor: pointer;
+  text-transform: lowercase;
+  transition: all 0.2s ease;
+  border-radius: 2px;
+}
+.nav-btn:hover {
+  background: var(--paper);
+  color: var(--ink);
+}
+.nav-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+.nav-btn.ghost {
+  border-color: rgba(241,227,196,0.4);
+  color: rgba(241,227,196,0.7);
+}
+.nav-btn.ghost:hover {
+  background: rgba(241,227,196,0.15);
+  color: var(--paper);
+  border-color: var(--paper);
+}
+
+.page-indicator {
+  font-family: var(--typer);
+  font-size: 12px;
+  letter-spacing: 2px;
+  color: var(--paper);
+  opacity: 0.7;
+  min-width: 60px;
+  text-align: center;
+}
+
+/* ============================================================
+   STATE 3 — ZOOMED PAGE
+   ============================================================ */
+
+.zoomed-page {
+  width: min(94vw, 820px);
+  height: min(86vh, 1100px);
+  background: var(--paper);
+  border-radius: 3px;
+  padding: 60px 70px;
+  overflow-y: auto;
+  position: relative;
+  box-shadow:
+    0 40px 80px rgba(0,0,0,0.7),
+    0 8px 20px rgba(0,0,0,0.4);
+  background-image:
+    radial-gradient(ellipse at 20% 20%, rgba(255,255,255,0.5), transparent 60%),
+    radial-gradient(ellipse at 80% 80%, rgba(43,26,14,0.1), transparent 60%);
+  transform: scale(0.85);
+  opacity: 0;
+  transition: transform 0.5s cubic-bezier(0.6, 0, 0.2, 1), opacity 0.5s ease;
+}
+
+#app[data-state="zoomed"] .zoomed-page {
+  transform: scale(1);
+  opacity: 1;
+}
+
+.zoomed-page::-webkit-scrollbar { width: 8px; }
+.zoomed-page::-webkit-scrollbar-track { background: transparent; }
+.zoomed-page::-webkit-scrollbar-thumb {
+  background: rgba(43,26,14,0.3);
+  border-radius: 4px;
+}
+
+.zoom-nav {
+  margin-top: 24px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+/* ============================================================
+   PAGE CONTENT — shared typography & layouts
+   ============================================================ */
+
+.page-content {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* The hero photo on a normal page should grow to fill the leftover
+   vertical space — no awkward gaps. */
+.page-content > .photo-figure.hero,
+.page-content > .photo-figure.document {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+.page-content > .photo-figure.hero img {
+  flex: 1 1 auto;
+  width: 100%;
+  height: 100%;
+  max-height: none;
+  object-fit: cover;
+  min-height: 0;
+}
+.page-content > .photo-figure.document img {
+  flex: 1 1 auto;
+  width: 100%;
+  height: 100%;
+  max-height: none;
+  object-fit: contain;
+  background: #e6d3a8;
+  min-height: 0;
+}
+
+/* leave room for the figcaption below the flexing image */
+.page-content > .photo-figure figcaption {
+  flex: 0 0 auto;
+}
+
+.page-content h1,
+.page-content h2,
+.page-content h3 {
+  font-family: var(--display);
+  font-weight: 700;
+  color: var(--ink);
+  letter-spacing: -0.01em;
+}
+
+.page-content h1 { font-size: 48px; line-height: 0.95; margin-bottom: 14px; }
+.page-content h2 { font-size: 28px; line-height: 1.05; margin-bottom: 12px; }
+.page-content h3 { font-size: 18px; line-height: 1.15; margin-bottom: 8px; }
+
+.page-content p {
+  font-family: var(--serif);
+  font-size: 16px;
+  line-height: 1.55;
+  color: var(--ink);
+  margin-bottom: 12px;
+}
+
+.page-content .eyebrow {
+  font-family: var(--typer);
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: lowercase;
+  color: var(--huelga);
+  margin-bottom: 8px;
+}
+
+.page-content .rule {
+  border: none;
+  border-top: 1px solid var(--ink);
+  margin: 14px 0;
+  opacity: 0.4;
+}
+
+.page-content .pull-quote {
+  font-family: var(--display);
+  font-size: 24px;
+  line-height: 1.2;
+  color: var(--huelga);
+  border-left: 3px solid var(--huelga);
+  padding: 4px 0 4px 18px;
+  margin: 14px 0;
+  font-style: italic;
+}
+
+.page-content .caption {
+  font-family: var(--typer);
+  font-size: 10px;
+  letter-spacing: 1px;
+  color: var(--ink-soft);
+  margin-top: 6px;
+}
+
+/* small/preview adjustments — shrink type when page is in spread view */
+.page .page-content h1 { font-size: 22px; }
+.page .page-content h2 { font-size: 14px; }
+.page .page-content h3 { font-size: 11px; }
+.page .page-content p  { font-size: 8.5px; line-height: 1.45; margin-bottom: 6px; }
+.page .page-content .eyebrow { font-size: 7px; margin-bottom: 4px; }
+.page .page-content .pull-quote { font-size: 12px; padding-left: 9px; border-left-width: 2px; }
+.page .page-content .caption    { font-size: 6.5px; }
+.page .page-content .rule       { margin: 8px 0; }
+
+.page-inner {
+  padding: 22px 24px;
+}
+.zoomed-page .page-content { font-size: 16px; }
+
+/* ============================================================
+   SHARED PHOTO FIGURES
+   ============================================================ */
+
+.photo-figure {
+  margin: 8px 0 6px;
+  background: transparent;
+  position: relative;
+}
+.photo-figure img {
+  display: block;
+  width: 100%;
+  height: auto;
+  filter: contrast(1.05) brightness(0.97);
+  background: #1a0f08;
+}
+.photo-figure figcaption {
+  font-family: var(--typer);
+  font-size: 6.5px;
+  letter-spacing: 0.3px;
+  color: var(--ink-soft);
+  padding: 3px 0 0;
+  line-height: 1.4;
+  text-transform: lowercase;
+}
+.photo-figure figcaption .pd {
+  color: var(--huelga);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-weight: 700;
+}
+.zoomed-page .photo-figure {
+  margin: 16px 0 10px;
+}
+.zoomed-page .photo-figure figcaption {
+  font-size: 11px;
+  padding: 8px 0 0;
+}
+
+/* hero (full-width) */
+.photo-figure.hero img {
+  width: 100%;
+  max-height: 200px;
+  object-fit: cover;
+  object-position: center 45%;
+}
+.zoomed-page .photo-figure.hero img {
+  max-height: 720px;
+}
+/* full = even bigger, dominates the page */
+.photo-figure.hero.full img {
+  max-height: 260px;
+}
+.zoomed-page .photo-figure.hero.full img {
+  max-height: 860px;
+}
+/* tall = vertical hero, for portraits */
+.photo-figure.hero.tall img {
+  max-height: 280px;
+}
+.zoomed-page .photo-figure.hero.tall img {
+  max-height: 880px;
+}
+/* fullbleed = pure photo page, image fills nearly the whole page */
+.photo-figure.fullbleed {
+  margin: 0 -30px;
+  flex: 1;
+}
+.photo-figure.fullbleed img {
+  width: 100%;
+  max-height: 320px;
+  object-fit: cover;
+}
+.zoomed-page .photo-figure.fullbleed {
+  margin: 8px -70px 0;
+}
+.zoomed-page .photo-figure.fullbleed img {
+  max-height: 920px;
+}
+
+/* small inset (about 50% width, floats right) */
+.photo-figure.inset {
+  width: 45%;
+  float: right;
+  margin: 4px 0 6px 8px;
+  clear: right;
+}
+.zoomed-page .photo-figure.inset {
+  width: 40%;
+  margin: 8px 0 14px 18px;
+}
+
+/* image-row: two photos side by side */
+.image-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  margin: 6px 0;
+}
+.zoomed-page .image-row { gap: 14px; margin: 14px 0; }
+.image-row .photo-figure { margin: 0; }
+.image-row .photo-figure img { max-height: 90px; }
+.zoomed-page .image-row .photo-figure img { max-height: 280px; }
+
+/* ===== big magazine-style blockquotes ===== */
+blockquote {
+  margin: 10px 0;
+  padding: 6px 0 6px 12px;
+  border-left: 2px solid var(--ink);
+  font-family: var(--display);
+  font-size: 11px;
+  line-height: 1.25;
+  font-style: italic;
+  color: var(--ink);
+}
+.zoomed-page blockquote {
+  margin: 22px 0;
+  padding: 10px 0 10px 22px;
+  border-left-width: 3px;
+  font-size: 22px;
+}
+blockquote cite {
+  display: block;
+  font-family: var(--typer);
+  font-style: normal;
+  font-size: 7px;
+  letter-spacing: 0.5px;
+  color: var(--huelga);
+  text-transform: lowercase;
+  margin-top: 4px;
+}
+.zoomed-page blockquote cite {
+  font-size: 11px;
+  margin-top: 10px;
+}
+
+/* big = oversized magazine pull-quote */
+blockquote.big {
+  font-size: 18px;
+  border-left: none;
+  padding-left: 0;
+  text-align: left;
+  margin: 14px 0 8px;
+  line-height: 1.1;
+}
+.zoomed-page blockquote.big {
+  font-size: 48px;
+  margin: 32px 0 18px;
+}
+
+/* red = huelga red */
+blockquote.red,
+blockquote.red.big { color: var(--huelga); }
+blockquote.red { border-left-color: var(--huelga); }
+
+/* centered text */
+blockquote.centered {
+  text-align: center;
+  border-left: none;
+  padding: 8px 0;
+}
+blockquote.centered cite { text-align: center; }
+
+/* on dark layouts (rancher), photos still pop */
+.layout-rancher .photo-figure img {
+  filter: contrast(1.1) brightness(0.92);
+}
+.layout-rancher .photo-figure figcaption {
+  color: rgba(241,227,196,0.65) !important;
+}
+.layout-rancher .photo-figure figcaption .pd {
+  color: var(--gold) !important;
+}
+
+/* ============================================================
+   PAGE-SPECIFIC LAYOUTS
+   ============================================================ */
+
+/* ---- ABOUT (inside cover) ---- */
+.layout-about {
+  background:
+    radial-gradient(ellipse at top left, rgba(200,16,46,0.08), transparent 60%),
+    var(--paper);
+}
+.layout-about .stamp {
+  display: inline-block;
+  border: 2px solid var(--huelga);
+  color: var(--huelga);
+  font-family: var(--slab);
+  font-size: 12px;
+  letter-spacing: 2px;
+  padding: 6px 10px;
+  transform: rotate(-3deg);
+  margin-bottom: 14px;
+}
+.zoomed-page .layout-about .stamp { font-size: 18px; padding: 8px 16px; }
+
+/* ---- IN A SMALL PLACE ---- */
+.layout-small-place {
+  background: var(--paper);
+}
+.layout-small-place h1 {
+  font-size: 36px;
+}
+.zoomed-page .layout-small-place h1 {
+  font-size: 88px;
+}
+
+/* ---- BLANK SPACER PAGE ---- */
+.layout-blank {
+  background: var(--paper);
+  cursor: default;
+}
+.layout-blank .page-num { display: none; }
+.layout-blank::after { display: none !important; }
+.layout-blank:hover { transform: none; }
+
+/* ---- QUOTE-ONLY PAGE (single quote dominates the page) ----
+   These selectors deliberately use !important so they win against
+   the smaller `.page .page-content p` preview rule. */
+.layout-quote {
+  background: var(--paper);
+  position: relative;
+}
+.layout-quote .page-inner,
+.zoomed-page.layout-quote {
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+  align-items: center !important;
+  height: 100% !important;
+  text-align: center !important;
+  padding: 24px !important;
+}
+.layout-quote .page-content {
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+  align-items: center !important;
+  height: 100% !important;
+  width: 100% !important;
+}
+.layout-quote .big-quote {
+  font-family: var(--display) !important;
+  font-weight: 700 !important;
+  font-size: 36px !important;
+  line-height: 1.0 !important;
+  color: var(--ink);
+  max-width: 92%;
+  text-align: center;
+  letter-spacing: -0.015em;
+  margin: 0 !important;
+  padding: 0 12px;
+}
+.zoomed-page .layout-quote .big-quote {
+  font-size: 110px !important;
+  max-width: 92%;
+  line-height: 0.98 !important;
+  padding: 0 24px;
+}
+.layout-quote .big-quote.red {
+  color: var(--huelga);
+}
+.layout-quote .quote-attribution {
+  font-family: var(--typer) !important;
+  font-size: 9px !important;
+  letter-spacing: 1.5px !important;
+  color: var(--huelga) !important;
+  text-transform: lowercase;
+  margin-top: 22px !important;
+}
+.zoomed-page .layout-quote .quote-attribution {
+  font-size: 18px !important;
+  margin-top: 48px !important;
+}
+.layout-quote .quote-rule {
+  width: 40px;
+  height: 2px;
+  background: var(--huelga);
+  margin: 22px 0 0;
+}
+.zoomed-page .layout-quote .quote-rule {
+  width: 80px;
+  height: 4px;
+  margin: 36px 0 0;
+}
+
+/* ---- TITLE-ONLY PAGE (just a chapter heading) ---- */
+.layout-title {
+  background: var(--paper);
+  position: relative;
+}
+.layout-title .page-inner {
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+  align-items: center !important;
+  height: 100% !important;
+  text-align: center !important;
+  padding: 24px !important;
+}
+.layout-title .page-content {
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+  align-items: center !important;
+  height: 100% !important;
+  width: 100% !important;
+  text-align: center !important;
+}
+.layout-title .chapter-num {
+  font-family: var(--typer) !important;
+  font-size: 11px !important;
+  letter-spacing: 3px !important;
+  text-transform: uppercase !important;
+  color: var(--huelga) !important;
+  margin-bottom: 18px !important;
+}
+.zoomed-page .layout-title .chapter-num {
+  font-size: 20px !important;
+  margin-bottom: 42px !important;
+  letter-spacing: 6px !important;
+}
+.layout-title h1 {
+  font-size: 64px !important;
+  line-height: 0.95 !important;
+  color: var(--ink) !important;
+  margin: 0 !important;
+  text-align: center;
+  font-weight: 700 !important;
+}
+.zoomed-page .layout-title h1 {
+  font-size: 150px !important;
+}
+.layout-title .chapter-sub {
+  font-family: var(--typer) !important;
+  font-size: 9px !important;
+  letter-spacing: 1.2px !important;
+  color: var(--ink-soft) !important;
+  text-transform: lowercase;
+  margin-top: 22px !important;
+  text-align: center;
+  max-width: 80%;
+}
+.zoomed-page .layout-title .chapter-sub {
+  font-size: 16px !important;
+  margin-top: 48px !important;
+}
+
+/* ---- PURE PHOTO PAGE (full bleed, no padding, no gaps) ---- */
+.layout-pure {
+  background: #e6d3a8;  /* paper, not black */
+  position: relative;
+}
+/* kill all padding for pure pages, image fills page edge to edge */
+.layout-pure .page-inner {
+  padding: 0 !important;
+  height: 100%;
+}
+.zoomed-page.layout-pure {
+  padding: 0 !important;
+}
+.page-content.pure {
+  height: 100% !important;
+  width: 100% !important;
+  position: relative !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  display: block !important;
+}
+.page-content.pure .photo-figure,
+.page-content.pure .photo-figure.fullbleed,
+.page-content.pure .photo-figure.hero,
+.page-content.pure .photo-figure.document {
+  margin: 0 !important;
+  position: absolute !important;
+  inset: 0 !important;
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+  max-height: none !important;
+}
+.page-content.pure .photo-figure img,
+.page-content.pure .photo-figure.fullbleed img,
+.page-content.pure .photo-figure.hero img {
+  width: 100% !important;
+  height: 100% !important;
+  max-height: none !important;
+  object-fit: cover !important;
+  display: block !important;
+}
+.page-content.pure .photo-figure.document img {
+  object-fit: contain !important;
+  background: #e6d3a8 !important;
+}
+.page-content.pure .photo-figure figcaption {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  left: 0;
+  background: rgba(26,15,8,0.82);
+  color: var(--paper);
+  padding: 4px 8px;
+  font-size: 6.5px;
+  letter-spacing: 0.5px;
+  z-index: 5;
+  text-align: right;
+}
+.zoomed-page .page-content.pure .photo-figure figcaption {
+  font-size: 11px;
+  padding: 10px 22px;
+}
+.page-content.pure .photo-figure figcaption .pd {
+  color: var(--gold);
+}
+
+.corner-label {
+  position: absolute;
+  top: 8px;
+  left: 10px;
+  z-index: 6;
+  font-family: var(--typer);
+  font-size: 6.5px;
+  letter-spacing: 1px;
+  color: var(--paper);
+  background: rgba(26,15,8,0.78);
+  padding: 3px 6px;
+  text-transform: lowercase;
+}
+.zoomed-page .corner-label {
+  top: 22px;
+  left: 28px;
+  font-size: 11px;
+  padding: 6px 12px;
+}
+
+/* ---- FACES GRID (2x2) — fills available height ---- */
+.layout-malcriado .photo-grid.faces-grid {
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+}
+.layout-malcriado .photo-grid.faces-grid .photo {
+  grid-column: auto !important;
+  grid-row: auto !important;
+}
+
+/* ---- PEREGRINACIÓN (was MAP) ---- */
+.layout-pilgrimage {
+  background: var(--paper);
+  display: flex;
+  flex-direction: column;
+}
+.layout-pilgrimage h1 {
+  font-size: 36px;
+  margin-bottom: 4px;
+}
+.zoomed-page .layout-pilgrimage h1 {
+  font-size: 80px;
+}
+
+/* document scans (UFW papers) — preserve aspect ratio, contain rather than crop */
+.photo-figure.document {
+  background: #1a0f08;
+  margin: 8px 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+.photo-figure.document img {
+  width: 100%;
+  max-height: 260px;
+  object-fit: contain;
+  background: #e6d3a8;
+  filter: contrast(1.05);
+}
+.zoomed-page .photo-figure.document img {
+  max-height: 920px;
+}
+
+/* ---- THE LAW OF THE JUNGLE (chapter 1) ---- */
+.layout-jungle {
+  background: var(--paper);
+}
+.layout-jungle h1 {
+  font-size: 32px;
+  margin-bottom: 4px;
+}
+.zoomed-page .layout-jungle h1 {
+  font-size: 78px;
+}
+
+/* ---- RANCHER NATION ---- */
+.layout-rancher {
+  background: #1a0f08;
+  color: var(--paper);
+}
+.layout-rancher * { color: var(--paper) !important; }
+.layout-rancher h1,
+.layout-rancher h2 { color: var(--gold) !important; }
+.layout-rancher .pull-quote {
+  color: var(--huelga) !important;
+  border-left-color: var(--huelga) !important;
+}
+.layout-rancher .eyebrow { color: var(--gold) !important; }
+.layout-rancher .rule { border-top-color: var(--paper) !important; opacity: 0.3; }
+
+/* ---- EL MALCRIADO (real photo grid) ---- */
+.layout-malcriado {
+  background: #ede1c0;
+}
+.layout-malcriado .photo-grid {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  gap: 3px;
+  margin: 6px 0;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+.zoomed-page .layout-malcriado .photo-grid {
+  gap: 10px;
+  margin: 14px 0;
+}
+.layout-malcriado .photo {
+  background: #1a0f08;
+  position: relative;
+  overflow: hidden;
+}
+.layout-malcriado .photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+  filter: contrast(1.05) brightness(0.96);
+}
+.layout-malcriado .photo-1 { grid-column: 1; grid-row: 1 / 3; }
+.layout-malcriado .photo-2 { grid-column: 2; grid-row: 1; }
+.layout-malcriado .photo-3 { grid-column: 3; grid-row: 1; }
+.layout-malcriado .photo-4 { grid-column: 2; grid-row: 2; }
+.layout-malcriado .photo-5 { grid-column: 3; grid-row: 2; }
+.layout-malcriado .photo-label {
+  position: absolute;
+  bottom: 2px;
+  left: 3px;
+  right: 3px;
+  font-family: var(--typer);
+  font-size: 5.5px;
+  color: var(--paper);
+  letter-spacing: 0.5px;
+  background: rgba(0,0,0,0.55);
+  padding: 1px 3px;
+  text-transform: lowercase;
+}
+.zoomed-page .layout-malcriado .photo-label {
+  font-size: 11px;
+  bottom: 6px;
+  left: 6px;
+  right: 6px;
+  padding: 4px 6px;
+}
+.layout-malcriado .nameplate {
+  font-family: var(--slab);
+  font-size: 22px;
+  letter-spacing: 1px;
+  border-top: 3px solid var(--ink);
+  border-bottom: 3px solid var(--ink);
+  padding: 4px 0;
+  text-transform: uppercase;
+  text-align: center;
+  margin-bottom: 14px;
+}
+.zoomed-page .layout-malcriado .nameplate {
+  font-size: 38px;
+  padding: 8px 0;
+  margin-bottom: 28px;
+}
+.layout-malcriado .eyebrow {
+  margin-top: 10px;
+  margin-bottom: 14px;
+}
+.zoomed-page .layout-malcriado .eyebrow {
+  margin-top: 14px;
+  margin-bottom: 22px;
+}
+
+/* ---- SI SE PUEDE ---- */
+.layout-sisepuede {
+  background:
+    linear-gradient(135deg, var(--paper) 0%, var(--paper-deep) 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 24px;
+}
+.layout-sisepuede .big-text {
+  font-family: var(--display);
+  font-size: 50px;
+  line-height: 0.9;
+  color: var(--huelga);
+}
+.zoomed-page .layout-sisepuede .big-text { font-size: 110px; }
+.layout-sisepuede .translation {
+  font-family: var(--typer);
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: var(--ink);
+  margin-top: 6px;
+}
+.zoomed-page .layout-sisepuede .translation { font-size: 14px; margin-top: 14px; }
+.layout-sisepuede svg.eagle {
+  width: 100px;
+  height: auto;
+  margin-top: 12px;
+}
+.zoomed-page .layout-sisepuede svg.eagle { width: 240px; margin-top: 24px; }
+.layout-sisepuede .body {
+  margin-top: 14px;
+  max-width: 420px;
+  font-size: 10px !important;
+}
+.zoomed-page .layout-sisepuede .body { font-size: 16px !important; }
+
+/* ---- VOICES ---- */
+.layout-voices .voice {
+  border-top: 1px solid var(--ink);
+  padding: 6px 0;
+}
+.zoomed-page .layout-voices .voice { padding: 14px 0; }
+.layout-voices .voice .quote {
+  font-family: var(--display);
+  font-size: 12px;
+  line-height: 1.2;
+  color: var(--ink);
+  font-style: italic;
+}
+.zoomed-page .layout-voices .voice .quote { font-size: 28px; line-height: 1.25; }
+.layout-voices .voice .attribution {
+  font-family: var(--typer);
+  font-size: 7px;
+  letter-spacing: 1px;
+  color: var(--huelga);
+  margin-top: 4px;
+  text-transform: lowercase;
+}
+.zoomed-page .layout-voices .voice .attribution { font-size: 11px; margin-top: 8px; }
+
+/* voice + photo: side-by-side magazine cards */
+.layout-voices .voice.with-photo {
+  display: grid;
+  grid-template-columns: 90px 1fr;
+  gap: 10px;
+  align-items: center;
+}
+.zoomed-page .layout-voices .voice.with-photo {
+  grid-template-columns: 380px 1fr;
+  gap: 32px;
+  margin: 18px 0;
+}
+.layout-voices .voice.with-photo.flipped {
+  grid-template-columns: 1fr 90px;
+}
+.zoomed-page .layout-voices .voice.with-photo.flipped {
+  grid-template-columns: 1fr 380px;
+}
+.layout-voices .voice.with-photo.flipped .photo-figure {
+  order: 2;
+}
+.layout-voices .voice .photo-figure { margin: 0; }
+.layout-voices .voice .photo-figure img {
+  width: 100%;
+  height: 90px;
+  object-fit: cover;
+  object-position: center;
+}
+.zoomed-page .layout-voices .voice .photo-figure img {
+  height: 360px;
+}
+.layout-voices .voice .photo-figure figcaption {
+  display: none;
+}
+.zoomed-page .layout-voices .voice .photo-figure figcaption {
+  display: block;
+  font-size: 9px;
+  padding-top: 4px;
+}
+
+/* ---- HERE IS WHERE WE MEET ---- */
+.layout-meet {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  text-align: center;
+  background:
+    radial-gradient(ellipse at center, var(--paper) 0%, var(--paper-deep) 100%);
+}
+.layout-meet h1 {
+  font-size: 36px !important;
+  margin-bottom: 14px;
+}
+.zoomed-page .layout-meet h1 { font-size: 64px !important; }
+.layout-meet .closing {
+  font-style: italic;
+  max-width: 480px;
+  margin: 12px auto;
+}
+
+/* ---- COLOPHON ---- */
+.layout-colophon {
+  background:
+    linear-gradient(180deg, var(--paper) 0%, var(--paper-deep) 100%);
+}
+.layout-colophon .meta-line {
+  font-family: var(--typer);
+  font-size: 7px;
+  line-height: 1.6;
+  letter-spacing: 0.3px;
+  color: var(--ink);
+  margin-top: 4px;
+}
+.layout-colophon .meta-line strong {
+  color: var(--huelga);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+.zoomed-page .layout-colophon .meta-line {
+  font-size: 12px;
+  margin-top: 10px;
+}
+.layout-colophon code {
+  font-family: var(--typer);
+  font-size: 0.95em;
+  background: rgba(43,26,14,0.08);
+  padding: 1px 4px;
+}
+
+.layout-colophon .contact-sheet {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 2px;
+  margin: 6px 0;
+}
+.zoomed-page .layout-colophon .contact-sheet {
+  grid-template-columns: repeat(6, 1fr);
+  gap: 6px;
+  margin: 14px 0 18px;
+}
+.layout-colophon .contact-sheet img {
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+  display: block;
+  background: #1a0f08;
+  filter: contrast(1.05) brightness(0.96);
+}
+
+/* ============================================================
+   AUDIO PLAYER (bottom-right, fixed)
+   ============================================================ */
+
+.player {
+  position: fixed;
+  bottom: 18px;
+  right: 18px;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px 8px 8px;
+  background: var(--paper);
+  border: 1px solid var(--ink);
+  border-radius: 2px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.5);
+  font-family: var(--typer);
+  max-width: 240px;
+  user-select: none;
+  transition: opacity 0.3s ease;
+}
+
+.player-btn {
+  width: 38px;
+  height: 38px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  padding: 0;
+  flex-shrink: 0;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.player-btn:hover { transform: scale(1.05); }
+.player-btn:focus { outline: none; }
+.player-btn:focus-visible { outline: 2px solid var(--huelga); outline-offset: 3px; }
+
+.vinyl {
+  width: 38px;
+  height: 38px;
+  display: block;
+}
+.player.playing .vinyl {
+  animation: spin 4s linear infinite;
+}
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+/* Triangle play overlay (hidden when playing) */
+.player-btn::after {
+  content: '';
+  position: absolute;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 6px 0 6px 10px;
+  border-color: transparent transparent transparent var(--paper);
+  margin-left: 2px;
+  pointer-events: none;
+  opacity: 0.95;
+}
+.player.playing .player-btn::after {
+  /* show pause bars instead */
+  border: none;
+  width: 8px;
+  height: 12px;
+  background:
+    linear-gradient(to right, var(--paper) 0%, var(--paper) 30%, transparent 30%, transparent 70%, var(--paper) 70%, var(--paper) 100%);
+  margin-left: 0;
+}
+
+.player-meta {
+  flex: 1;
+  min-width: 0;
+}
+.player-title {
+  font-size: 9px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.2;
+}
+.player-sub {
+  font-size: 7px;
+  letter-spacing: 0.5px;
+  color: var(--ink-soft);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-top: 2px;
+}
+
+/* hide on the closed-book stage so the cover gets clean focus */
+#app[data-state="closed"] ~ .player,
+#app[data-state="closed"] + .player {
+  opacity: 0.5;
+}
+
+/* ============================================================
+   SMALL SCREENS
+   ============================================================ */
+@media (max-width: 900px) {
+  .book-3d { width: 360px; height: 520px; }
+}
+@media (max-width: 720px) {
+  .book-3d { width: 280px; height: 400px; }
+  .spread-frame { height: min(70vh, 520px); }
+  .zoomed-page { padding: 36px 28px; }
+}
+
+@media (max-width: 520px) {
+  /* on phones, show only one page at a time inside the spread */
+  .spread { flex-direction: column; }
+  .spread::before { display: none; }
+  .page { flex: 0 0 100%; }
+  .page.left  { display: none; } /* hide left, show right (current page) */
+  .spread.show-left .page.left  { display: block; }
+  .spread.show-left .page.right { display: none; }
+}
