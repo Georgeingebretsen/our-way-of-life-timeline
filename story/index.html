@@ -420,6 +420,29 @@
       min-width: 0;
     }
 
+    .delete-audio-btn {
+      flex-shrink: 0;
+      width: 32px;
+      height: 32px;
+      border: none;
+      background: transparent;
+      color: #8b7355;
+      font-size: 1.5rem;
+      line-height: 1;
+      cursor: pointer;
+      border-radius: 50%;
+      transition: all 0.15s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+    }
+
+    .delete-audio-btn:hover {
+      background: #fee2e2;
+      color: #dc2626;
+    }
+
     /* ============================================
        BUTTONS
        ============================================ */
@@ -783,7 +806,7 @@
 </button>
 <div class="recording-status"></div>
 <div class="transcription-preview"></div>
-<div class="audio-preview"><div class="check-icon">&#10003;</div><span class="saved-label" data-i18n="saved-label">Recording saved</span><audio controls></audio></div>
+<div class="audio-preview"><div class="check-icon">&#10003;</div><span class="saved-label" data-i18n="saved-label">Recording saved</span><audio controls></audio><button type="button" class="delete-audio-btn" onclick="deleteAudio(this)" aria-label="Delete recording" title="Delete recording">&times;</button></div>
 </div>
 <div class="btn-row">
 <button class="btn btn-back" data-i18n="btn-back" onclick="navigate(-1)">Back</button>
@@ -806,7 +829,7 @@
 </button>
 <div class="recording-status"></div>
 <div class="transcription-preview"></div>
-<div class="audio-preview"><div class="check-icon">&#10003;</div><span class="saved-label" data-i18n="saved-label">Recording saved</span><audio controls></audio></div>
+<div class="audio-preview"><div class="check-icon">&#10003;</div><span class="saved-label" data-i18n="saved-label">Recording saved</span><audio controls></audio><button type="button" class="delete-audio-btn" onclick="deleteAudio(this)" aria-label="Delete recording" title="Delete recording">&times;</button></div>
 </div>
 <div class="btn-row">
 <button class="btn btn-back" data-i18n="btn-back" onclick="navigate(-1)">Back</button>
@@ -829,7 +852,7 @@
 </button>
 <div class="recording-status"></div>
 <div class="transcription-preview"></div>
-<div class="audio-preview"><div class="check-icon">&#10003;</div><span class="saved-label" data-i18n="saved-label">Recording saved</span><audio controls></audio></div>
+<div class="audio-preview"><div class="check-icon">&#10003;</div><span class="saved-label" data-i18n="saved-label">Recording saved</span><audio controls></audio><button type="button" class="delete-audio-btn" onclick="deleteAudio(this)" aria-label="Delete recording" title="Delete recording">&times;</button></div>
 </div>
 <div class="btn-row">
 <button class="btn btn-back" data-i18n="btn-back" onclick="navigate(-1)">Back</button>
@@ -852,7 +875,7 @@
 </button>
 <div class="recording-status"></div>
 <div class="transcription-preview"></div>
-<div class="audio-preview"><div class="check-icon">&#10003;</div><span class="saved-label" data-i18n="saved-label">Recording saved</span><audio controls></audio></div>
+<div class="audio-preview"><div class="check-icon">&#10003;</div><span class="saved-label" data-i18n="saved-label">Recording saved</span><audio controls></audio><button type="button" class="delete-audio-btn" onclick="deleteAudio(this)" aria-label="Delete recording" title="Delete recording">&times;</button></div>
 </div>
 <div class="btn-row">
 <button class="btn btn-back" data-i18n="btn-back" onclick="navigate(-1)">Back</button>
@@ -875,7 +898,7 @@
 </button>
 <div class="recording-status"></div>
 <div class="transcription-preview"></div>
-<div class="audio-preview"><div class="check-icon">&#10003;</div><span class="saved-label" data-i18n="saved-label">Recording saved</span><audio controls></audio></div>
+<div class="audio-preview"><div class="check-icon">&#10003;</div><span class="saved-label" data-i18n="saved-label">Recording saved</span><audio controls></audio><button type="button" class="delete-audio-btn" onclick="deleteAudio(this)" aria-label="Delete recording" title="Delete recording">&times;</button></div>
 </div>
 <div class="btn-row">
 <button class="btn btn-back" data-i18n="btn-back" onclick="navigate(-1)">Back</button>
@@ -898,7 +921,7 @@
 </button>
 <div class="recording-status"></div>
 <div class="transcription-preview"></div>
-<div class="audio-preview"><div class="check-icon">&#10003;</div><span class="saved-label" data-i18n="saved-label">Recording saved</span><audio controls></audio></div>
+<div class="audio-preview"><div class="check-icon">&#10003;</div><span class="saved-label" data-i18n="saved-label">Recording saved</span><audio controls></audio><button type="button" class="delete-audio-btn" onclick="deleteAudio(this)" aria-label="Delete recording" title="Delete recording">&times;</button></div>
 </div>
 <div class="btn-row">
 <button class="btn btn-back" data-i18n="btn-back" onclick="navigate(-1)">Back</button>
@@ -921,7 +944,7 @@
 </button>
 <div class="recording-status"></div>
 <div class="transcription-preview"></div>
-<div class="audio-preview"><div class="check-icon">&#10003;</div><span class="saved-label" data-i18n="saved-label">Recording saved</span><audio controls></audio></div>
+<div class="audio-preview"><div class="check-icon">&#10003;</div><span class="saved-label" data-i18n="saved-label">Recording saved</span><audio controls></audio><button type="button" class="delete-audio-btn" onclick="deleteAudio(this)" aria-label="Delete recording" title="Delete recording">&times;</button></div>
 </div>
 <div class="btn-row">
 <button class="btn btn-back" data-i18n="btn-back" onclick="navigate(-1)">Back</button>
@@ -1316,6 +1339,28 @@
     }
 
     // ── Upload audio files to Airtable ───────────
+    // ── Delete recording ─────────────────────────
+    function deleteAudio(btn) {
+      var section = btn.closest('.form-section');
+      var key = section.getAttribute('data-section');
+      delete audioBlobs[key];
+
+      var audioPreview = section.querySelector('.audio-preview');
+      audioPreview.classList.remove('visible');
+      var audioEl = audioPreview.querySelector('audio');
+      try { URL.revokeObjectURL(audioEl.src); } catch (e) {}
+      audioEl.removeAttribute('src');
+
+      // Also clear the transcription preview and status
+      var previewEl = section.querySelector('.transcription-preview');
+      if (previewEl) {
+        previewEl.textContent = '';
+        previewEl.classList.remove('visible');
+      }
+      var statusEl = section.querySelector('.recording-status');
+      if (statusEl) statusEl.textContent = '';
+    }
+
     function blobToBase64(blob) {
       return new Promise(function(resolve, reject) {
         var reader = new FileReader();
