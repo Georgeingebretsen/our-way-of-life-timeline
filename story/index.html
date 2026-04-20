@@ -503,6 +503,56 @@
     /* ============================================
        COMPLETION SCREEN
        ============================================ */
+    .confirm-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(92, 58, 30, 0.55);
+      backdrop-filter: blur(3px);
+      z-index: 200;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+    }
+
+    .confirm-overlay.visible { display: flex; }
+
+    .confirm-modal {
+      background: #fffcf5;
+      border-radius: 12px;
+      padding: 1.8rem 1.8rem 1.4rem;
+      max-width: 440px;
+      width: 100%;
+      box-shadow: 0 10px 30px rgba(92, 58, 30, 0.25);
+      animation: modalIn 0.2s ease-out;
+    }
+
+    @keyframes modalIn {
+      from { opacity: 0; transform: translateY(15px) scale(0.96); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .confirm-modal h3 {
+      font-family: "Source Serif 4", Georgia, serif;
+      font-size: 1.4rem;
+      color: #5c3a1e;
+      margin-bottom: 0.7rem;
+    }
+
+    .confirm-modal p {
+      font-size: 0.95rem;
+      color: #8b7355;
+      line-height: 1.6;
+      margin-bottom: 1.4rem;
+    }
+
+    .confirm-btn-row {
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.6rem;
+      flex-wrap: wrap;
+    }
+
     .completion {
       display: none;
       text-align: center;
@@ -953,6 +1003,20 @@
 </div>
 </div>
 <!-- ============================================
+       CONFIRMATION MODAL
+       ============================================ -->
+<div class="confirm-overlay" id="confirmOverlay">
+<div class="confirm-modal">
+<h3 data-i18n="confirm-title">Submit your story?</h3>
+<p data-i18n="confirm-desc">Once submitted, your responses will be sent for review. You won't be able to edit them after this step.</p>
+<div class="confirm-btn-row">
+<button class="btn btn-skip" data-i18n="confirm-cancel" onclick="cancelSubmit()">Cancel</button>
+<button class="btn btn-submit" data-i18n="confirm-confirm" onclick="confirmSubmit()">Yes, Submit</button>
+</div>
+</div>
+</div>
+
+<!-- ============================================
        COMPLETION
        ============================================ -->
 <div class="completion" id="completion">
@@ -1043,6 +1107,10 @@
       "opt-no":            { en: "No", es: "No", zh: "否" },
       "ph-health":         { en: "If yes, please describe", es: "Si sí, por favor describa", zh: "如果有，请说明" },
       "saved-label":       { en: "Recording saved", es: "Grabación guardada", zh: "录音已保存" },
+      "confirm-title":     { en: "Submit your story?", es: "¿Enviar su historia?", zh: "提交您的故事？" },
+      "confirm-desc":      { en: "Once submitted, your responses will be sent for review. You won't be able to edit them after this step.", es: "Una vez enviadas, sus respuestas serán revisadas. No podrá editarlas después de este paso.", zh: "提交后，您的回答将被送审。此步骤之后将无法再编辑。" },
+      "confirm-cancel":    { en: "Cancel", es: "Cancelar", zh: "取消" },
+      "confirm-confirm":   { en: "Yes, Submit", es: "Sí, Enviar", zh: "确认提交" },
       "sec-basic-2":       { en: "A Little More About You", es: "Un Poco Más Sobre Usted", zh: "再了解您一些" },
       "prompt-basic-2":    { en: "A few more questions to get to know you.", es: "Algunas preguntas más para conocerle mejor.", zh: "再问您几个问题，以便更了解您。" },
       "ph-political":      { en: "e.g. Democrat, Republican, Independent", es: "ej. Demócrata, Republicano, Independiente", zh: "例如 民主党、共和党、独立人士" },
@@ -1173,6 +1241,16 @@
     }
 
     function submitForm() {
+      // Show confirmation modal instead of submitting immediately
+      document.getElementById('confirmOverlay').classList.add('visible');
+    }
+
+    function cancelSubmit() {
+      document.getElementById('confirmOverlay').classList.remove('visible');
+    }
+
+    function confirmSubmit() {
+      document.getElementById('confirmOverlay').classList.remove('visible');
       saveCurrentResponse();
 
       // Add current language
