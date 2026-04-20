@@ -245,7 +245,11 @@
       color: #5c3a1e;
       margin-bottom: 1.5rem;
       line-height: 1.4;
+      transition: font-size 0.2s ease;
     }
+
+    .prompt-text.long { font-size: 1.25rem; }
+    .prompt-text.very-long { font-size: 1.15rem; }
 
     /* ============================================
        TEXT INPUT
@@ -685,7 +689,7 @@
 <div class="form-container" id="formContainer">
 <div class="progress-label" id="progressLabel">1 of 9</div>
 <div class="progress-bar" id="progressBar"></div>
-<!-- SECTION 1: Basic Information -->
+<!-- SECTION 1a: Basic Information (Part 1) -->
 <div class="form-section active" data-section="basic-info">
 <div class="section-label" data-i18n="sec-basic">Basic Information</div>
 <div class="prompt-text" data-i18n="prompt-basic">Let's start with a few basics about you.</div>
@@ -716,20 +720,22 @@
 </div>
 <div class="basic-field full-width">
 <label data-i18n="label-political" for="political-party">Political party affiliation?</label>
-<input id="political-party" name="political-party" type="text"/>
+<input data-i18n-placeholder="ph-political" id="political-party" name="political-party" type="text" placeholder="e.g. Democrat, Republican, Independent"/>
 </div>
+</div>
+<div class="btn-row">
+<button class="btn btn-skip" data-i18n="btn-skip" onclick="navigate(1, true)">Skip</button>
+<button class="btn btn-next" data-i18n="btn-next" onclick="navigate(1)">Next</button>
+</div>
+</div>
+<!-- SECTION 1b: Basic Information (Part 2) -->
+<div class="form-section" data-section="basic-info-2">
+<div class="section-label" data-i18n="sec-basic-2">A Little More About You</div>
+<div class="prompt-text" data-i18n="prompt-basic-2">A few more questions to get to know you.</div>
+<div class="basic-fields">
 <div class="basic-field full-width">
-<label data-i18n="label-volunteer">Do you volunteer?</label>
-<div class="radio-group">
-<div class="radio-option">
-<input type="radio" id="volunteer-yes" name="volunteer" value="Yes"/>
-<label for="volunteer-yes" data-i18n="opt-yes">Yes</label>
-</div>
-<div class="radio-option">
-<input type="radio" id="volunteer-no" name="volunteer" value="No"/>
-<label for="volunteer-no" data-i18n="opt-no">No</label>
-</div>
-</div>
+<label data-i18n="label-volunteer" for="volunteer">Do you volunteer?</label>
+<input data-i18n-placeholder="ph-volunteer" id="volunteer" name="volunteer" type="text" placeholder="If yes, how?"/>
 </div>
 <div class="basic-field full-width">
 <label data-i18n="label-voted">Did you vote in the last election?</label>
@@ -753,23 +759,57 @@
 <input id="education" name="education" type="text"/>
 </div>
 <div class="basic-field full-width">
-<label data-i18n="label-health">Any chronic health conditions or disabilities?</label>
-<div class="radio-group">
-<div class="radio-option">
-<input type="radio" id="health-yes" name="health" value="Yes" onchange="toggleHealthDetail()"/>
-<label for="health-yes" data-i18n="opt-yes">Yes</label>
-</div>
-<div class="radio-option">
-<input type="radio" id="health-no" name="health" value="No" onchange="toggleHealthDetail()"/>
-<label for="health-no" data-i18n="opt-no">No</label>
-</div>
-</div>
-<div class="conditional-field" id="health-detail-wrapper">
-<input id="health-detail" name="health-detail" type="text" data-i18n-placeholder="ph-health-detail" placeholder="Please describe..."/>
-</div>
+<label data-i18n="label-health" for="health">Any chronic health conditions or disabilities?</label>
+<input id="health" name="health" type="text" data-i18n-placeholder="ph-health" placeholder="If yes, please describe"/>
 </div>
 </div>
 <div class="btn-row">
+<button class="btn btn-back" data-i18n="btn-back" onclick="navigate(-1)">Back</button>
+<button class="btn btn-skip" data-i18n="btn-skip" onclick="navigate(1, true)">Skip</button>
+<button class="btn btn-next" data-i18n="btn-next" onclick="navigate(1)">Next</button>
+</div>
+</div>
+<!-- SECTION: Civic Participation -->
+<div class="form-section" data-section="civic-meaning">
+<div class="section-label" data-i18n="sec-civic-meaning">Civic Participation</div>
+<div class="prompt-text" data-i18n="prompt-civic-meaning">What does civic participation mean to you?</div>
+<textarea class="answer-area" data-i18n-placeholder="placeholder-answer" placeholder="Type your answer here..."></textarea>
+<div class="recorder-section">
+<div class="or-divider" data-i18n="divider-or">or</div>
+<button class="record-btn" onclick="toggleRecording(this)">
+<svg class="mic-icon" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" x2="12" y1="19" y2="23"></line><line x1="8" x2="16" y1="23" y2="23"></line></svg>
+<span class="pulse-dot"></span>
+<span class="btn-label" data-i18n="btn-record">Record your answer</span>
+</button>
+<div class="recording-status"></div>
+<div class="transcription-preview"></div>
+<div class="audio-preview"><div class="check-icon">&#10003;</div><span class="saved-label" data-i18n="saved-label">Recording saved</span><audio controls></audio></div>
+</div>
+<div class="btn-row">
+<button class="btn btn-back" data-i18n="btn-back" onclick="navigate(-1)">Back</button>
+<button class="btn btn-skip" data-i18n="btn-skip" onclick="navigate(1, true)">Skip</button>
+<button class="btn btn-next" data-i18n="btn-next" onclick="navigate(1)">Next</button>
+</div>
+</div>
+<!-- SECTION: Civic Participation (Community Contribution) -->
+<div class="form-section" data-section="civic-contribution">
+<div class="section-label" data-i18n="sec-civic-contribution">Civic Participation</div>
+<div class="prompt-text" data-i18n="prompt-civic-contribution">In the past 12 months, what community contribution has been most significant for you, and what made this experience meaningful or memorable?</div>
+<div class="prompt-sub" data-i18n="sub-civic-contribution">How did it make you feel to participate in this way?</div>
+<textarea class="answer-area" data-i18n-placeholder="placeholder-answer" placeholder="Type your answer here..."></textarea>
+<div class="recorder-section">
+<div class="or-divider" data-i18n="divider-or">or</div>
+<button class="record-btn" onclick="toggleRecording(this)">
+<svg class="mic-icon" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" x2="12" y1="19" y2="23"></line><line x1="8" x2="16" y1="23" y2="23"></line></svg>
+<span class="pulse-dot"></span>
+<span class="btn-label" data-i18n="btn-record">Record your answer</span>
+</button>
+<div class="recording-status"></div>
+<div class="transcription-preview"></div>
+<div class="audio-preview"><div class="check-icon">&#10003;</div><span class="saved-label" data-i18n="saved-label">Recording saved</span><audio controls></audio></div>
+</div>
+<div class="btn-row">
+<button class="btn btn-back" data-i18n="btn-back" onclick="navigate(-1)">Back</button>
 <button class="btn btn-skip" data-i18n="btn-skip" onclick="navigate(1, true)">Skip</button>
 <button class="btn btn-next" data-i18n="btn-next" onclick="navigate(1)">Next</button>
 </div>
@@ -777,8 +817,8 @@
 <!-- SECTION 2: Early Life -->
 <div class="form-section" data-section="early-life">
 <div class="section-label" data-i18n="sec-early">Early Life</div>
-<div class="prompt-text" data-i18n="prompt-early">What can you tell me about the culture of the country where you grew up?</div>
-<div class="prompt-sub" data-i18n="sub-early">How did that compare to your own personal experiences in your neighborhood growing up?</div>
+<div class="prompt-text" data-i18n="prompt-early">How would you describe the way individuals contributed/helped each other in the community where you grew up?</div>
+<div class="prompt-sub" data-i18n="sub-early">How was this culture similar or different from your personal experiences with your neighborhood or community?</div>
 <textarea class="answer-area" data-i18n-placeholder="placeholder-answer" placeholder="Type your answer here..."></textarea>
 <div class="recorder-section">
 <div class="or-divider" data-i18n="divider-or">or</div>
@@ -800,8 +840,8 @@
 <!-- SECTION 3: First Experiences with Helping Others -->
 <div class="form-section" data-section="first-helping">
 <div class="section-label" data-i18n="sec-helping">First Experiences with Helping Others</div>
-<div class="prompt-text" data-i18n="prompt-helping">Can you tell me about one of the first times you got involved in helping others or making a difference?</div>
-<div class="prompt-sub" data-i18n="sub-helping">What motivated you at the time (personal experiences, family, culture, or social/political influences)?</div>
+<div class="prompt-text" data-i18n="prompt-helping">Share a story of one of the first times you chose to help others or make a difference in a person's life, group, or community.</div>
+<div class="prompt-sub" data-i18n="sub-helping">What motivated you (personally, socially, or politically), and how did that experience make you feel?</div>
 <textarea class="answer-area" data-i18n-placeholder="placeholder-answer" placeholder="Type your answer here..."></textarea>
 <div class="recorder-section">
 <div class="or-divider" data-i18n="divider-or">or</div>
@@ -822,9 +862,9 @@
 </div>
 <!-- SECTION 4: Influences and Motivations -->
 <div class="form-section" data-section="influences">
-<div class="section-label" data-i18n="sec-influences">Influences and Motivations</div>
-<div class="prompt-text" data-i18n="prompt-influences">Who or what influenced how you think about your role in society and contributing to others?</div>
-<div class="prompt-sub" data-i18n="sub-influences">How old were you when these influences became important? Has your understanding of your role in contributing to society changed over time? If so, how?</div>
+<div class="section-label" data-i18n="sec-influences">Experiences with Helping Others</div>
+<div class="prompt-text" data-i18n="prompt-influences">Share a story about something that happened in your life that changed how you contribute to your community or society (e.g., moving to a new place, changes in health, work, or loss).</div>
+<div class="prompt-sub" data-i18n="sub-influences">How did this experience affect you? What changed in your perspective or actions?</div>
 <textarea class="answer-area" data-i18n-placeholder="placeholder-answer" placeholder="Type your answer here..."></textarea>
 <div class="recorder-section">
 <div class="or-divider" data-i18n="divider-or">or</div>
@@ -843,34 +883,11 @@
 <button class="btn btn-next" data-i18n="btn-next" onclick="navigate(1)">Next</button>
 </div>
 </div>
-<!-- SECTION 5: Life Transitions & Turning Points -->
-<div class="form-section" data-section="turning-points">
-<div class="section-label" data-i18n="sec-turning">Life Transitions &amp; Turning Points</div>
-<div class="prompt-text" data-i18n="prompt-turning">Can you share an experience in your life that changed how you contribute to your community or society?</div>
-<div class="prompt-sub" data-i18n="sub-turning">How did that experience affect you emotionally, and what changed in your actions or perspective?</div>
-<textarea class="answer-area" data-i18n-placeholder="placeholder-answer" placeholder="Type your answer here..."></textarea>
-<div class="recorder-section">
-<div class="or-divider" data-i18n="divider-or">or</div>
-<button class="record-btn" onclick="toggleRecording(this)">
-<svg class="mic-icon" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" x2="12" y1="19" y2="23"></line><line x1="8" x2="16" y1="23" y2="23"></line></svg>
-<span class="pulse-dot"></span>
-<span class="btn-label" data-i18n="btn-record">Record your answer</span>
-</button>
-<div class="recording-status"></div>
-<div class="transcription-preview"></div>
-<div class="audio-preview"><div class="check-icon">&#10003;</div><span class="saved-label" data-i18n="saved-label">Recording saved</span><audio controls></audio></div>
-</div>
-<div class="btn-row">
-<button class="btn btn-back" data-i18n="btn-back" onclick="navigate(-1)">Back</button>
-<button class="btn btn-skip" data-i18n="btn-skip" onclick="navigate(1, true)">Skip</button>
-<button class="btn btn-next" data-i18n="btn-next" onclick="navigate(1)">Next</button>
-</div>
-</div>
-<!-- SECTION 6: Identity & Civic Participation -->
+<!-- SECTION: Identity & Civic Participation -->
 <div class="form-section" data-section="identity-civic">
-<div class="section-label" data-i18n="sec-identity">Identity &amp; Civic Participation</div>
-<div class="prompt-text" data-i18n="prompt-identity">Thinking about your identity (age, race/ethnicity, gender, language, or health), can you describe a time when these aspects shaped your participation in a community or civic activity?</div>
-<div class="prompt-sub" data-i18n="sub-identity">Were there times when your identity encouraged you or led others to call on you to get involved? Were there also times when your identity made it harder to participate or made you feel excluded?</div>
+<div class="section-label" data-i18n="sec-identity">Identity</div>
+<div class="prompt-text" data-i18n="prompt-identity">Share a story about a time when aspects of your identity (e.g., age, race, ethnicity, nationality, gender, language, or health status) shaped your participation in a civic or community activity.</div>
+<div class="prompt-sub" data-i18n="sub-identity">Reflect on how these experiences affected you and in what ways they influenced your participation moving forward.</div>
 <textarea class="answer-area" data-i18n-placeholder="placeholder-answer" placeholder="Type your answer here..."></textarea>
 <div class="recorder-section">
 <div class="or-divider" data-i18n="divider-or">or</div>
@@ -889,57 +906,11 @@
 <button class="btn btn-next" data-i18n="btn-next" onclick="navigate(1)">Next</button>
 </div>
 </div>
-<!-- SECTION 7: Meaningful Contributions -->
-<div class="form-section" data-section="meaningful-contributions">
-<div class="section-label" data-i18n="sec-meaningful">Meaningful Contributions</div>
-<div class="prompt-text" data-i18n="prompt-meaningful">In the past year or so, what community involvement or contribution has been most meaningful to you?</div>
-<div class="prompt-sub" data-i18n="sub-meaningful">What made that experience stand out, and how did it make you feel?</div>
-<textarea class="answer-area" data-i18n-placeholder="placeholder-answer" placeholder="Type your answer here..."></textarea>
-<div class="recorder-section">
-<div class="or-divider" data-i18n="divider-or">or</div>
-<button class="record-btn" onclick="toggleRecording(this)">
-<svg class="mic-icon" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" x2="12" y1="19" y2="23"></line><line x1="8" x2="16" y1="23" y2="23"></line></svg>
-<span class="pulse-dot"></span>
-<span class="btn-label" data-i18n="btn-record">Record your answer</span>
-</button>
-<div class="recording-status"></div>
-<div class="transcription-preview"></div>
-<div class="audio-preview"><div class="check-icon">&#10003;</div><span class="saved-label" data-i18n="saved-label">Recording saved</span><audio controls></audio></div>
-</div>
-<div class="btn-row">
-<button class="btn btn-back" data-i18n="btn-back" onclick="navigate(-1)">Back</button>
-<button class="btn btn-skip" data-i18n="btn-skip" onclick="navigate(1, true)">Skip</button>
-<button class="btn btn-next" data-i18n="btn-next" onclick="navigate(1)">Next</button>
-</div>
-</div>
-<!-- SECTION 8: Reflections -->
-<div class="form-section" data-section="reflections">
-<div class="section-label" data-i18n="sec-reflections">Reflections</div>
-<div class="prompt-text" data-i18n="prompt-reflections">What does civic participation mean to you personally?</div>
-<div class="prompt-sub" data-i18n="sub-reflections">What advice would you give others about the importance of contributing to the community beyond family and work?</div>
-<textarea class="answer-area" data-i18n-placeholder="placeholder-answer" placeholder="Type your answer here..."></textarea>
-<div class="recorder-section">
-<div class="or-divider" data-i18n="divider-or">or</div>
-<button class="record-btn" onclick="toggleRecording(this)">
-<svg class="mic-icon" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" x2="12" y1="19" y2="23"></line><line x1="8" x2="16" y1="23" y2="23"></line></svg>
-<span class="pulse-dot"></span>
-<span class="btn-label" data-i18n="btn-record">Record your answer</span>
-</button>
-<div class="recording-status"></div>
-<div class="transcription-preview"></div>
-<div class="audio-preview"><div class="check-icon">&#10003;</div><span class="saved-label" data-i18n="saved-label">Recording saved</span><audio controls></audio></div>
-</div>
-<div class="btn-row">
-<button class="btn btn-back" data-i18n="btn-back" onclick="navigate(-1)">Back</button>
-<button class="btn btn-skip" data-i18n="btn-skip" onclick="navigate(1, true)">Skip</button>
-<button class="btn btn-next" data-i18n="btn-next" onclick="navigate(1)">Next</button>
-</div>
-</div>
-<!-- SECTION 9: Community Support & Future Participation -->
+<!-- SECTION: Reflections & Advice -->
 <div class="form-section" data-section="community-support">
-<div class="section-label" data-i18n="sec-support">Community Support &amp; Future Participation</div>
-<div class="prompt-text" data-i18n="prompt-support">What kinds of support do you think are needed to help people, especially older adults, stay involved in their communities?</div>
-<div class="prompt-sub" data-i18n="sub-support">What would make it easier for more people to participate?</div>
+<div class="section-label" data-i18n="sec-support">Reflections &amp; Advice</div>
+<div class="prompt-text" data-i18n="prompt-support">After thinking about how you have contributed over the years, what advice would you give people about the importance of getting involved and contributing to others outside family and work?</div>
+<div class="prompt-sub" data-i18n="sub-support"></div>
 <textarea class="answer-area" data-i18n-placeholder="placeholder-answer" placeholder="Type your answer here..."></textarea>
 <div class="recorder-section">
 <div class="or-divider" data-i18n="divider-or">or</div>
@@ -989,12 +960,12 @@
       "sec-basic":         { en: "Basic Information", es: "Información Básica", zh: "基本信息" },
       "sec-early":         { en: "Early Life", es: "Vida Temprana", zh: "早年生活" },
       "sec-helping":       { en: "First Experiences with Helping Others", es: "Primeras Experiencias Ayudando a Otros", zh: "初次帮助他人的经历" },
-      "sec-influences":    { en: "Influences and Motivations", es: "Influencias y Motivaciones", zh: "影响与动力" },
+      "sec-influences":    { en: "Experiences with Helping Others", es: "Experiencias Ayudando a Otros", zh: "帮助他人的经历" },
       "sec-turning":       { en: "Life Transitions & Turning Points", es: "Transiciones y Momentos Decisivos", zh: "人生转折与关键时刻" },
-      "sec-identity":      { en: "Identity & Civic Participation", es: "Identidad y Participación Cívica", zh: "身份认同与公民参与" },
+      "sec-identity":      { en: "Identity", es: "Identidad", zh: "身份认同" },
       "sec-meaningful":    { en: "Meaningful Contributions", es: "Contribuciones Significativas", zh: "有意义的贡献" },
       "sec-reflections":   { en: "Reflections", es: "Reflexiones", zh: "感悟与反思" },
-      "sec-support":       { en: "Community Support & Future Participation", es: "Apoyo Comunitario y Participación Futura", zh: "社区支持与未来参与" },
+      "sec-support":       { en: "Reflections & Advice", es: "Reflexiones y Consejos", zh: "感悟与建议" },
       "prompt-basic":      { en: "Let\u2019s start with a few basics about you.", es: "Comencemos con algunos datos básicos sobre usted.", zh: "让我们先了解一些关于您的基本信息。" },
       "label-age":         { en: "What is your age?", es: "¿Cuál es su edad?", zh: "请问您多大年纪？" },
       "label-gender":      { en: "What is your gender?", es: "¿Cuál es su género?", zh: "请问您的性别是什么？" },
@@ -1002,22 +973,22 @@
       "label-languages":   { en: "What languages do you speak?", es: "¿Qué idiomas habla usted?", zh: "您会说哪些语言？" },
       "label-years-us":    { en: "Years in the United States?", es: "¿Cuántos años lleva en los Estados Unidos?", zh: "您在美国生活了多少年？" },
       "label-years-city":  { en: "Years in your current city/town?", es: "¿Cuántos años lleva en su ciudad/pueblo actual?", zh: "您在目前所在的城市/城镇生活了多少年？" },
-      "prompt-early":      { en: "What can you tell me about the culture of the country where you grew up?", es: "¿Qué puede contarme sobre la cultura del país donde creció?", zh: "您能跟我谈谈您成长的那个国家的文化吗？" },
-      "sub-early":         { en: "How did that compare to your own personal experiences in your neighborhood growing up?", es: "¿Cómo se comparaba eso con sus propias experiencias personales en el vecindario donde creció?", zh: "与您在自己社区成长的亲身经历相比，有什么不同或相似之处？" },
-      "prompt-helping":    { en: "Can you tell me about one of the first times you got involved in helping others or making a difference?", es: "¿Puede contarme sobre una de las primeras veces que participó en ayudar a otros o en hacer una diferencia?", zh: "您能跟我讲讲您最初参与帮助他人或做出改变的经历吗？" },
-      "sub-helping":       { en: "What motivated you at the time (personal experiences, family, culture, or social/political influences)?", es: "¿Qué le motivó en ese momento (experiencias personales, familia, cultura o influencias sociales/políticas)?", zh: "当时是什么激励了您（个人经历、家庭、文化，还是社会/政治方面的影响）？" },
-      "prompt-influences": { en: "Who or what influenced how you think about your role in society and contributing to others?", es: "¿Quién o qué influyó en la manera en que usted piensa sobre su papel en la sociedad y su contribución a los demás?", zh: "谁或什么影响了您对自己在社会中的角色以及为他人做贡献的看法？" },
-      "sub-influences":    { en: "How old were you when these influences became important? Has your understanding of your role in contributing to society changed over time? If so, how?", es: "¿Qué edad tenía cuando estas influencias se volvieron importantes? ¿Ha cambiado con el tiempo su manera de entender su papel en la contribución a la sociedad? Si es así, ¿cómo?", zh: "这些影响变得重要时您多大年纪？随着时间的推移，您对自己为社会做贡献的角色的理解是否发生了变化？如果是，发生了怎样的变化？" },
+      "prompt-early":      { en: "How would you describe the way individuals contributed/helped each other in the community where you grew up?", es: "¿Cómo describiría la manera en que las personas contribuían o se ayudaban unas a otras en la comunidad donde usted creció?", zh: "您会如何描述在您成长的社区中，人们是如何相互贡献或帮助彼此的？" },
+      "sub-early":         { en: "How was this culture similar or different from your personal experiences with your neighborhood or community?", es: "¿En qué se parecía o se diferenciaba esta cultura de sus experiencias personales con su vecindario o comunidad?", zh: "这种文化与您个人在自己社区或邻里中的经历有哪些相似或不同之处？" },
+      "prompt-helping":    { en: "Share a story of one of the first times you chose to help others or make a difference in a person's life, group, or community.", es: "Comparta una historia sobre una de las primeras veces que decidió ayudar a otros o marcar una diferencia en la vida de una persona, un grupo o una comunidad.", zh: "请分享一个故事：您最初选择帮助他人，或为某个人、群体或社区带来改变的经历之一。" },
+      "sub-helping":       { en: "What motivated you (personally, socially, or politically), and how did that experience make you feel?", es: "¿Qué le motivó (personal, social o políticamente), y cómo le hizo sentir esa experiencia?", zh: "是什么激励了您（在个人、社会或政治方面），那段经历给您带来了怎样的感受？" },
+      "prompt-influences": { en: "Share a story about something that happened in your life that changed how you contribute to your community or society (e.g., moving to a new place, changes in health, work, or loss).", es: "Comparta una historia sobre algo que sucedió en su vida que cambió la manera en que usted contribuye a su comunidad o a la sociedad (por ejemplo, mudarse a un lugar nuevo, cambios en la salud, el trabajo o una pérdida).", zh: "请分享一段您生命中发生的经历，它改变了您为社区或社会做贡献的方式（例如搬到新的地方、健康状况变化、工作变动或失去亲友）。" },
+      "sub-influences":    { en: "How did this experience affect you? What changed in your perspective or actions?", es: "¿Cómo le afectó esta experiencia? ¿Qué cambió en su perspectiva o en sus acciones?", zh: "这段经历对您产生了怎样的影响？您的看法或行动发生了什么变化？" },
       "prompt-turning":    { en: "Can you share an experience in your life that changed how you contribute to your community or society?", es: "¿Puede compartir una experiencia en su vida que cambió la forma en que usted contribuye a su comunidad o a la sociedad?", zh: "您能分享一段改变了您为社区或社会做贡献方式的人生经历吗？" },
       "sub-turning":       { en: "How did that experience affect you emotionally, and what changed in your actions or perspective?", es: "¿Cómo le afectó esa experiencia emocionalmente, y qué cambió en sus acciones o en su perspectiva?", zh: "那段经历在情感上对您产生了怎样的影响？您的行动或看法发生了什么变化？" },
-      "prompt-identity":   { en: "Thinking about your identity (age, race/ethnicity, gender, language, or health), can you describe a time when these aspects shaped your participation in a community or civic activity?", es: "Pensando en su identidad (edad, raza/origen étnico, género, idioma o salud), ¿puede describir un momento en que estos aspectos influyeron en su participación en una actividad comunitaria o cívica?", zh: "从您的身份角度（年龄、种族/民族、性别、语言或健康状况），您能描述一次这些因素影响了您参与社区或公民活动的经历吗？" },
-      "sub-identity":      { en: "Were there times when your identity encouraged you or led others to call on you to get involved? Were there also times when your identity made it harder to participate or made you feel excluded?", es: "¿Hubo momentos en que su identidad le animó o llevó a otros a invitarle a participar? ¿Hubo también momentos en que su identidad le hizo más difícil participar o le hizo sentir excluido/a?", zh: "是否有过您的身份鼓励了您、或促使他人邀请您参与的时候？是否也有过您的身份让您更难参与、或让您感到被排斥的时候？" },
+      "prompt-identity":   { en: "Share a story about a time when aspects of your identity (e.g., age, race, ethnicity, nationality, gender, language, or health status) shaped your participation in a civic or community activity.", es: "Comparta una historia sobre un momento en que aspectos de su identidad (por ejemplo, edad, raza, origen étnico, nacionalidad, género, idioma o estado de salud) influyeron en su participación en una actividad cívica o comunitaria.", zh: "请分享一个故事：您的身份特征（例如年龄、种族、民族、国籍、性别、语言或健康状况）曾在某次公民或社区活动中如何影响了您的参与。" },
+      "sub-identity":      { en: "Reflect on how these experiences affected you and in what ways they influenced your participation moving forward.", es: "Reflexione sobre cómo estas experiencias le afectaron y de qué maneras influyeron en su participación en adelante.", zh: "请回想这些经历如何影响了您，以及它们在哪些方面影响了您之后的参与方式。" },
       "prompt-meaningful": { en: "In the past year or so, what community involvement or contribution has been most meaningful to you?", es: "En el último año aproximadamente, ¿qué participación o contribución comunitaria ha sido la más significativa para usted?", zh: "在过去一年左右，哪项社区参与或贡献对您最有意义？" },
       "sub-meaningful":    { en: "What made that experience stand out, and how did it make you feel?", es: "¿Qué hizo que esa experiencia fuera especial, y cómo le hizo sentir?", zh: "是什么让那次经历如此突出？它给您带来了怎样的感受？" },
       "prompt-reflections":{ en: "What does civic participation mean to you personally?", es: "¿Qué significa para usted personalmente la participación cívica?", zh: "公民参与对您个人而言意味着什么？" },
       "sub-reflections":   { en: "What advice would you give others about the importance of contributing to the community beyond family and work?", es: "¿Qué consejo les daría a otros sobre la importancia de contribuir a la comunidad más allá de la familia y el trabajo?", zh: "关于在家庭和工作之外为社区做贡献的重要性，您会给其他人什么建议？" },
-      "prompt-support":    { en: "What kinds of support do you think are needed to help people, especially older adults, stay involved in their communities?", es: "¿Qué tipos de apoyo cree usted que se necesitan para ayudar a las personas, especialmente a los adultos mayores, a seguir participando en sus comunidades?", zh: "您认为需要哪些支持来帮助人们，尤其是老年人，继续参与社区活动？" },
-      "sub-support":       { en: "What would make it easier for more people to participate?", es: "¿Qué facilitaría que más personas participen?", zh: "怎样才能让更多人更容易地参与进来？" },
+      "prompt-support":    { en: "After thinking about how you have contributed over the years, what advice would you give people about the importance of getting involved and contributing to others outside family and work?", es: "Después de reflexionar sobre cómo ha contribuido a lo largo de los años, ¿qué consejo le daría a las personas sobre la importancia de involucrarse y contribuir a otros más allá de la familia y el trabajo?", zh: "在回顾您多年来所做的贡献之后，关于参与并为家庭和工作之外的他人做贡献的重要性，您会给其他人什么建议？" },
+      "sub-support":       { en: "", es: "", zh: "" },
       "btn-next":          { en: "Next", es: "Siguiente", zh: "下一步" },
       "btn-skip":          { en: "Skip", es: "Omitir", zh: "跳过" },
       "btn-back":          { en: "Back", es: "Atrás", zh: "返回" },
@@ -1047,8 +1018,17 @@
       "label-health":      { en: "Any chronic health conditions or disabilities?", es: "¿Alguna condición crónica de salud o discapacidad?", zh: "是否有慢性健康问题或残疾？" },
       "opt-yes":           { en: "Yes", es: "Sí", zh: "是" },
       "opt-no":            { en: "No", es: "No", zh: "否" },
-      "ph-health-detail":  { en: "Please describe...", es: "Por favor describa...", zh: "请说明..." },
+      "ph-health":         { en: "If yes, please describe", es: "Si sí, por favor describa", zh: "如果有，请说明" },
       "saved-label":       { en: "Recording saved", es: "Grabación guardada", zh: "录音已保存" },
+      "sec-basic-2":       { en: "A Little More About You", es: "Un Poco Más Sobre Usted", zh: "再了解您一些" },
+      "prompt-basic-2":    { en: "A few more questions to get to know you.", es: "Algunas preguntas más para conocerle mejor.", zh: "再问您几个问题，以便更了解您。" },
+      "ph-political":      { en: "e.g. Democrat, Republican, Independent", es: "ej. Demócrata, Republicano, Independiente", zh: "例如 民主党、共和党、独立人士" },
+      "ph-volunteer":      { en: "If yes, how?", es: "Si sí, ¿cómo?", zh: "如果是，您是如何参与的？" },
+      "sec-civic-meaning": { en: "Civic Participation", es: "Participación Cívica", zh: "公民参与" },
+      "prompt-civic-meaning": { en: "What does civic participation mean to you?", es: "¿Qué significa para usted la participación cívica?", zh: "公民参与对您意味着什么？" },
+      "sec-civic-contribution": { en: "Civic Participation", es: "Participación Cívica", zh: "公民参与" },
+      "prompt-civic-contribution": { en: "In the past 12 months, what community contribution has been most significant for you, and what made this experience meaningful or memorable?", es: "En los últimos 12 meses, ¿qué contribución comunitaria ha sido la más significativa para usted, y qué hizo que esta experiencia fuera significativa o memorable?", zh: "在过去的12个月里，哪项社区贡献对您最有意义？是什么让这次经历变得有意义或令人难忘？" },
+      "sub-civic-contribution": { en: "How did it make you feel to participate in this way?", es: "¿Cómo se sintió al participar de esta manera?", zh: "以这种方式参与让您有什么感受？" },
     };
 
     var currentLang = 'en';
@@ -1071,10 +1051,21 @@
       });
       // Update progress label
       updateProgress();
+      // Adjust prompt sizes based on text length
+      adjustPromptSizes();
       // Update speech recognition language
       if (lang === 'es') speechLang = 'es-US';
       else if (lang === 'zh') speechLang = 'zh-CN';
       else speechLang = 'en-US';
+    }
+
+    function adjustPromptSizes() {
+      document.querySelectorAll('.prompt-text').forEach(function(el) {
+        var len = el.textContent.length;
+        el.classList.remove('long', 'very-long');
+        if (len > 180) el.classList.add('very-long');
+        else if (len > 120) el.classList.add('long');
+      });
     }
 
     var speechLang = 'en-US';
@@ -1097,6 +1088,9 @@
       progressBar.appendChild(step);
     }
 
+    // Initial prompt size adjustment
+    adjustPromptSizes();
+
     function updateProgress() {
       var steps = progressBar.querySelectorAll('.progress-step');
       for (var i = 0; i < steps.length; i++) {
@@ -1114,7 +1108,7 @@
       var key = section.getAttribute('data-section');
 
       // Handle basic-info section with individual fields
-      if (key === 'basic-info') {
+      if (key === 'basic-info' || key === 'basic-info-2') {
         var fields = section.querySelectorAll('input');
         var radioGroups = {};
         fields.forEach(function(f) {
@@ -1244,6 +1238,11 @@
             recognition.interimResults = true;
             recognition.lang = speechLang;
 
+            // Save existing textarea value so we can append transcription to it
+            var textareaEl = section.querySelector('.answer-area');
+            var initialText = textareaEl ? textareaEl.value : '';
+            var separator = initialText && !initialText.endsWith(' ') && !initialText.endsWith('\n') ? ' ' : '';
+
             var finalTranscript = '';
             recognition.onresult = function(event) {
               var interim = '';
@@ -1254,7 +1253,12 @@
                   interim += event.results[i][0].transcript;
                 }
               }
-              previewEl.textContent = finalTranscript + interim;
+              var combined = finalTranscript + interim;
+              previewEl.textContent = combined;
+              // Also write live to the textarea
+              if (textareaEl) {
+                textareaEl.value = initialText + separator + combined;
+              }
             };
 
             recognition.onerror = function(e) {
@@ -1349,13 +1353,6 @@
           });
         });
       }, Promise.resolve());
-    }
-
-    // ── Conditional health detail field ──────────
-    function toggleHealthDetail() {
-      var yesChecked = document.getElementById('health-yes').checked;
-      document.getElementById('health-detail-wrapper').classList.toggle('visible', yesChecked);
-      if (!yesChecked) document.getElementById('health-detail').value = '';
     }
 
     // ── Iframe auto-resize for embedding ─────────

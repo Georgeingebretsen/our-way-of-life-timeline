@@ -49,9 +49,10 @@ exports.handler = async (event) => {
   if (data["lives-with"]) fields["Lives With"] = data["lives-with"];
   if (data.education) fields["Education"] = data.education;
   if (data.health) fields["Health Conditions"] = data.health;
-  if (data["health-detail"]) fields["Health Conditions Detail"] = data["health-detail"];
 
   // Story sections
+  if (data["civic-meaning"]) fields["Civic Meaning"] = data["civic-meaning"];
+  if (data["civic-contribution"]) fields["Civic Contribution 12mo"] = data["civic-contribution"];
   if (data["early-life"]) fields["Early Life"] = data["early-life"];
   if (data["first-helping"]) fields["First Helping"] = data["first-helping"];
   if (data["influences"]) fields["Influences"] = data["influences"];
