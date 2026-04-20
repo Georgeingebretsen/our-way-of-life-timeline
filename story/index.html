@@ -53,8 +53,16 @@
       font-size: 1.05rem;
       color: #8b7355;
       font-weight: 300;
-      max-width: 520px;
-      margin: 0 auto 2rem;
+      max-width: 560px;
+      margin: 0 auto 0.7rem;
+      line-height: 1.6;
+    }
+
+    .page-header p.header-sub {
+      font-size: 0.9rem;
+      font-style: italic;
+      color: #a8987b;
+      margin-bottom: 2rem;
     }
 
     /* ============================================
@@ -500,6 +508,15 @@
 
     .btn-submit:hover { background: #4a2e17; }
 
+    .submit-note {
+      text-align: center;
+      font-size: 0.85rem;
+      font-style: italic;
+      color: #a8987b;
+      margin-top: 1rem;
+      line-height: 1.5;
+    }
+
     /* ============================================
        COMPLETION SCREEN
        ============================================ */
@@ -754,7 +771,8 @@
 <div class="page-header">
 <h1 data-i18n="header-title">Our Way of Life</h1>
 <h2 data-i18n="header-subtitle">Share Your Story</h2>
-<p data-i18n="header-desc">Your voice matters. Answer as many or as few prompts as you'd like — type your response or record it with your voice.</p>
+<p data-i18n="header-desc">In this study of civic participation, you are invited to reflect on your lifetime of contributions to your community. Take a moment to think about the people who shaped you and the moments that stand out. Share these memories to be added to this website's participant list.</p>
+<p class="header-sub" data-i18n="header-sub">Feel free to share as much or as little as you'd like.</p>
 </div>
 <!-- ============================================
        FORM
@@ -1000,6 +1018,7 @@
 <button class="btn btn-back" data-i18n="btn-back" onclick="navigate(-1)">Back</button>
 <button class="btn btn-submit" data-i18n="btn-submit" onclick="submitForm()">Submit Your Story</button>
 </div>
+<p class="submit-note" data-i18n="submit-note">Submissions will be reviewed before posting, and anonymity will be respected.</p>
 </div>
 </div>
 <!-- ============================================
@@ -1032,7 +1051,9 @@
     var T = {
       "header-title":      { en: "Our Way of Life", es: "Nuestra Forma de Vida", zh: "我们的生活方式" },
       "header-subtitle":   { en: "Share Your Story", es: "Comparta Su Historia", zh: "分享您的故事" },
-      "header-desc":       { en: "Your voice matters. Answer as many or as few prompts as you'd like — type your response or record it with your voice.", es: "Su voz es importante. Responda a tantas o tan pocas preguntas como desee — escriba su respuesta o grábela con su voz.", zh: "您的声音很重要。您可以回答任意数量的问题——输入您的回答，或用语音录制。" },
+      "header-desc":       { en: "In this study of civic participation, you are invited to reflect on your lifetime of contributions to your community. Take a moment to think about the people who shaped you and the moments that stand out. Share these memories to be added to this website's participant list.", es: "En este estudio sobre la participación cívica, le invitamos a reflexionar sobre toda una vida de contribuciones a su comunidad. Tómese un momento para pensar en las personas que le formaron y en los momentos que destacan. Comparta estos recuerdos para ser añadido a la lista de participantes de este sitio.", zh: "在这项关于公民参与的研究中，我们邀请您回顾自己一生对社区的贡献。请花些时间想一想那些塑造了您的人，以及那些令您难忘的时刻。分享这些记忆，以便加入本网站的参与者名单。" },
+      "header-sub":        { en: "Feel free to share as much or as little as you'd like.", es: "Siéntase libre de compartir lo que usted quiera, ya sea mucho o poco.", zh: "您可以按自己的意愿分享多或少。" },
+      "submit-note":       { en: "Submissions will be reviewed before posting, and anonymity will be respected.", es: "Las respuestas serán revisadas antes de publicarse, y se respetará el anonimato.", zh: "所有提交内容在发布前都会经过审阅，并会尊重您的匿名选择。" },
       "stories-heading":   { en: "Stories from Our Community", es: "Historias de Nuestra Comunidad", zh: "来自我们社区的故事" },
       "quote-1":           { en: "\u201CWe stayed together very well. It made you feel safe and wanted and loved.\u201D", es: "\u201CNos mantuvimos muy unidos. Te hacía sentir seguro, querido y amado.\u201D", zh: "\u201C我们非常团结。这让你感到安全、被需要和被爱。\u201D" },
       "attr-1":            { en: "on growing up in Harlem", es: "sobre crecer en Harlem", zh: "关于在哈莱姆长大" },
