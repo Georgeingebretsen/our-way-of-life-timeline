@@ -376,6 +376,46 @@
 
     .transcription-preview.visible { display: block; }
 
+    .audio-preview {
+      display: none;
+      margin-top: 0.8rem;
+      padding: 0.8rem 1rem;
+      background: #f0fdf4;
+      border: 1px solid #86efac;
+      border-radius: 6px;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .audio-preview.visible { display: flex; }
+
+    .audio-preview .check-icon {
+      flex-shrink: 0;
+      width: 24px;
+      height: 24px;
+      background: #22c55e;
+      color: #fff;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .audio-preview .saved-label {
+      font-size: 0.85rem;
+      color: #15803d;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .audio-preview audio {
+      flex: 1;
+      height: 36px;
+      min-width: 0;
+    }
+
     /* ============================================
        BUTTONS
        ============================================ */
@@ -549,6 +589,57 @@
 
     .basic-field input::placeholder { color: #bfae94; }
 
+    .radio-group {
+      display: flex;
+      gap: 0.6rem;
+      flex-wrap: wrap;
+    }
+
+    .radio-option {
+      flex: 1;
+      min-width: 90px;
+    }
+
+    .radio-option input[type="radio"] {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .radio-option label {
+      display: block;
+      text-align: center;
+      padding: 0.55rem 1rem;
+      border: 2px solid #ece4d8;
+      border-radius: 6px;
+      background: #fff;
+      color: #5c3a1e;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+
+    .radio-option input[type="radio"]:checked + label {
+      background: #daa520;
+      border-color: #daa520;
+      color: #fff;
+      font-weight: 600;
+    }
+
+    .radio-option label:hover {
+      border-color: #daa520;
+    }
+
+    .conditional-field {
+      display: none;
+      margin-top: 0.6rem;
+    }
+
+    .conditional-field.visible {
+      display: block;
+    }
+
     .prompt-sub {
       font-size: 0.9rem;
       color: #8b7355;
@@ -623,6 +714,60 @@
 <label data-i18n="label-years-city" for="years-city">Years in your current city/town?</label>
 <input data-i18n-placeholder="ph-years-city" id="years-city" min="0" name="years-city" placeholder="e.g. 20" type="number"/>
 </div>
+<div class="basic-field full-width">
+<label data-i18n="label-political" for="political-party">Political party affiliation?</label>
+<input id="political-party" name="political-party" type="text"/>
+</div>
+<div class="basic-field full-width">
+<label data-i18n="label-volunteer">Do you volunteer?</label>
+<div class="radio-group">
+<div class="radio-option">
+<input type="radio" id="volunteer-yes" name="volunteer" value="Yes"/>
+<label for="volunteer-yes" data-i18n="opt-yes">Yes</label>
+</div>
+<div class="radio-option">
+<input type="radio" id="volunteer-no" name="volunteer" value="No"/>
+<label for="volunteer-no" data-i18n="opt-no">No</label>
+</div>
+</div>
+</div>
+<div class="basic-field full-width">
+<label data-i18n="label-voted">Did you vote in the last election?</label>
+<div class="radio-group">
+<div class="radio-option">
+<input type="radio" id="voted-yes" name="voted" value="Yes"/>
+<label for="voted-yes" data-i18n="opt-yes">Yes</label>
+</div>
+<div class="radio-option">
+<input type="radio" id="voted-no" name="voted" value="No"/>
+<label for="voted-no" data-i18n="opt-no">No</label>
+</div>
+</div>
+</div>
+<div class="basic-field full-width">
+<label data-i18n="label-lives-with" for="lives-with">Who do you live with?</label>
+<input id="lives-with" name="lives-with" type="text"/>
+</div>
+<div class="basic-field full-width">
+<label data-i18n="label-education" for="education">Highest level of education?</label>
+<input id="education" name="education" type="text"/>
+</div>
+<div class="basic-field full-width">
+<label data-i18n="label-health">Any chronic health conditions or disabilities?</label>
+<div class="radio-group">
+<div class="radio-option">
+<input type="radio" id="health-yes" name="health" value="Yes" onchange="toggleHealthDetail()"/>
+<label for="health-yes" data-i18n="opt-yes">Yes</label>
+</div>
+<div class="radio-option">
+<input type="radio" id="health-no" name="health" value="No" onchange="toggleHealthDetail()"/>
+<label for="health-no" data-i18n="opt-no">No</label>
+</div>
+</div>
+<div class="conditional-field" id="health-detail-wrapper">
+<input id="health-detail" name="health-detail" type="text" data-i18n-placeholder="ph-health-detail" placeholder="Please describe..."/>
+</div>
+</div>
 </div>
 <div class="btn-row">
 <button class="btn btn-skip" data-i18n="btn-skip" onclick="navigate(1, true)">Skip</button>
@@ -644,6 +789,7 @@
 </button>
 <div class="recording-status"></div>
 <div class="transcription-preview"></div>
+<div class="audio-preview"><div class="check-icon">&#10003;</div><span class="saved-label" data-i18n="saved-label">Recording saved</span><audio controls></audio></div>
 </div>
 <div class="btn-row">
 <button class="btn btn-back" data-i18n="btn-back" onclick="navigate(-1)">Back</button>
@@ -666,6 +812,7 @@
 </button>
 <div class="recording-status"></div>
 <div class="transcription-preview"></div>
+<div class="audio-preview"><div class="check-icon">&#10003;</div><span class="saved-label" data-i18n="saved-label">Recording saved</span><audio controls></audio></div>
 </div>
 <div class="btn-row">
 <button class="btn btn-back" data-i18n="btn-back" onclick="navigate(-1)">Back</button>
@@ -688,6 +835,7 @@
 </button>
 <div class="recording-status"></div>
 <div class="transcription-preview"></div>
+<div class="audio-preview"><div class="check-icon">&#10003;</div><span class="saved-label" data-i18n="saved-label">Recording saved</span><audio controls></audio></div>
 </div>
 <div class="btn-row">
 <button class="btn btn-back" data-i18n="btn-back" onclick="navigate(-1)">Back</button>
@@ -710,6 +858,7 @@
 </button>
 <div class="recording-status"></div>
 <div class="transcription-preview"></div>
+<div class="audio-preview"><div class="check-icon">&#10003;</div><span class="saved-label" data-i18n="saved-label">Recording saved</span><audio controls></audio></div>
 </div>
 <div class="btn-row">
 <button class="btn btn-back" data-i18n="btn-back" onclick="navigate(-1)">Back</button>
@@ -732,6 +881,7 @@
 </button>
 <div class="recording-status"></div>
 <div class="transcription-preview"></div>
+<div class="audio-preview"><div class="check-icon">&#10003;</div><span class="saved-label" data-i18n="saved-label">Recording saved</span><audio controls></audio></div>
 </div>
 <div class="btn-row">
 <button class="btn btn-back" data-i18n="btn-back" onclick="navigate(-1)">Back</button>
@@ -754,6 +904,7 @@
 </button>
 <div class="recording-status"></div>
 <div class="transcription-preview"></div>
+<div class="audio-preview"><div class="check-icon">&#10003;</div><span class="saved-label" data-i18n="saved-label">Recording saved</span><audio controls></audio></div>
 </div>
 <div class="btn-row">
 <button class="btn btn-back" data-i18n="btn-back" onclick="navigate(-1)">Back</button>
@@ -776,6 +927,7 @@
 </button>
 <div class="recording-status"></div>
 <div class="transcription-preview"></div>
+<div class="audio-preview"><div class="check-icon">&#10003;</div><span class="saved-label" data-i18n="saved-label">Recording saved</span><audio controls></audio></div>
 </div>
 <div class="btn-row">
 <button class="btn btn-back" data-i18n="btn-back" onclick="navigate(-1)">Back</button>
@@ -798,6 +950,7 @@
 </button>
 <div class="recording-status"></div>
 <div class="transcription-preview"></div>
+<div class="audio-preview"><div class="check-icon">&#10003;</div><span class="saved-label" data-i18n="saved-label">Recording saved</span><audio controls></audio></div>
 </div>
 <div class="btn-row">
 <button class="btn btn-back" data-i18n="btn-back" onclick="navigate(-1)">Back</button>
@@ -886,6 +1039,16 @@
       "ph-languages":      { en: "e.g. English, Spanish", es: "ej. Inglés, español", zh: "例如 英语、西班牙语" },
       "ph-years-us":       { en: "e.g. 40", es: "ej. 40", zh: "例如 40" },
       "ph-years-city":     { en: "e.g. 20", es: "ej. 20", zh: "例如 20" },
+      "label-political":   { en: "Political party affiliation?", es: "¿Afiliación a partido político?", zh: "您的政党归属？" },
+      "label-volunteer":   { en: "Do you volunteer?", es: "¿Hace trabajo voluntario?", zh: "您是否参与志愿活动？" },
+      "label-voted":       { en: "Did you vote in the last election?", es: "¿Votó en las últimas elecciones?", zh: "您在上次选举中投票了吗？" },
+      "label-lives-with":  { en: "Who do you live with?", es: "¿Con quién vive?", zh: "您与谁同住？" },
+      "label-education":   { en: "Highest level of education?", es: "¿Nivel educativo más alto?", zh: "您的最高学历？" },
+      "label-health":      { en: "Any chronic health conditions or disabilities?", es: "¿Alguna condición crónica de salud o discapacidad?", zh: "是否有慢性健康问题或残疾？" },
+      "opt-yes":           { en: "Yes", es: "Sí", zh: "是" },
+      "opt-no":            { en: "No", es: "No", zh: "否" },
+      "ph-health-detail":  { en: "Please describe...", es: "Por favor describa...", zh: "请说明..." },
+      "saved-label":       { en: "Recording saved", es: "Grabación guardada", zh: "录音已保存" },
     };
 
     var currentLang = 'en';
@@ -953,8 +1116,16 @@
       // Handle basic-info section with individual fields
       if (key === 'basic-info') {
         var fields = section.querySelectorAll('input');
+        var radioGroups = {};
         fields.forEach(function(f) {
-          if (f.value.trim()) responses[f.name] = f.value.trim();
+          if (f.type === 'radio') {
+            if (f.checked) radioGroups[f.name] = f.value;
+          } else if (f.value.trim()) {
+            responses[f.name] = f.value.trim();
+          }
+        });
+        Object.keys(radioGroups).forEach(function(k) {
+          responses[k] = radioGroups[k];
         });
         return;
       }
@@ -1004,6 +1175,11 @@
       })
         .then(function(res) { return res.json(); })
         .then(function(data) {
+          if (data && data.id) {
+            return uploadAllAudios(data.id);
+          }
+        })
+        .then(function() {
           document.getElementById('formContainer').style.display = 'none';
           document.getElementById('completion').classList.add('active');
           window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -1050,6 +1226,12 @@
             var key = section.getAttribute('data-section');
             audioBlobs[key] = blob;
             stream.getTracks().forEach(function(t) { t.stop(); });
+
+            // Show audio preview with play button
+            var audioPreview = section.querySelector('.audio-preview');
+            var audioEl = audioPreview.querySelector('audio');
+            audioEl.src = URL.createObjectURL(blob);
+            audioPreview.classList.add('visible');
           };
           recorder.start();
           activeRecorder = { recorder: recorder, btn: btn, section: section };
@@ -1076,9 +1258,9 @@
             };
 
             recognition.onerror = function(e) {
-              if (e.error !== 'aborted') {
-                statusEl.textContent = 'Speech recognition unavailable — audio still recording.';
-              }
+              console.log('Speech recognition error:', e.error, e);
+              if (e.error === 'aborted' || e.error === 'no-speech') return;
+              statusEl.textContent = 'Speech recognition error (' + e.error + ') — audio still recording.';
             };
 
             recognition.onend = function() {
@@ -1127,6 +1309,53 @@
       }
 
       activeRecorder = null;
+    }
+
+    // ── Upload audio files to Airtable ───────────
+    function blobToBase64(blob) {
+      return new Promise(function(resolve, reject) {
+        var reader = new FileReader();
+        reader.onloadend = function() {
+          // Strip the data URL prefix
+          var base64 = reader.result.split(',')[1];
+          resolve(base64);
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
+      });
+    }
+
+    function uploadAllAudios(recordId) {
+      var keys = Object.keys(audioBlobs);
+      if (keys.length === 0) return Promise.resolve();
+
+      // Upload sequentially to avoid rate limits
+      return keys.reduce(function(promise, key) {
+        return promise.then(function() {
+          return blobToBase64(audioBlobs[key]).then(function(base64) {
+            return fetch('/.netlify/functions/upload-audio', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                recordId: recordId,
+                section: key,
+                audioBase64: base64,
+                contentType: audioBlobs[key].type || 'audio/webm',
+              }),
+            }).catch(function(err) {
+              console.error('Failed to upload audio for', key, err);
+              // Continue anyway
+            });
+          });
+        });
+      }, Promise.resolve());
+    }
+
+    // ── Conditional health detail field ──────────
+    function toggleHealthDetail() {
+      var yesChecked = document.getElementById('health-yes').checked;
+      document.getElementById('health-detail-wrapper').classList.toggle('visible', yesChecked);
+      if (!yesChecked) document.getElementById('health-detail').value = '';
     }
 
     // ── Iframe auto-resize for embedding ─────────

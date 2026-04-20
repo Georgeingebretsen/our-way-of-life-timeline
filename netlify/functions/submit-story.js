@@ -43,6 +43,13 @@ exports.handler = async (event) => {
   if (data.languages) fields["Languages Spoken"] = data.languages;
   if (data["years-us"]) fields["Years in US"] = data["years-us"];
   if (data["years-city"]) fields["Years in City"] = data["years-city"];
+  if (data["political-party"]) fields["Political Party"] = data["political-party"];
+  if (data.volunteer) fields["Volunteers"] = data.volunteer;
+  if (data.voted) fields["Voted Last Election"] = data.voted;
+  if (data["lives-with"]) fields["Lives With"] = data["lives-with"];
+  if (data.education) fields["Education"] = data.education;
+  if (data.health) fields["Health Conditions"] = data.health;
+  if (data["health-detail"]) fields["Health Conditions Detail"] = data["health-detail"];
 
   // Story sections
   if (data["early-life"]) fields["Early Life"] = data["early-life"];
