@@ -981,12 +981,12 @@
 <textarea class="answer-area" data-i18n-placeholder="placeholder-creative" placeholder="Write a poem, story, or describe your creative work here..."></textarea>
 <div class="recorder-section">
 <div class="or-divider" data-i18n="divider-or">or</div>
-<input type="file" class="file-input-hidden" accept="image/*,audio/*,video/*,application/pdf,.doc,.docx,.txt" onchange="handleFileSelect(this)"/>
+<input type="file" class="file-input-hidden" accept="image/*" onchange="handleFileSelect(this)"/>
 <button type="button" class="file-upload-btn" onclick="this.previousElementSibling.click()">
 <svg class="upload-icon" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" x2="12" y1="3" y2="15"></line></svg>
-<span class="btn-label" data-i18n="btn-upload">Upload a file (image, audio, video, PDF)</span>
+<span class="btn-label" data-i18n="btn-upload">Upload an image</span>
 </button>
-<div class="file-upload-hint" data-i18n="upload-hint">Max 5 MB</div>
+<div class="file-upload-hint" data-i18n="upload-hint">Large images are automatically resized.</div>
 <div class="file-upload-status"></div>
 <div class="file-preview"><div class="check-icon">&#10003;</div><span class="file-name"></span><span class="file-size"></span><button type="button" class="delete-audio-btn" onclick="deleteFile(this)" aria-label="Delete file" title="Delete file">&times;</button></div>
 </div>
@@ -1280,9 +1280,11 @@
       "creative-q2":           { en: "What aspects of your identity influence or inform how you contribute?", es: "¿Qué aspectos de su identidad influyen o dan forma a cómo contribuye?", zh: "您身份中的哪些方面影响或塑造了您的贡献方式？" },
       "creative-q3":           { en: "What life experiences have influenced your willingness to give back to others, a community, and/or society?", es: "¿Qué experiencias de vida han influido en su disposición a retribuir a otras personas, a una comunidad y/o a la sociedad?", zh: "哪些人生经历影响了您回馈他人、社区和/或社会的意愿？" },
       "placeholder-creative":  { en: "Write a poem, story, or describe your creative work here...", es: "Escriba un poema, un cuento o describa aquí su obra creativa...", zh: "在此撰写诗歌、故事或描述您的创意作品..." },
-      "btn-upload":            { en: "Upload a file (image, audio, video, PDF)", es: "Subir un archivo (imagen, audio, video, PDF)", zh: "上传文件（图片、音频、视频、PDF）" },
-      "upload-hint":           { en: "Max 5 MB", es: "Máximo 5 MB", zh: "最大 5 MB" },
-      "upload-too-large":      { en: "File is too large. Please choose a file under 5 MB.", es: "El archivo es demasiado grande. Por favor, elija un archivo de menos de 5 MB.", zh: "文件过大。请选择小于 5 MB 的文件。" },
+      "btn-upload":            { en: "Upload an image", es: "Subir una imagen", zh: "上传图片" },
+      "upload-hint":           { en: "Large images are automatically resized.", es: "Las imágenes grandes se redimensionan automáticamente.", zh: "较大的图片将自动缩小尺寸。" },
+      "upload-too-large":      { en: "Image is too large even after compression. Try a smaller image.", es: "La imagen es demasiado grande incluso después de comprimirla. Intente con una imagen más pequeña.", zh: "图片即使经过压缩仍然过大。请尝试上传较小的图片。" },
+      "upload-not-image":      { en: "Please choose an image file.", es: "Por favor, elija un archivo de imagen.", zh: "请选择一个图片文件。" },
+      "upload-processing":     { en: "Processing image...", es: "Procesando imagen...", zh: "正在处理图片..." },
       "sec-civic-meaning": { en: "Civic Participation", es: "Participación Cívica", zh: "公民参与" },
       "prompt-civic-meaning": { en: "What does civic participation mean to you?", es: "¿Qué significa para usted la participación cívica?", zh: "公民参与对您意味着什么？" },
       "sec-civic-contribution": { en: "Civic Participation", es: "Participación Cívica", zh: "公民参与" },
@@ -1631,24 +1633,77 @@
       return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
     }
 
+    function compressImage(file) {
+      return new Promise(function(resolve, reject) {
+        var reader = new FileReader();
+        reader.onload = function(e) {
+          var img = new Image();
+          img.onload = function() {
+            var maxDim = 2048;
+            var width = img.width;
+            var height = img.height;
+            if (width > maxDim || height > maxDim) {
+              if (width > height) {
+                height = Math.round(height * (maxDim / width));
+                width = maxDim;
+              } else {
+                width = Math.round(width * (maxDim / height));
+                height = maxDim;
+              }
+            }
+            var canvas = document.createElement('canvas');
+            canvas.width = width;
+            canvas.height = height;
+            canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+            canvas.toBlob(function(blob) {
+              if (!blob) { resolve(file); return; }
+              if (blob.size < file.size) {
+                var newName = file.name.replace(/\.[^.]+$/, '') + '.jpg';
+                resolve(new File([blob], newName, { type: 'image/jpeg' }));
+              } else {
+                resolve(file);
+              }
+            }, 'image/jpeg', 0.85);
+          };
+          img.onerror = function() { resolve(file); };
+          img.src = e.target.result;
+        };
+        reader.onerror = function() { reject(new Error('Failed to read file')); };
+        reader.readAsDataURL(file);
+      });
+    }
+
     function handleFileSelect(input) {
       var file = input.files && input.files[0];
       if (!file) return;
       var section = input.closest('.form-section');
       var statusEl = section.querySelector('.file-upload-status');
+      var preview = section.querySelector('.file-preview');
 
-      if (file.size > 5 * 1024 * 1024) {
-        statusEl.textContent = T['upload-too-large'][currentLang];
+      if (!file.type.startsWith('image/')) {
+        statusEl.textContent = T['upload-not-image'][currentLang];
         input.value = '';
         return;
       }
 
-      statusEl.textContent = '';
-      creativeFile = file;
-      var preview = section.querySelector('.file-preview');
-      preview.querySelector('.file-name').textContent = file.name;
-      preview.querySelector('.file-size').textContent = formatFileSize(file.size);
-      preview.classList.add('visible');
+      statusEl.textContent = T['upload-processing'][currentLang];
+
+      compressImage(file).then(function(processed) {
+        if (processed.size > 4.5 * 1024 * 1024) {
+          statusEl.textContent = T['upload-too-large'][currentLang];
+          input.value = '';
+          return;
+        }
+        statusEl.textContent = '';
+        creativeFile = processed;
+        preview.querySelector('.file-name').textContent = processed.name;
+        preview.querySelector('.file-size').textContent = formatFileSize(processed.size);
+        preview.classList.add('visible');
+      }).catch(function(err) {
+        console.error('Image processing error:', err);
+        statusEl.textContent = T['upload-too-large'][currentLang];
+        input.value = '';
+      });
     }
 
     function deleteFile(btn) {
