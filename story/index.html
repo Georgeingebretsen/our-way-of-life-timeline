@@ -96,28 +96,67 @@
     .story-carousel::-webkit-scrollbar-track { background: transparent; }
     .story-carousel::-webkit-scrollbar-thumb { background: #daa520; border-radius: 2px; }
 
+    .stories-section {
+      max-width: 720px;
+      margin: 0 auto 2rem;
+      padding: 0 1rem;
+    }
+
+    .stories-heading {
+      font-family: "Source Serif 4", Georgia, serif;
+      font-size: 1rem;
+      font-weight: 600;
+      color: #8b7355;
+      text-align: center;
+      margin: 0 0 1rem;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
     .story-card {
-      flex: 0 0 280px;
+      flex: 0 0 260px;
       scroll-snap-align: start;
       background: #fef3c7;
       border: 1px solid #f0e4c8;
       border-radius: 10px;
-      padding: 1.3rem;
+      padding: 1.2rem;
       box-shadow: 0 2px 8px rgba(92,58,30,0.08);
+      text-decoration: none;
+      color: inherit;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      transition: transform 0.18s ease, box-shadow 0.18s ease;
+    }
+
+    .story-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 14px rgba(92,58,30,0.14);
+    }
+
+    .story-card .story-thumb {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid #fff;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      margin-bottom: 0.8rem;
     }
 
     .story-card .quote {
       font-style: italic;
-      font-size: 0.95rem;
+      font-size: 0.92rem;
       color: #5c3a1e;
-      line-height: 1.6;
-      margin-bottom: 0.8rem;
+      line-height: 1.5;
+      margin: 0 0 0.6rem;
     }
 
     .story-card .attribution {
-      font-size: 0.8rem;
+      font-size: 0.78rem;
       color: #8b7355;
       font-weight: 600;
+      margin: 0;
     }
 
     /* ============================================
@@ -880,6 +919,26 @@
 <h2 data-i18n="header-subtitle">Share Your Story</h2>
 <p data-i18n="header-desc">In this study of civic participation, you are invited to reflect on your lifetime of contributions to your community. Take a moment to think about the people who shaped you and the moments that stand out. Share these memories to be added to this website's participant list.</p>
 </div>
+<section class="stories-section">
+<h3 class="stories-heading" data-i18n="stories-heading">Stories from Our Community</h3>
+<div class="story-carousel">
+<a class="story-card" href="https://www.ourwayoflifearchive.com/s/stories/senj6" rel="noopener" target="_blank">
+<img alt="SENJ6" class="story-thumb" loading="lazy" src="https://www.ourwayoflifearchive.com/uploads/b/4d4f27a254ad409573c7c4eb443d718ebb65ef79eb130e662c91851895189621/2024-11-10_20-56-42_1731301015.jpg"/>
+<p class="quote" data-i18n="quote-1">"We stayed together very well. It made you feel safe and wanted and loved."</p>
+<p class="attribution" data-i18n="attr-1">SENJ6 — on growing up in Harlem</p>
+</a>
+<a class="story-card" href="https://www.ourwayoflifearchive.com/s/stories/mlnj6" rel="noopener" target="_blank">
+<img alt="MLNJ6" class="story-thumb" loading="lazy" src="https://www.ourwayoflifearchive.com/uploads/b/4d4f27a254ad409573c7c4eb443d718ebb65ef79eb130e662c91851895189621/2021-05-10_11-27-04_1620660411.png"/>
+<p class="quote" data-i18n="quote-kwanzaa">"Umoja — unity. What can I do today to think more of unity in my family, in my community?"</p>
+<p class="attribution" data-i18n="attr-kwanzaa">MLNJ6 — on Kwanzaa</p>
+</a>
+<a class="story-card" href="https://www.ourwayoflifearchive.com/s/stories/bmnj" rel="noopener" target="_blank">
+<img alt="BMNJ" class="story-thumb" loading="lazy" src="https://www.ourwayoflifearchive.com/uploads/b/4d4f27a254ad409573c7c4eb443d718ebb65ef79eb130e662c91851895189621/image_1620663833.jpg"/>
+<p class="quote" data-i18n="quote-voting">"I've seen the tears rolling down their faces. It meant they can be part of society again."</p>
+<p class="attribution" data-i18n="attr-voting">BMNJ — on restoring voting rights</p>
+</a>
+</div>
+</section>
 <!-- ============================================
        FORM
        ============================================ -->
@@ -1204,6 +1263,10 @@
       "attr-4":            { en: "on DACA", es: "sobre DACA", zh: "关于DACA（童年入境暂缓遣返）" },
       "quote-5":           { en: "\u201COne person does matter.\u201D", es: "\u201CUna persona sí importa.\u201D", zh: "\u201C一个人确实能产生影响。\u201D" },
       "attr-5":            { en: "on Hurricane Katrina", es: "sobre el huracán Katrina", zh: "关于卡特里娜飓风" },
+      "quote-kwanzaa":     { en: "“Umoja — unity. What can I do today to think more of unity in my family, in my community?”", es: "“Umoja — unidad. ¿Qué puedo hacer hoy para pensar más en la unidad en mi familia, en mi comunidad?”", zh: "“Umoja —— 团结。今天我能做些什么，让自己更多地思考家庭与社区中的团结？”" },
+      "attr-kwanzaa":      { en: "MLNJ6 — on Kwanzaa", es: "MLNJ6 — sobre Kwanzaa", zh: "MLNJ6 —— 关于宽扎节" },
+      "quote-voting":      { en: "“I’ve seen the tears rolling down their faces. It meant they can be part of society again.”", es: "“He visto las lágrimas corriendo por sus caras. Significaba que podían ser parte de la sociedad nuevamente.”", zh: "“我看见泪水从他们脸上流下来。这意味着他们可以重新成为社会的一部分。”" },
+      "attr-voting":       { en: "BMNJ — on restoring voting rights", es: "BMNJ — sobre la restauración del derecho al voto", zh: "BMNJ —— 关于恢复选举权" },
       "sec-basic":         { en: "Basic Information", es: "Información Básica", zh: "基本信息" },
       "sec-early":         { en: "Early Life", es: "Vida Temprana", zh: "早年生活" },
       "sec-helping":       { en: "First Experiences with Helping Others", es: "Primeras Experiencias Ayudando a Otros", zh: "初次帮助他人的经历" },
