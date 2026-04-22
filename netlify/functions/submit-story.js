@@ -51,6 +51,7 @@ exports.handler = async (event) => {
   if (data.health) fields["Health Conditions"] = data.health;
 
   // Story sections
+  if (data["creative-work"]) fields["Creative Work"] = data["creative-work"];
   if (data["civic-meaning"]) fields["Civic Meaning"] = data["civic-meaning"];
   if (data["civic-contribution"]) fields["Civic Contribution 12mo"] = data["civic-contribution"];
   if (data["early-life"]) fields["Early Life"] = data["early-life"];

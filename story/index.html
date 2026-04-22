@@ -452,6 +452,101 @@
     }
 
     /* ============================================
+       FILE UPLOAD
+       ============================================ */
+    .file-input-hidden {
+      display: none;
+    }
+
+    .file-upload-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.6rem;
+      width: 100%;
+      padding: 0.9rem 1.5rem;
+      border: 2px solid #ece4d8;
+      border-radius: 8px;
+      background: #fff;
+      font-family: "Libre Franklin", sans-serif;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #5c3a1e;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .file-upload-btn:hover {
+      border-color: #daa520;
+      background: #fffbeb;
+    }
+
+    .file-upload-btn .upload-icon {
+      width: 20px;
+      height: 20px;
+    }
+
+    .file-upload-hint {
+      text-align: center;
+      font-size: 0.78rem;
+      color: #8b7355;
+      margin-top: 0.5rem;
+      font-style: italic;
+    }
+
+    .file-preview {
+      display: none;
+      margin-top: 0.8rem;
+      padding: 0.8rem 1rem;
+      background: #f0fdf4;
+      border: 1px solid #86efac;
+      border-radius: 6px;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .file-preview.visible { display: flex; }
+
+    .file-preview .check-icon {
+      flex-shrink: 0;
+      width: 24px;
+      height: 24px;
+      background: #22c55e;
+      color: #fff;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .file-preview .file-name {
+      flex: 1;
+      min-width: 0;
+      font-size: 0.88rem;
+      color: #15803d;
+      font-weight: 600;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .file-preview .file-size {
+      flex-shrink: 0;
+      font-size: 0.78rem;
+      color: #6b8e72;
+    }
+
+    .file-upload-status {
+      text-align: center;
+      font-size: 0.82rem;
+      color: #8b7355;
+      margin-top: 0.5rem;
+      min-height: 1.2em;
+    }
+
+    /* ============================================
        BUTTONS
        ============================================ */
     .btn-row {
@@ -860,6 +955,29 @@
 <button class="btn btn-next" data-i18n="btn-next" onclick="navigate(1)">Next</button>
 </div>
 </div>
+<!-- SECTION: Creative Work -->
+<div class="form-section" data-section="creative-work">
+<div class="section-label" data-i18n="sec-creative">Creative Work</div>
+<div class="prompt-text" data-i18n="prompt-creative">Based on your personal experiences contributing to society, create a poem, story, song, collage, drawing, painting, photograph, or another creative work that captures the essence of your contributions to others. In your work, reflect on the people, places, moments, and motivation that have shaped your experiences. Consider how, where, what, and why you chose to contribute and express these elements in a meaningful and creative way.</div>
+<div class="prompt-sub" data-i18n="sub-creative">Some questions to guide your expression: What have you found to be the importance of contributing to others outside your family? What aspects of your identity influence or inform how you contribute? What life experiences have influenced your willingness to give back to others, a community, and/or society?</div>
+<textarea class="answer-area" data-i18n-placeholder="placeholder-creative" placeholder="Write a poem, story, or describe your creative work here..."></textarea>
+<div class="recorder-section">
+<div class="or-divider" data-i18n="divider-or">or</div>
+<input type="file" class="file-input-hidden" accept="image/*,audio/*,video/*,application/pdf,.doc,.docx,.txt" onchange="handleFileSelect(this)"/>
+<button type="button" class="file-upload-btn" onclick="this.previousElementSibling.click()">
+<svg class="upload-icon" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" x2="12" y1="3" y2="15"></line></svg>
+<span class="btn-label" data-i18n="btn-upload">Upload a file (image, audio, video, PDF)</span>
+</button>
+<div class="file-upload-hint" data-i18n="upload-hint">Max 5 MB</div>
+<div class="file-upload-status"></div>
+<div class="file-preview"><div class="check-icon">&#10003;</div><span class="file-name"></span><span class="file-size"></span><button type="button" class="delete-audio-btn" onclick="deleteFile(this)" aria-label="Delete file" title="Delete file">&times;</button></div>
+</div>
+<div class="btn-row">
+<button class="btn btn-back" data-i18n="btn-back" onclick="navigate(-1)">Back</button>
+<button class="btn btn-skip" data-i18n="btn-skip" onclick="navigate(1, true)">Skip</button>
+<button class="btn btn-next" data-i18n="btn-next" onclick="navigate(1)">Next</button>
+</div>
+</div>
 <!-- SECTION: Civic Participation -->
 <div class="form-section" data-section="civic-meaning">
 <div class="section-label" data-i18n="sec-civic-meaning">Civic Participation</div>
@@ -1136,6 +1254,13 @@
       "prompt-basic-2":    { en: "A few more questions to get to know you.", es: "Algunas preguntas más para conocerle mejor.", zh: "再问您几个问题，以便更了解您。" },
       "ph-political":      { en: "e.g. Democrat, Republican, Independent", es: "ej. Demócrata, Republicano, Independiente", zh: "例如 民主党、共和党、独立人士" },
       "ph-volunteer":      { en: "If yes, how?", es: "Si sí, ¿cómo?", zh: "如果是，您是如何参与的？" },
+      "sec-creative":          { en: "Creative Work", es: "Trabajo Creativo", zh: "创意作品" },
+      "prompt-creative":       { en: "Based on your personal experiences contributing to society, create a poem, story, song, collage, drawing, painting, photograph, or another creative work that captures the essence of your contributions to others. In your work, reflect on the people, places, moments, and motivation that have shaped your experiences. Consider how, where, what, and why you chose to contribute and express these elements in a meaningful and creative way.", es: "Basándose en sus experiencias personales contribuyendo a la sociedad, cree un poema, cuento, canción, collage, dibujo, pintura, fotografía u otra obra creativa que capture la esencia de sus contribuciones a los demás. En su obra, reflexione sobre las personas, los lugares, los momentos y la motivación que han dado forma a sus experiencias. Considere cómo, dónde, qué y por qué decidió contribuir, y exprese estos elementos de una manera significativa y creativa.", zh: "请根据您个人为社会做贡献的经历，创作一首诗、一个故事、一首歌、一幅拼贴、一幅画、一幅油画、一张照片或其他创意作品，来体现您对他人贡献的精髓。在您的作品中，回想那些塑造了您经历的人物、地点、时刻和动机。思考您选择如何、在哪里、做什么以及为什么去做出贡献，并以有意义且富有创意的方式表达这些内容。" },
+      "sub-creative":          { en: "Some questions to guide your expression: What have you found to be the importance of contributing to others outside your family? What aspects of your identity influence or inform how you contribute? What life experiences have influenced your willingness to give back to others, a community, and/or society?", es: "Algunas preguntas para guiar su expresión: ¿Cuál ha sido para usted la importancia de contribuir a personas fuera de su familia? ¿Qué aspectos de su identidad influyen o dan forma a cómo contribuye? ¿Qué experiencias de vida han influido en su disposición a retribuir a otras personas, a una comunidad y/o a la sociedad?", zh: "以下是一些引导思考的问题：您认为为家庭以外的人做贡献有何重要意义？您身份中的哪些方面影响或塑造了您的贡献方式？哪些人生经历影响了您回馈他人、社区和/或社会的意愿？" },
+      "placeholder-creative":  { en: "Write a poem, story, or describe your creative work here...", es: "Escriba un poema, un cuento o describa aquí su obra creativa...", zh: "在此撰写诗歌、故事或描述您的创意作品..." },
+      "btn-upload":            { en: "Upload a file (image, audio, video, PDF)", es: "Subir un archivo (imagen, audio, video, PDF)", zh: "上传文件（图片、音频、视频、PDF）" },
+      "upload-hint":           { en: "Max 5 MB", es: "Máximo 5 MB", zh: "最大 5 MB" },
+      "upload-too-large":      { en: "File is too large. Please choose a file under 5 MB.", es: "El archivo es demasiado grande. Por favor, elija un archivo de menos de 5 MB.", zh: "文件过大。请选择小于 5 MB 的文件。" },
       "sec-civic-meaning": { en: "Civic Participation", es: "Participación Cívica", zh: "公民参与" },
       "prompt-civic-meaning": { en: "What does civic participation mean to you?", es: "¿Qué significa para usted la participación cívica?", zh: "公民参与对您意味着什么？" },
       "sec-civic-contribution": { en: "Civic Participation", es: "Participación Cívica", zh: "公民参与" },
@@ -1187,6 +1312,7 @@
     var totalSections = sections.length;
     var responses = {};
     var audioBlobs = {};
+    var creativeFile = null;
 
     // Active recording state
     var activeRecorder = null;
@@ -1292,7 +1418,10 @@
         .then(function(res) { return res.json(); })
         .then(function(data) {
           if (data && data.id) {
-            return uploadAllAudios(data.id);
+            var rid = data.id;
+            return uploadAllAudios(rid).then(function() {
+              return uploadCreativeFile(rid);
+            });
           }
         })
         .then(function() {
@@ -1470,6 +1599,62 @@
         };
         reader.onerror = reject;
         reader.readAsDataURL(blob);
+      });
+    }
+
+    // ── Creative file upload ─────────────────────
+    function formatFileSize(bytes) {
+      if (bytes < 1024) return bytes + ' B';
+      if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+      return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+    }
+
+    function handleFileSelect(input) {
+      var file = input.files && input.files[0];
+      if (!file) return;
+      var section = input.closest('.form-section');
+      var statusEl = section.querySelector('.file-upload-status');
+
+      if (file.size > 5 * 1024 * 1024) {
+        statusEl.textContent = T['upload-too-large'][currentLang];
+        input.value = '';
+        return;
+      }
+
+      statusEl.textContent = '';
+      creativeFile = file;
+      var preview = section.querySelector('.file-preview');
+      preview.querySelector('.file-name').textContent = file.name;
+      preview.querySelector('.file-size').textContent = formatFileSize(file.size);
+      preview.classList.add('visible');
+    }
+
+    function deleteFile(btn) {
+      var section = btn.closest('.form-section');
+      creativeFile = null;
+      var preview = section.querySelector('.file-preview');
+      preview.classList.remove('visible');
+      var input = section.querySelector('.file-input-hidden');
+      if (input) input.value = '';
+      var statusEl = section.querySelector('.file-upload-status');
+      if (statusEl) statusEl.textContent = '';
+    }
+
+    function uploadCreativeFile(recordId) {
+      if (!creativeFile) return Promise.resolve();
+      return blobToBase64(creativeFile).then(function(base64) {
+        return fetch('/.netlify/functions/upload-file', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            recordId: recordId,
+            filename: creativeFile.name,
+            fileBase64: base64,
+            contentType: creativeFile.type || 'application/octet-stream',
+          }),
+        }).catch(function(err) {
+          console.error('Failed to upload creative file', err);
+        });
       });
     }
 
