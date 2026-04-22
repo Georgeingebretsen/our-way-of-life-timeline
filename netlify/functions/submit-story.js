@@ -42,6 +42,7 @@ exports.handler = async (event) => {
   if (data.ethnicity) fields["Ethnicity"] = data.ethnicity;
   if (data.languages) fields["Languages Spoken"] = data.languages;
   if (data["years-us"]) fields["Years in US"] = data["years-us"];
+  if (data["country-origin"]) fields["Country of Origin"] = data["country-origin"];
   if (data["years-city"]) fields["Years in City"] = data["years-city"];
   if (data["political-party"]) fields["Political Party"] = data["political-party"];
   if (data.volunteer) fields["Volunteers"] = data.volunteer;
