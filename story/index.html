@@ -837,6 +837,18 @@
       line-height: 1.5;
     }
 
+    .prompt-questions {
+      font-size: 0.9rem;
+      color: #8b7355;
+      line-height: 1.5;
+      margin: -0.4rem 0 1.2rem 1.2rem;
+      padding: 0;
+    }
+
+    .prompt-questions li {
+      margin-bottom: 0.4rem;
+    }
+
     /* ============================================
        RESPONSIVE
        ============================================ */
@@ -958,8 +970,14 @@
 <!-- SECTION: Creative Work -->
 <div class="form-section" data-section="creative-work">
 <div class="section-label" data-i18n="sec-creative">Creative Work</div>
-<div class="prompt-text" data-i18n="prompt-creative">Based on your personal experiences contributing to society, create a poem, story, song, collage, drawing, painting, photograph, or another creative work that captures the essence of your contributions to others. In your work, reflect on the people, places, moments, and motivation that have shaped your experiences. Consider how, where, what, and why you chose to contribute and express these elements in a meaningful and creative way.</div>
-<div class="prompt-sub" data-i18n="sub-creative">Some questions to guide your expression: What have you found to be the importance of contributing to others outside your family? What aspects of your identity influence or inform how you contribute? What life experiences have influenced your willingness to give back to others, a community, and/or society?</div>
+<div class="prompt-text" data-i18n="prompt-creative">Based on your personal experiences contributing to society, create a poem, story, song, collage, drawing, painting, photograph, or another creative work that captures the essence of your contributions to others.</div>
+<div class="prompt-text" data-i18n="prompt-creative-2">In your work, reflect on the people, places, moments, and motivation that have shaped your experiences. Consider how, where, what, and why you chose to contribute and express these elements in a meaningful and creative way.</div>
+<div class="prompt-sub" data-i18n="sub-creative">Some questions to guide your expression:</div>
+<ul class="prompt-questions">
+<li data-i18n="creative-q1">What have you found to be the importance of contributing to others outside your family?</li>
+<li data-i18n="creative-q2">What aspects of your identity influence or inform how you contribute?</li>
+<li data-i18n="creative-q3">What life experiences have influenced your willingness to give back to others, a community, and/or society?</li>
+</ul>
 <textarea class="answer-area" data-i18n-placeholder="placeholder-creative" placeholder="Write a poem, story, or describe your creative work here..."></textarea>
 <div class="recorder-section">
 <div class="or-divider" data-i18n="divider-or">or</div>
@@ -1255,8 +1273,12 @@
       "ph-political":      { en: "e.g. Democrat, Republican, Independent", es: "ej. Demócrata, Republicano, Independiente", zh: "例如 民主党、共和党、独立人士" },
       "ph-volunteer":      { en: "If yes, how?", es: "Si sí, ¿cómo?", zh: "如果是，您是如何参与的？" },
       "sec-creative":          { en: "Creative Work", es: "Trabajo Creativo", zh: "创意作品" },
-      "prompt-creative":       { en: "Based on your personal experiences contributing to society, create a poem, story, song, collage, drawing, painting, photograph, or another creative work that captures the essence of your contributions to others. In your work, reflect on the people, places, moments, and motivation that have shaped your experiences. Consider how, where, what, and why you chose to contribute and express these elements in a meaningful and creative way.", es: "Basándose en sus experiencias personales contribuyendo a la sociedad, cree un poema, cuento, canción, collage, dibujo, pintura, fotografía u otra obra creativa que capture la esencia de sus contribuciones a los demás. En su obra, reflexione sobre las personas, los lugares, los momentos y la motivación que han dado forma a sus experiencias. Considere cómo, dónde, qué y por qué decidió contribuir, y exprese estos elementos de una manera significativa y creativa.", zh: "请根据您个人为社会做贡献的经历，创作一首诗、一个故事、一首歌、一幅拼贴、一幅画、一幅油画、一张照片或其他创意作品，来体现您对他人贡献的精髓。在您的作品中，回想那些塑造了您经历的人物、地点、时刻和动机。思考您选择如何、在哪里、做什么以及为什么去做出贡献，并以有意义且富有创意的方式表达这些内容。" },
-      "sub-creative":          { en: "Some questions to guide your expression: What have you found to be the importance of contributing to others outside your family? What aspects of your identity influence or inform how you contribute? What life experiences have influenced your willingness to give back to others, a community, and/or society?", es: "Algunas preguntas para guiar su expresión: ¿Cuál ha sido para usted la importancia de contribuir a personas fuera de su familia? ¿Qué aspectos de su identidad influyen o dan forma a cómo contribuye? ¿Qué experiencias de vida han influido en su disposición a retribuir a otras personas, a una comunidad y/o a la sociedad?", zh: "以下是一些引导思考的问题：您认为为家庭以外的人做贡献有何重要意义？您身份中的哪些方面影响或塑造了您的贡献方式？哪些人生经历影响了您回馈他人、社区和/或社会的意愿？" },
+      "prompt-creative":       { en: "Based on your personal experiences contributing to society, create a poem, story, song, collage, drawing, painting, photograph, or another creative work that captures the essence of your contributions to others.", es: "Basándose en sus experiencias personales contribuyendo a la sociedad, cree un poema, cuento, canción, collage, dibujo, pintura, fotografía u otra obra creativa que capture la esencia de sus contribuciones a los demás.", zh: "请根据您个人为社会做贡献的经历，创作一首诗、一个故事、一首歌、一幅拼贴、一幅画、一幅油画、一张照片或其他创意作品，来体现您对他人贡献的精髓。" },
+      "prompt-creative-2":     { en: "In your work, reflect on the people, places, moments, and motivation that have shaped your experiences. Consider how, where, what, and why you chose to contribute and express these elements in a meaningful and creative way.", es: "En su obra, reflexione sobre las personas, los lugares, los momentos y la motivación que han dado forma a sus experiencias. Considere cómo, dónde, qué y por qué decidió contribuir, y exprese estos elementos de una manera significativa y creativa.", zh: "在您的作品中，回想那些塑造了您经历的人物、地点、时刻和动机。思考您选择如何、在哪里、做什么以及为什么去做出贡献，并以有意义且富有创意的方式表达这些内容。" },
+      "sub-creative":          { en: "Some questions to guide your expression:", es: "Algunas preguntas para guiar su expresión:", zh: "以下是一些引导思考的问题：" },
+      "creative-q1":           { en: "What have you found to be the importance of contributing to others outside your family?", es: "¿Cuál ha sido para usted la importancia de contribuir a personas fuera de su familia?", zh: "您认为为家庭以外的人做贡献有何重要意义？" },
+      "creative-q2":           { en: "What aspects of your identity influence or inform how you contribute?", es: "¿Qué aspectos de su identidad influyen o dan forma a cómo contribuye?", zh: "您身份中的哪些方面影响或塑造了您的贡献方式？" },
+      "creative-q3":           { en: "What life experiences have influenced your willingness to give back to others, a community, and/or society?", es: "¿Qué experiencias de vida han influido en su disposición a retribuir a otras personas, a una comunidad y/o a la sociedad?", zh: "哪些人生经历影响了您回馈他人、社区和/或社会的意愿？" },
       "placeholder-creative":  { en: "Write a poem, story, or describe your creative work here...", es: "Escriba un poema, un cuento o describa aquí su obra creativa...", zh: "在此撰写诗歌、故事或描述您的创意作品..." },
       "btn-upload":            { en: "Upload a file (image, audio, video, PDF)", es: "Subir un archivo (imagen, audio, video, PDF)", zh: "上传文件（图片、音频、视频、PDF）" },
       "upload-hint":           { en: "Max 5 MB", es: "Máximo 5 MB", zh: "最大 5 MB" },
