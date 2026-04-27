@@ -37,17 +37,12 @@ exports.handler = async (event) => {
   };
 
   // Basic info
-  if (data.age) fields["Age"] = data.age;
-  if (data.gender) fields["Gender"] = data.gender;
-  if (data.ethnicity) fields["Ethnicity"] = data.ethnicity;
-  if (data.languages) fields["Languages Spoken"] = data.languages;
-  if (data["years-us"]) fields["Years in US"] = data["years-us"];
-  if (data["country-origin"]) fields["Country of Origin"] = data["country-origin"];
-  if (data["years-city"]) fields["Years in City"] = data["years-city"];
-  if (data["political-party"]) fields["Political Party"] = data["political-party"];
+  if (data.email) fields["Email"] = data.email;
+  if (data["age-gender-ethnicity"]) fields["Age, Gender & Race/Ethnicity"] = data["age-gender-ethnicity"];
+  if (data["country-language"]) fields["Country & Languages Spoken"] = data["country-language"];
+  if (data.years) fields["Years (US/City)"] = data.years;
   if (data.volunteer) fields["Volunteers"] = data.volunteer;
   if (data.voted) fields["Voted Last Election"] = data.voted;
-  if (data["lives-with"]) fields["Lives With"] = data["lives-with"];
   if (data.education) fields["Education"] = data.education;
   if (data.health) fields["Health Conditions"] = data.health;
 
