@@ -53,10 +53,7 @@ exports.handler = async (event) => {
   if (data["early-life"]) fields["Early Life"] = data["early-life"];
   if (data["first-helping"]) fields["First Helping"] = data["first-helping"];
   if (data["influences"]) fields["Influences"] = data["influences"];
-  if (data["turning-points"]) fields["Turning Points"] = data["turning-points"];
   if (data["identity-civic"]) fields["Identity and Civic"] = data["identity-civic"];
-  if (data["meaningful-contributions"]) fields["Meaningful Contributions"] = data["meaningful-contributions"];
-  if (data["reflections"]) fields["Reflections"] = data["reflections"];
   if (data["community-support"]) fields["Community Support"] = data["community-support"];
 
   try {
