@@ -1453,20 +1453,17 @@
         submitBtn.textContent = currentLang === 'es' ? 'Enviando...' : currentLang === 'zh' ? '提交中...' : 'Submitting...';
       }
 
-      fetch('/.netlify/functions/submit-story', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(responses),
+      // Bundle audio + creative file into the submit payload so the
+      // backend can send one email per submission.
+      gatherAttachments().then(function(attachments) {
+        responses.attachments = attachments;
+        return fetch('/.netlify/functions/submit-story', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(responses),
+        });
       })
         .then(function(res) { return res.json(); })
-        .then(function(data) {
-          if (data && data.id) {
-            var rid = data.id;
-            return uploadAllAudios(rid).then(function() {
-              return uploadCreativeFile(rid);
-            });
-          }
-        })
         .then(function() {
           document.getElementById('formContainer').style.display = 'none';
           document.getElementById('completion').classList.add('active');
@@ -1474,11 +1471,37 @@
         })
         .catch(function(err) {
           console.error('Submit error:', err);
-          // Show completion anyway so user isn't stuck
           document.getElementById('formContainer').style.display = 'none';
           document.getElementById('completion').classList.add('active');
           window.scrollTo({ top: 0, behavior: 'smooth' });
         });
+    }
+
+    function gatherAttachments() {
+      var items = [];
+      var keys = Object.keys(audioBlobs);
+      var promise = Promise.resolve();
+      keys.forEach(function(key) {
+        promise = promise.then(function() {
+          return blobToBase64(audioBlobs[key]).then(function(b64) {
+            var ct = audioBlobs[key].type || 'audio/webm';
+            var ext = ct.indexOf('mp4') >= 0 ? 'm4a' : ct.indexOf('ogg') >= 0 ? 'ogg' : 'webm';
+            items.push({ filename: 'audio-' + key + '.' + ext, content: b64, contentType: ct });
+          });
+        });
+      });
+      if (creativeFile) {
+        promise = promise.then(function() {
+          return blobToBase64(creativeFile).then(function(b64) {
+            items.push({
+              filename: 'creative-' + creativeFile.name,
+              content: b64,
+              contentType: creativeFile.type || 'application/octet-stream',
+            });
+          });
+        });
+      }
+      return promise.then(function() { return items; });
     }
 
     // ── Voice Recording ──────────────────────────
@@ -1505,8 +1528,14 @@
           previewEl.textContent = '';
           previewEl.classList.add('visible');
 
-          // MediaRecorder for audio capture
-          var recorder = new MediaRecorder(stream);
+          // MediaRecorder for audio capture (low-bitrate Opus for compact email attachments)
+          var recOpts = { audioBitsPerSecond: 24000 };
+          if (MediaRecorder.isTypeSupported && MediaRecorder.isTypeSupported('audio/webm;codecs=opus')) {
+            recOpts.mimeType = 'audio/webm;codecs=opus';
+          }
+          var recorder;
+          try { recorder = new MediaRecorder(stream, recOpts); }
+          catch (e) { recorder = new MediaRecorder(stream); }
           var chunks = [];
           recorder.ondataavailable = function(e) { chunks.push(e.data); };
           recorder.onstop = function() {
@@ -1734,50 +1763,6 @@
       if (input) input.value = '';
       var statusEl = section.querySelector('.file-upload-status');
       if (statusEl) statusEl.textContent = '';
-    }
-
-    function uploadCreativeFile(recordId) {
-      if (!creativeFile) return Promise.resolve();
-      return blobToBase64(creativeFile).then(function(base64) {
-        return fetch('/.netlify/functions/upload-file', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            recordId: recordId,
-            filename: creativeFile.name,
-            fileBase64: base64,
-            contentType: creativeFile.type || 'application/octet-stream',
-          }),
-        }).catch(function(err) {
-          console.error('Failed to upload creative file', err);
-        });
-      });
-    }
-
-    function uploadAllAudios(recordId) {
-      var keys = Object.keys(audioBlobs);
-      if (keys.length === 0) return Promise.resolve();
-
-      // Upload sequentially to avoid rate limits
-      return keys.reduce(function(promise, key) {
-        return promise.then(function() {
-          return blobToBase64(audioBlobs[key]).then(function(base64) {
-            return fetch('/.netlify/functions/upload-audio', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                recordId: recordId,
-                section: key,
-                audioBase64: base64,
-                contentType: audioBlobs[key].type || 'audio/webm',
-              }),
-            }).catch(function(err) {
-              console.error('Failed to upload audio for', key, err);
-              // Continue anyway
-            });
-          });
-        });
-      }, Promise.resolve());
     }
 
     // ── Iframe auto-resize for embedding ─────────

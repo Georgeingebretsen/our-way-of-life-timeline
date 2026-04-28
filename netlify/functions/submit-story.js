@@ -78,10 +78,16 @@ exports.handler = async (event) => {
       </p>
       <table style="border-collapse:collapse;width:100%;font-size:14px;">${rows}</table>
       <p style="color:#a8987b;font-size:12px;margin-top:24px;">
-        Audio recordings and creative files (if any) arrive as separate emails with the same submission ID.
+        Audio recordings and any creative file are attached to this email.
       </p>
     </div>
   `;
+
+  const attachments = Array.isArray(data.attachments)
+    ? data.attachments
+        .filter((a) => a && a.filename && a.content)
+        .map((a) => ({ filename: a.filename, content: a.content }))
+    : [];
 
   try {
     const resp = await fetch("https://api.resend.com/emails", {
@@ -93,8 +99,9 @@ exports.handler = async (event) => {
       body: JSON.stringify({
         from: "Our Way of Life <onboarding@resend.dev>",
         to: [TO_EMAIL],
-        subject: `Submission ${submissionId} — Story Responses`,
+        subject: `Submission ${submissionId}`,
         html,
+        attachments,
       }),
     });
 
