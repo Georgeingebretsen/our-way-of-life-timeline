@@ -39,32 +39,53 @@ exports.handler = async (event) => {
       .replace(/>/g, "&gt;");
 
   const fields = [
-    ["Email", data.email],
-    ["Age, Gender & Race/Ethnicity", data["age-gender-ethnicity"]],
-    ["Country & Language Spoken", data["country-language"]],
-    ["Years (US/City)", data.years],
+    ["Personal email", data.email],
+    ["Age, gender, and race/ethnicity", data["age-gender-ethnicity"]],
+    ["Country of origin and language spoken", data["country-language"]],
+    ["Years in the US, and years in current city", data.years],
     ["Education", data.education],
-    ["Vote in Local or Presidential Elections", data.voted],
-    ["Do You Volunteer", data.volunteer],
-    ["Health Conditions", data.health],
-    ["Creative Work", data["creative-work"]],
-    ["Civic Contribution (past 12 months)", data["civic-contribution"]],
-    ["Early Life", data["early-life"]],
-    ["First Helping", data["first-helping"]],
-    ["Influences", data["influences"]],
-    ["Identity & Civic Participation", data["identity-civic"]],
-    ["Civic Meaning", data["civic-meaning"]],
-    ["Advice for Others", data["community-support"]],
+    ["Do you vote in local or presidential elections?", data.voted],
+    ["Do you volunteer?", data.volunteer],
+    ["Do you have health conditions?", data.health],
+    [
+      "Based on your personal journey, create a poem, story, song, collage, drawing, photograph, and/or another creative work that captures the essence of your contributions to others.",
+      data["creative-work"],
+    ],
+    [
+      "In the past 12 months, what community contribution has been most significant for you, and what made this experience meaningful or memorable?",
+      data["civic-contribution"],
+    ],
+    [
+      "How would you describe the way individuals contributed/helped each other in the community where you grew up?",
+      data["early-life"],
+    ],
+    [
+      "Share a story of one of the first times you chose to help others or make a difference in a person's life, group, or community.",
+      data["first-helping"],
+    ],
+    [
+      "Share a story about something that happened in your life that changed how you contribute to your community or society (e.g., moving to a new place, changes in health, work, or loss).",
+      data["influences"],
+    ],
+    [
+      "Share a story about a time when aspects of your identity (e.g., age, race, ethnicity, nationality, gender, language, or health status) shaped your participation in a civic or community activity.",
+      data["identity-civic"],
+    ],
+    ["What does civic participation mean to you?", data["civic-meaning"]],
+    [
+      "After thinking about how you have contributed over the years, what advice would you give people about the importance of getting involved and contributing to others outside family and work?",
+      data["community-support"],
+    ],
   ];
 
-  const rows = fields
+  const blocks = fields
     .filter(([, v]) => v && String(v).trim())
     .map(
       ([label, val]) => `
-        <tr>
-          <td style="padding:10px 14px;background:#fbf6ec;border:1px solid #e8dcc4;font-weight:600;vertical-align:top;width:30%;">${escape(label)}</td>
-          <td style="padding:10px 14px;background:#fff;border:1px solid #e8dcc4;white-space:pre-wrap;">${escape(val)}</td>
-        </tr>`
+        <div style="margin-bottom:18px;">
+          <div style="color:#5c3a1e;font-weight:600;font-size:14px;line-height:1.4;margin-bottom:6px;">${escape(label)}</div>
+          <div style="background:#fff;border-left:3px solid #daa520;padding:10px 14px;white-space:pre-wrap;font-size:14px;line-height:1.5;">${escape(val)}</div>
+        </div>`
     )
     .join("");
 
@@ -76,7 +97,7 @@ exports.handler = async (event) => {
         <strong>Submitted:</strong> ${new Date().toUTCString()}<br>
         <strong>Language:</strong> ${escape(data.language || "English")}
       </p>
-      <table style="border-collapse:collapse;width:100%;font-size:14px;">${rows}</table>
+      ${blocks}
       <p style="color:#a8987b;font-size:12px;margin-top:24px;">
         Audio recordings and any creative file are attached to this email.
       </p>
