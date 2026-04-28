@@ -13,10 +13,10 @@ exports.handler = async (event) => {
     return { statusCode: 405, headers, body: JSON.stringify({ error: "Method not allowed" }) };
   }
 
-  const AIRTABLE_TOKEN = process.env.AIRTABLE_TOKEN;
-  const BASE_ID = "apptMLftTJtjWNuG6";
+  const RESEND_API_KEY = process.env.RESEND_API_KEY;
+  const TO_EMAIL = "ourwayoflife@gmail.com";
 
-  if (!AIRTABLE_TOKEN) {
+  if (!RESEND_API_KEY) {
     return { statusCode: 500, headers, body: JSON.stringify({ error: "Server misconfigured" }) };
   }
 
@@ -33,25 +33,30 @@ exports.handler = async (event) => {
     return { statusCode: 400, headers, body: JSON.stringify({ error: "Missing fields" }) };
   }
 
+  const ct = contentType || "audio/webm";
+  const ext = ct.includes("mp4") ? "m4a" : ct.includes("ogg") ? "ogg" : "webm";
+  const filename = `${section}.${ext}`;
+
   try {
-    const uploadUrl = `https://content.airtable.com/v0/${BASE_ID}/${recordId}/Audio%20Files/uploadAttachment`;
-    const resp = await fetch(uploadUrl, {
+    const resp = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${AIRTABLE_TOKEN}`,
+        Authorization: `Bearer ${RESEND_API_KEY}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        contentType: contentType || "audio/webm",
-        file: audioBase64,
-        filename: `${section}.webm`,
+        from: "Our Way of Life <onboarding@resend.dev>",
+        to: [TO_EMAIL],
+        subject: `Submission ${recordId} — Audio: ${section}`,
+        html: `<p>Audio recording for section <strong>${section}</strong> (Submission ${recordId}).</p>`,
+        attachments: [{ filename, content: audioBase64 }],
       }),
     });
 
     if (!resp.ok) {
       const err = await resp.text();
-      console.error("Airtable upload error:", err);
-      return { statusCode: 500, headers, body: JSON.stringify({ error: "Upload failed", detail: err }) };
+      console.error("Resend audio error:", err);
+      return { statusCode: 500, headers, body: JSON.stringify({ error: "Send failed", detail: err }) };
     }
 
     return { statusCode: 200, headers, body: JSON.stringify({ success: true }) };

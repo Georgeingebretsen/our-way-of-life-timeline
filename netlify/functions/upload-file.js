@@ -13,11 +13,10 @@ exports.handler = async (event) => {
     return { statusCode: 405, headers, body: JSON.stringify({ error: "Method not allowed" }) };
   }
 
-  const AIRTABLE_TOKEN = process.env.AIRTABLE_TOKEN;
-  const BASE_ID = "apptMLftTJtjWNuG6";
-  const FIELD_NAME = "Creative Files";
+  const RESEND_API_KEY = process.env.RESEND_API_KEY;
+  const TO_EMAIL = "ourwayoflife@gmail.com";
 
-  if (!AIRTABLE_TOKEN) {
+  if (!RESEND_API_KEY) {
     return { statusCode: 500, headers, body: JSON.stringify({ error: "Server misconfigured" }) };
   }
 
@@ -35,24 +34,25 @@ exports.handler = async (event) => {
   }
 
   try {
-    const uploadUrl = `https://content.airtable.com/v0/${BASE_ID}/${recordId}/${encodeURIComponent(FIELD_NAME)}/uploadAttachment`;
-    const resp = await fetch(uploadUrl, {
+    const resp = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${AIRTABLE_TOKEN}`,
+        Authorization: `Bearer ${RESEND_API_KEY}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        contentType: contentType || "application/octet-stream",
-        file: fileBase64,
-        filename: filename,
+        from: "Our Way of Life <onboarding@resend.dev>",
+        to: [TO_EMAIL],
+        subject: `Submission ${recordId} — Creative File`,
+        html: `<p>Creative file submitted (Submission ${recordId}).</p>`,
+        attachments: [{ filename, content: fileBase64 }],
       }),
     });
 
     if (!resp.ok) {
       const err = await resp.text();
-      console.error("Airtable upload error:", err);
-      return { statusCode: 500, headers, body: JSON.stringify({ error: "Upload failed", detail: err }) };
+      console.error("Resend file error:", err);
+      return { statusCode: 500, headers, body: JSON.stringify({ error: "Send failed", detail: err }) };
     }
 
     return { statusCode: 200, headers, body: JSON.stringify({ success: true }) };

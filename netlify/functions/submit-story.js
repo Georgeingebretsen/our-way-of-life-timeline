@@ -13,11 +13,10 @@ exports.handler = async (event) => {
     return { statusCode: 405, headers, body: JSON.stringify({ error: "Method not allowed" }) };
   }
 
-  const AIRTABLE_TOKEN = process.env.AIRTABLE_TOKEN;
-  const BASE_ID = "apptMLftTJtjWNuG6";
-  const TABLE_NAME = "Submissions";
+  const RESEND_API_KEY = process.env.RESEND_API_KEY;
+  const TO_EMAIL = "ourwayoflife@gmail.com";
 
-  if (!AIRTABLE_TOKEN) {
+  if (!RESEND_API_KEY) {
     return { statusCode: 500, headers, body: JSON.stringify({ error: "Server misconfigured" }) };
   }
 
@@ -28,57 +27,87 @@ exports.handler = async (event) => {
     return { statusCode: 400, headers, body: JSON.stringify({ error: "Invalid JSON" }) };
   }
 
-  const now = new Date().toISOString();
+  const submissionId =
+    new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19) +
+    "-" +
+    Math.random().toString(36).slice(2, 8);
 
-  const fields = {
-    "Submitted At": now,
-    "Language": data.language || "English",
-  };
+  const escape = (s) =>
+    String(s ?? "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
 
-  // Basic info
-  if (data.email) fields["Email"] = data.email;
-  if (data["age-gender-ethnicity"]) fields["Age, Gender & Race/Ethnicity"] = data["age-gender-ethnicity"];
-  if (data["country-language"]) fields["Country & Language Spoken"] = data["country-language"];
-  if (data.years) fields["Years (US/City)"] = data.years;
-  if (data.volunteer) fields["Volunteers"] = data.volunteer;
-  if (data.voted) fields["Vote in Local or Presidential Elections"] = data.voted;
-  if (data.education) fields["Education"] = data.education;
-  if (data.health) fields["Health Conditions"] = data.health;
+  const fields = [
+    ["Email", data.email],
+    ["Age, Gender & Race/Ethnicity", data["age-gender-ethnicity"]],
+    ["Country & Language Spoken", data["country-language"]],
+    ["Years (US/City)", data.years],
+    ["Education", data.education],
+    ["Vote in Local or Presidential Elections", data.voted],
+    ["Do You Volunteer", data.volunteer],
+    ["Health Conditions", data.health],
+    ["Creative Work", data["creative-work"]],
+    ["Civic Contribution (past 12 months)", data["civic-contribution"]],
+    ["Early Life", data["early-life"]],
+    ["First Helping", data["first-helping"]],
+    ["Influences", data["influences"]],
+    ["Identity & Civic Participation", data["identity-civic"]],
+    ["Civic Meaning", data["civic-meaning"]],
+    ["Advice for Others", data["community-support"]],
+  ];
 
-  // Story sections
-  if (data["creative-work"]) fields["Creative Work"] = data["creative-work"];
-  if (data["civic-meaning"]) fields["Civic Meaning"] = data["civic-meaning"];
-  if (data["civic-contribution"]) fields["Civic Contribution 12mo"] = data["civic-contribution"];
-  if (data["early-life"]) fields["Early Life"] = data["early-life"];
-  if (data["first-helping"]) fields["First Helping"] = data["first-helping"];
-  if (data["influences"]) fields["Influences"] = data["influences"];
-  if (data["identity-civic"]) fields["Identity and Civic"] = data["identity-civic"];
-  if (data["community-support"]) fields["Advice for Others"] = data["community-support"];
+  const rows = fields
+    .filter(([, v]) => v && String(v).trim())
+    .map(
+      ([label, val]) => `
+        <tr>
+          <td style="padding:10px 14px;background:#fbf6ec;border:1px solid #e8dcc4;font-weight:600;vertical-align:top;width:30%;">${escape(label)}</td>
+          <td style="padding:10px 14px;background:#fff;border:1px solid #e8dcc4;white-space:pre-wrap;">${escape(val)}</td>
+        </tr>`
+    )
+    .join("");
+
+  const html = `
+    <div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;max-width:680px;margin:0 auto;color:#3d2817;">
+      <h2 style="color:#5c3a1e;border-bottom:2px solid #daa520;padding-bottom:8px;">New Story Submission</h2>
+      <p style="color:#7a6347;font-size:13px;">
+        <strong>Submission ID:</strong> ${escape(submissionId)}<br>
+        <strong>Submitted:</strong> ${new Date().toUTCString()}<br>
+        <strong>Language:</strong> ${escape(data.language || "English")}
+      </p>
+      <table style="border-collapse:collapse;width:100%;font-size:14px;">${rows}</table>
+      <p style="color:#a8987b;font-size:12px;margin-top:24px;">
+        Audio recordings and creative files (if any) arrive as separate emails with the same submission ID.
+      </p>
+    </div>
+  `;
 
   try {
-    const resp = await fetch(
-      `https://api.airtable.com/v0/${BASE_ID}/${encodeURIComponent(TABLE_NAME)}`,
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${AIRTABLE_TOKEN}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ fields }),
-      }
-    );
+    const resp = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${RESEND_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        from: "Our Way of Life <onboarding@resend.dev>",
+        to: [TO_EMAIL],
+        subject: `Submission ${submissionId} — Story Responses`,
+        html,
+      }),
+    });
 
     if (!resp.ok) {
       const err = await resp.text();
-      console.error("Airtable error:", err);
-      return { statusCode: 500, headers, body: JSON.stringify({ error: "Failed to save" }) };
+      console.error("Resend error:", err);
+      return { statusCode: 500, headers, body: JSON.stringify({ error: "Failed to send", detail: err }) };
     }
 
-    const record = await resp.json();
     return {
       statusCode: 200,
       headers,
-      body: JSON.stringify({ success: true, id: record.id }),
+      body: JSON.stringify({ success: true, id: submissionId }),
     };
   } catch (e) {
     console.error("Error:", e);
