@@ -14,7 +14,7 @@ exports.handler = async (event) => {
   }
 
   const RESEND_API_KEY = process.env.RESEND_API_KEY;
-  const TO_EMAIL = "ourwayoflife@gmail.com";
+  const TO_EMAIL = "ourwayoflifearchive@gmail.com";
 
   if (!RESEND_API_KEY) {
     return { statusCode: 500, headers, body: JSON.stringify({ error: "Server misconfigured" }) };
