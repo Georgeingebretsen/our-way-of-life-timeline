@@ -161,68 +161,6 @@
     }
 
     /* ============================================
-       APPROVED STORIES
-       ============================================ */
-    .approved-list {
-      display: flex;
-      flex-direction: column;
-      gap: 1.2rem;
-    }
-
-    .approved-card {
-      background: #fef3c7;
-      border: 1px solid #f0e4c8;
-      border-radius: 10px;
-      padding: 1.5rem;
-      box-shadow: 0 2px 8px rgba(92,58,30,0.08);
-    }
-
-    .approved-card .approved-meta {
-      display: flex;
-      gap: 0.8rem;
-      align-items: center;
-      margin-bottom: 0.8rem;
-      font-size: 0.82rem;
-      color: #8b7355;
-      font-weight: 600;
-    }
-
-    .approved-card .approved-meta .badge {
-      background: #daa520;
-      color: #fff;
-      padding: 0.15rem 0.5rem;
-      border-radius: 4px;
-      font-size: 0.72rem;
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
-    }
-
-    .approved-card .approved-excerpt {
-      font-style: italic;
-      font-size: 1rem;
-      color: #5c3a1e;
-      line-height: 1.7;
-      margin-bottom: 0.5rem;
-    }
-
-    .approved-card .approved-section-label {
-      font-size: 0.78rem;
-      color: #daa520;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      margin-top: 1rem;
-      margin-bottom: 0.3rem;
-    }
-
-    .approved-card .approved-text {
-      font-size: 0.95rem;
-      color: #2d2d2d;
-      line-height: 1.7;
-      margin-bottom: 0.6rem;
-    }
-
-    /* ============================================
        FORM CONTAINER
        ============================================ */
     .form-container {
@@ -274,16 +212,6 @@
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(10px); }
       to { opacity: 1; transform: translateY(0); }
-    }
-
-    .section-label {
-      font-family: "Libre Franklin", sans-serif;
-      font-size: 0.78rem;
-      font-weight: 600;
-      color: #daa520;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      margin-bottom: 0.4rem;
     }
 
     .prompt-text {
@@ -1209,34 +1137,14 @@
       "header-title":      { en: "Our Way of Life", es: "Nuestra Forma de Vida", zh: "我们的生活方式" },
       "header-subtitle":   { en: "Share Your Story", es: "Comparta Su Historia", zh: "分享您的故事" },
       "header-desc":       { en: "In this research study of civic participation, you are invited to reflect on your lifetime of contributions to your community. Take a moment to think about the people who shaped you and the moments that stand out. Share these memories to be added to this website's participant list. Please include your personal email so we can request your approval before publication.", es: "En este estudio sobre la participación cívica, le invitamos a reflexionar sobre toda una vida de contribuciones a su comunidad. Tómese un momento para pensar en las personas que le formaron y en los momentos que destacan. Comparta estos recuerdos para ser añadido a la lista de participantes de este sitio. Por favor incluya su correo electrónico personal para que podamos solicitar su aprobación antes de la publicación.", zh: "在这项关于公民参与的研究中，我们邀请您回顾自己一生对社区的贡献。请花些时间想一想那些塑造了您的人，以及那些令您难忘的时刻。分享这些记忆，以便加入本网站的参与者名单。请填写您的个人电子邮箱，以便我们在发布前征得您的同意。" },
-      "header-sub":        { en: "Feel free to share as much or as little as you'd like.", es: "Siéntase libre de compartir lo que usted quiera, ya sea mucho o poco.", zh: "您可以按自己的意愿分享多或少。" },
       "submit-note":       { en: "Submissions will be reviewed before posting, and anonymity will be respected.", es: "Las respuestas serán revisadas antes de publicarse, y se respetará el anonimato.", zh: "所有提交内容在发布前都会经过审阅，并会尊重您的匿名选择。" },
       "stories-heading":   { en: "Stories Published", es: "Historias Publicadas", zh: "已发布的故事" },
       "quote-1":           { en: "\u201CWe stayed together very well. It made you feel safe and wanted and loved.\u201D", es: "\u201CNos mantuvimos muy unidos. Te hacía sentir seguro, querido y amado.\u201D", zh: "\u201C我们非常团结。这让你感到安全、被需要和被爱。\u201D" },
       "attr-1":            { en: "on growing up in Harlem", es: "sobre crecer en Harlem", zh: "关于在哈莱姆长大" },
-      "quote-2":           { en: "\u201CI was afraid of racists.\u201D", es: "\u201CTenía miedo de los racistas.\u201D", zh: "\u201C我害怕那些种族主义者。\u201D" },
-      "attr-2":            { en: "on the murder of Emmett Till", es: "sobre el asesinato de Emmett Till", zh: "关于埃米特·蒂尔的遇害" },
-      "quote-3":           { en: "\u201CIt doesn\u2019t take anything away from you.\u201D", es: "\u201CNo te quita nada.\u201D", zh: "\u201C这不会让你失去任何东西。\u201D" },
-      "attr-3":            { en: "on school integration", es: "sobre la integración escolar", zh: "关于学校种族融合" },
-      "quote-4":           { en: "\u201CEverybody has something to give.\u201D", es: "\u201CTodos tienen algo que dar.\u201D", zh: "\u201C每个人都有可以给予的东西。\u201D" },
-      "attr-4":            { en: "on DACA", es: "sobre DACA", zh: "关于DACA（童年入境暂缓遣返）" },
-      "quote-5":           { en: "\u201COne person does matter.\u201D", es: "\u201CUna persona sí importa.\u201D", zh: "\u201C一个人确实能产生影响。\u201D" },
-      "attr-5":            { en: "on Hurricane Katrina", es: "sobre el huracán Katrina", zh: "关于卡特里娜飓风" },
       "quote-kwanzaa":     { en: "“Umoja — unity. What can I do today to think more of unity in my family, in my community?”", es: "“Umoja — unidad. ¿Qué puedo hacer hoy para pensar más en la unidad en mi familia, en mi comunidad?”", zh: "“Umoja —— 团结。今天我能做些什么，让自己更多地思考家庭与社区中的团结？”" },
       "attr-kwanzaa":      { en: "MLNJ6 — on Kwanzaa", es: "MLNJ6 — sobre Kwanzaa", zh: "MLNJ6 —— 关于宽扎节" },
       "quote-emwe":        { en: "“Without thinking, I find myself involved in the community.”", es: "“Yo sin pensarlo me veo involucrado en la comunidad.”", zh: "“不假思索之间，我便投入了社区。”" },
       "attr-emwe":         { en: "EMWE — on community involvement", es: "EMWE — sobre la participación comunitaria", zh: "EMWE —— 关于社区参与" },
-      "quote-voting":      { en: "“I’ve seen the tears rolling down their faces. It meant they can be part of society again.”", es: "“He visto las lágrimas corriendo por sus caras. Significaba que podían ser parte de la sociedad nuevamente.”", zh: "“我看见泪水从他们脸上流下来。这意味着他们可以重新成为社会的一部分。”" },
-      "attr-voting":       { en: "BMNJ — on restoring voting rights", es: "BMNJ — sobre la restauración del derecho al voto", zh: "BMNJ —— 关于恢复选举权" },
-      "sec-basic":         { en: "Basic Information", es: "Información Básica", zh: "基本信息" },
-      "sec-early":         { en: "Early Life", es: "Vida Temprana", zh: "早年生活" },
-      "sec-helping":       { en: "First Experiences with Helping Others", es: "Primeras Experiencias Ayudando a Otros", zh: "初次帮助他人的经历" },
-      "sec-influences":    { en: "Experiences with Helping Others", es: "Experiencias Ayudando a Otros", zh: "帮助他人的经历" },
-      "sec-turning":       { en: "Life Transitions & Turning Points", es: "Transiciones y Momentos Decisivos", zh: "人生转折与关键时刻" },
-      "sec-identity":      { en: "Identity", es: "Identidad", zh: "身份认同" },
-      "sec-meaningful":    { en: "Meaningful Contributions", es: "Contribuciones Significativas", zh: "有意义的贡献" },
-      "sec-reflections":   { en: "Reflections", es: "Reflexiones", zh: "感悟与反思" },
-      "sec-support":       { en: "Reflections & Advice", es: "Reflexiones y Consejos", zh: "感悟与建议" },
       "prompt-basic":      { en: "Basic Info", es: "Información básica", zh: "基本信息" },
       "label-email":       { en: "Personal email:", es: "Correo electrónico personal:", zh: "个人电子邮箱：" },
       "ph-email":          { en: "e.g. you@example.com", es: "ej. tu@ejemplo.com", zh: "例如 you@example.com" },
@@ -1252,14 +1160,8 @@
       "sub-helping":       { en: "What motivated you (personally, socially, or politically), and how did that experience make you feel?", es: "¿Qué le motivó (personal, social o políticamente), y cómo le hizo sentir esa experiencia?", zh: "是什么激励了您（在个人、社会或政治方面），那段经历给您带来了怎样的感受？" },
       "prompt-influences": { en: "Share a story about something that happened in your life that changed how you contribute to your community or society (e.g., moving to a new place, changes in health, work, or loss).", es: "Comparta una historia sobre algo que sucedió en su vida que cambió la manera en que usted contribuye a su comunidad o a la sociedad (por ejemplo, mudarse a un lugar nuevo, cambios en la salud, el trabajo o una pérdida).", zh: "请分享一段您生命中发生的经历，它改变了您为社区或社会做贡献的方式（例如搬到新的地方、健康状况变化、工作变动或失去亲友）。" },
       "sub-influences":    { en: "How did this experience affect you? What changed in your perspective or actions?", es: "¿Cómo le afectó esta experiencia? ¿Qué cambió en su perspectiva o en sus acciones?", zh: "这段经历对您产生了怎样的影响？您的看法或行动发生了什么变化？" },
-      "prompt-turning":    { en: "Can you share an experience in your life that changed how you contribute to your community or society?", es: "¿Puede compartir una experiencia en su vida que cambió la forma en que usted contribuye a su comunidad o a la sociedad?", zh: "您能分享一段改变了您为社区或社会做贡献方式的人生经历吗？" },
-      "sub-turning":       { en: "How did that experience affect you emotionally, and what changed in your actions or perspective?", es: "¿Cómo le afectó esa experiencia emocionalmente, y qué cambió en sus acciones o en su perspectiva?", zh: "那段经历在情感上对您产生了怎样的影响？您的行动或看法发生了什么变化？" },
       "prompt-identity":   { en: "Share a story about a time when aspects of your identity (e.g., age, race, ethnicity, nationality, gender, language, or health status) shaped your participation in a civic or community activity.", es: "Comparta una historia sobre un momento en que aspectos de su identidad (por ejemplo, edad, raza, origen étnico, nacionalidad, género, idioma o estado de salud) influyeron en su participación en una actividad cívica o comunitaria.", zh: "请分享一个故事：您的身份特征（例如年龄、种族、民族、国籍、性别、语言或健康状况）曾在某次公民或社区活动中如何影响了您的参与。" },
       "sub-identity":      { en: "Reflect on how these experiences affected you and in what ways they influenced your participation moving forward.", es: "Reflexione sobre cómo estas experiencias le afectaron y de qué maneras influyeron en su participación en adelante.", zh: "请回想这些经历如何影响了您，以及它们在哪些方面影响了您之后的参与方式。" },
-      "prompt-meaningful": { en: "In the past year or so, what community involvement or contribution has been most meaningful to you?", es: "En el último año aproximadamente, ¿qué participación o contribución comunitaria ha sido la más significativa para usted?", zh: "在过去一年左右，哪项社区参与或贡献对您最有意义？" },
-      "sub-meaningful":    { en: "What made that experience stand out, and how did it make you feel?", es: "¿Qué hizo que esa experiencia fuera especial, y cómo le hizo sentir?", zh: "是什么让那次经历如此突出？它给您带来了怎样的感受？" },
-      "prompt-reflections":{ en: "What does civic participation mean to you personally?", es: "¿Qué significa para usted personalmente la participación cívica?", zh: "公民参与对您个人而言意味着什么？" },
-      "sub-reflections":   { en: "What advice would you give others about the importance of contributing to the community beyond family and work?", es: "¿Qué consejo les daría a otros sobre la importancia de contribuir a la comunidad más allá de la familia y el trabajo?", zh: "关于在家庭和工作之外为社区做贡献的重要性，您会给其他人什么建议？" },
       "prompt-support":    { en: "After thinking about how you have contributed over the years, what advice would you give people about the importance of getting involved and contributing to others outside family and work?", es: "Después de reflexionar sobre cómo ha contribuido a lo largo de los años, ¿qué consejo le daría a las personas sobre la importancia de involucrarse y contribuir a otros más allá de la familia y el trabajo?", zh: "在回顾您多年来所做的贡献之后，关于参与并为家庭和工作之外的他人做贡献的重要性，您会给其他人什么建议？" },
       "sub-support":       { en: "", es: "", zh: "" },
       "btn-next":          { en: "Next", es: "Siguiente", zh: "下一步" },
@@ -1276,7 +1178,6 @@
       "word-of":           { en: "of", es: "de", zh: "/" },
       "completion-title":  { en: "Thank You", es: "Gracias", zh: "感谢您" },
       "completion-desc":   { en: "Your submission will be reviewed for posting.", es: "Su envío será revisado para su publicación.", zh: "您的提交将经过审阅后发布。" },
-      "approved-heading":  { en: "Voices from Our Community", es: "Voces de Nuestra Comunidad", zh: "来自社区的声音" },
       "label-volunteer":   { en: "Do you volunteer?", es: "¿Hace trabajo voluntario?", zh: "您是否参与志愿活动？" },
       "label-voted":       { en: "Do you vote in local or presidential elections?", es: "¿Vota en las elecciones locales o presidenciales?", zh: "您会参与地方或总统选举投票吗？" },
       "label-education":   { en: "Education:", es: "Educación:", zh: "学历：" },
@@ -1295,7 +1196,6 @@
       "confirm-cancel":    { en: "Cancel", es: "Cancelar", zh: "取消" },
       "confirm-confirm":   { en: "Yes, Submit", es: "Sí, Enviar", zh: "确认提交" },
       "ph-volunteer":      { en: "If yes, how?", es: "Si sí, ¿cómo?", zh: "如果是，您是如何参与的？" },
-      "sec-creative":          { en: "Creative Work", es: "Trabajo Creativo", zh: "创意作品" },
       "prompt-creative":       { en: "Based on your personal journey, create a poem, story, song, collage, drawing, photograph, and/or another creative work that captures the essence of your contributions to others.", es: "Basándose en su trayectoria personal, cree un poema, cuento, canción, collage, dibujo, fotografía y/u otra obra creativa que capture la esencia de sus contribuciones a los demás.", zh: "请根据您的人生历程，创作一首诗、一个故事、一首歌、一幅拼贴、一幅画、一张照片和／或其他创意作品，来体现您对他人贡献的精髓。" },
       "sub-creative":          { en: "A question to guide your expression: what life experiences and key moments have influenced your willingness to give back to others, a community, and/or society?", es: "Una pregunta para guiar su expresión: ¿qué experiencias de vida y momentos clave han influido en su disposición a contribuir a otros, a una comunidad o a la sociedad?", zh: "一个引导思考的问题：哪些人生经历与关键时刻影响了您回馈他人、社区或社会的意愿？" },
       "placeholder-creative":  { en: "Describe your work and writings here", es: "Describa aquí su obra y escritos", zh: "在此描述您的作品与文字" },
@@ -1304,9 +1204,7 @@
       "upload-too-large":      { en: "Image is too large even after compression. Try a smaller image.", es: "La imagen es demasiado grande incluso después de comprimirla. Intente con una imagen más pequeña.", zh: "图片即使经过压缩仍然过大。请尝试上传较小的图片。" },
       "upload-not-image":      { en: "Please choose an image file.", es: "Por favor, elija un archivo de imagen.", zh: "请选择一个图片文件。" },
       "upload-processing":     { en: "Processing image...", es: "Procesando imagen...", zh: "正在处理图片..." },
-      "sec-civic-meaning": { en: "Civic Participation", es: "Participación Cívica", zh: "公民参与" },
       "prompt-civic-meaning": { en: "What does civic participation mean to you?", es: "¿Qué significa para usted la participación cívica?", zh: "公民参与对您意味着什么？" },
-      "sec-civic-contribution": { en: "Civic Participation", es: "Participación Cívica", zh: "公民参与" },
       "prompt-civic-contribution": { en: "In the past 12 months, what community contribution has been most significant for you, and what made this experience meaningful or memorable?", es: "En los últimos 12 meses, ¿qué contribución comunitaria ha sido la más significativa para usted, y qué hizo que esta experiencia fuera significativa o memorable?", zh: "在过去的12个月里，哪项社区贡献对您最有意义？是什么让这次经历变得有意义或令人难忘？" },
       "sub-civic-contribution": { en: "How did it make you feel to participate in this way?", es: "¿Cómo se sintió al participar de esta manera?", zh: "以这种方式参与让您有什么感受？" },
     };
@@ -1638,7 +1536,6 @@
       activeRecorder = null;
     }
 
-    // ── Upload audio files to Airtable ───────────
     // ── Delete recording ─────────────────────────
     function deleteAudio(btn) {
       var section = btn.closest('.form-section');
