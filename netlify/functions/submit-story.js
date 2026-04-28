@@ -38,10 +38,10 @@ exports.handler = async (event) => {
   // Basic info
   if (data.email) fields["Email"] = data.email;
   if (data["age-gender-ethnicity"]) fields["Age, Gender & Race/Ethnicity"] = data["age-gender-ethnicity"];
-  if (data["country-language"]) fields["Country & Languages Spoken"] = data["country-language"];
+  if (data["country-language"]) fields["Country & Language Spoken"] = data["country-language"];
   if (data.years) fields["Years (US/City)"] = data.years;
   if (data.volunteer) fields["Volunteers"] = data.volunteer;
-  if (data.voted) fields["Voted Last Election"] = data.voted;
+  if (data.voted) fields["Vote in Local or Presidential Elections"] = data.voted;
   if (data.education) fields["Education"] = data.education;
   if (data.health) fields["Health Conditions"] = data.health;
 
@@ -53,7 +53,7 @@ exports.handler = async (event) => {
   if (data["first-helping"]) fields["First Helping"] = data["first-helping"];
   if (data["influences"]) fields["Influences"] = data["influences"];
   if (data["identity-civic"]) fields["Identity and Civic"] = data["identity-civic"];
-  if (data["community-support"]) fields["Community Support"] = data["community-support"];
+  if (data["community-support"]) fields["Advice for Others"] = data["community-support"];
 
   try {
     const resp = await fetch(
