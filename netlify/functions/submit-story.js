@@ -41,7 +41,7 @@ exports.handler = async (event) => {
   const fields = [
     ["Personal email", data.email],
     ["Age, gender, and race/ethnicity", data["age-gender-ethnicity"]],
-    ["Country of origin and language spoken", data["country-language"]],
+    ["Country of origin and language(s) spoken", data["country-language"]],
     ["Years in the US, and years in current city", data.years],
     ["Education", data.education],
     ["Do you vote in local or presidential elections?", data.voted],
@@ -68,7 +68,7 @@ exports.handler = async (event) => {
       data["influences"],
     ],
     [
-      "Share a story about a time when aspects of your identity (e.g., age, race, ethnicity, nationality, gender, language, or health status) shaped your participation in a civic or community activity.",
+      "Share a story about a time when aspects of your identity (e.g., age, race, ethnicity, nationality, gender, language, or health status) shaped your participation.",
       data["identity-civic"],
     ],
     ["What does civic participation mean to you?", data["civic-meaning"]],
