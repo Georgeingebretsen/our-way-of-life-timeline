@@ -289,7 +289,7 @@
 
   <div class="save-bar">
     <span class="save-status" id="saveStatus"></span>
-    <button class="btn-revert" id="revertBtn" onclick="revert()" title="Discard your in-progress edits and reload the last saved version">Revert to saved</button>
+    <button class="btn-revert" id="revertBtn" onclick="revert()" title="Restore the timeline to the frozen baseline snapshot — overwrites any saved changes">Revert to baseline</button>
     <button class="btn-save" id="saveBtn" onclick="save()">Save changes</button>
   </div>
 </div>
@@ -834,8 +834,10 @@
     };
   }
 
+  // Restores the timeline to a frozen baseline snapshot stored in the repo.
+  // Overwrites any saves made since the snapshot was captured.
   async function revert() {
-    if (!confirm('Discard your in-progress edits and reload the last saved version?')) return;
+    if (!confirm('Restore the timeline to the baseline snapshot? This will overwrite the current saved state — any saves made since the snapshot was captured will be lost.')) return;
     const status = document.getElementById('saveStatus');
     const revertBtn = document.getElementById('revertBtn');
     const saveBtn = document.getElementById('saveBtn');
@@ -844,13 +846,30 @@
     revertBtn.disabled = true;
     saveBtn.disabled = true;
     try {
+      const baseline = await fetch('/snapshots/timeline-baseline.json', { cache: 'no-cache' }).then(r => {
+        if (!r.ok) throw new Error('Baseline snapshot not found');
+        return r.json();
+      });
+      const res = await fetch('/.netlify/functions/save-content?surface=timeline', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + getPw() },
+        body: JSON.stringify(baseline),
+      });
+      if (res.status === 401) {
+        clearPw();
+        status.className = 'save-status error';
+        status.textContent = 'Session expired — sign in again.';
+        setTimeout(() => location.reload(), 1500);
+        return;
+      }
+      if (!res.ok) throw new Error('HTTP ' + res.status);
       await loadEditor();
       status.className = 'save-status success';
-      status.textContent = 'Reverted to last saved.';
+      status.textContent = 'Reverted to baseline.';
       setTimeout(() => { status.textContent = ''; }, 3000);
     } catch (e) {
       status.className = 'save-status error';
-      status.textContent = 'Revert failed.';
+      status.textContent = 'Revert failed: ' + (e.message || 'unknown');
       console.error(e);
     } finally {
       revertBtn.disabled = false;
