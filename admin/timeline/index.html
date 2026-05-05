@@ -1,0 +1,876 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Admin · Timeline</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;0,8..60,700;1,8..60,400&family=Libre+Franklin:ital,wght@0,300;0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  /* ── Admin chrome (overlays the timeline page CSS, which is injected at runtime) ── */
+  body { padding-bottom: 6.5rem; }
+
+  /* Force all timeline entries open in admin so everything is editable */
+  .timeline-entry .timeline-content { max-height: none !important; }
+
+  /* Editable highlight (timeline's existing lang-en/lang-es spans get this class) */
+  .admin-editable {
+    outline: none;
+    border-radius: 3px;
+    padding: 0 0.2rem;
+    margin: 0 -0.2rem;
+    transition: background 0.12s, box-shadow 0.12s;
+    cursor: text;
+    white-space: pre-wrap;
+  }
+  .admin-editable:hover { background: rgba(218, 165, 32, 0.10); }
+  .admin-editable:focus {
+    background: #fffaf0;
+    box-shadow: 0 0 0 2px #daa520;
+  }
+  .admin-editable:empty::before {
+    content: attr(data-edit-placeholder);
+    color: #bfae94;
+    font-style: italic;
+  }
+
+  /* Don't navigate when admin clicks links inside the timeline */
+  #timelineMount a { cursor: text; }
+
+  /* Editable date pill (single value, not bilingual) */
+  .admin-date-edit {
+    outline: none;
+    border-radius: 3px;
+    padding: 0 0.25rem;
+    margin: 0 -0.25rem;
+    transition: background 0.12s, box-shadow 0.12s;
+    cursor: text;
+    display: inline-block;
+    min-width: 3rem;
+  }
+  .admin-date-edit:hover { background: rgba(218, 165, 32, 0.10); }
+  .admin-date-edit:focus { background: #fffaf0; box-shadow: 0 0 0 2px #daa520; }
+  .admin-date-edit:empty::before {
+    content: attr(data-placeholder);
+    color: #bfae94;
+    font-style: italic;
+    font-weight: 400;
+    text-transform: none;
+    letter-spacing: 0;
+  }
+
+  /* Video URL editor: small input below each iframe */
+  .admin-video-url {
+    display: block;
+    width: 100%;
+    margin: 0.4rem 0 0;
+    padding: 0.45rem 0.6rem;
+    border: 1.5px solid #ece4d8;
+    border-radius: 5px;
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    font-size: 0.78rem;
+    color: #5c3a1e;
+    background: #fff;
+  }
+  .admin-video-url:focus { outline: none; border-color: #daa520; }
+  .admin-video-label {
+    font-size: 0.7rem; font-weight: 600; color: #8b7355;
+    text-transform: uppercase; letter-spacing: 0.05em;
+    margin-top: 0.6rem;
+  }
+
+  /* Hide/restore button on each timeline entry — admin chrome floats above the
+     entry's natural content, so we add top-padding so date/heading aren't covered. */
+  .timeline-entry { position: relative; padding-top: 2.6rem; }
+  .admin-entry-trash {
+    position: absolute;
+    top: 0.4rem; right: 0.4rem;
+    background: rgba(255,255,255,0.85);
+    border: 1px solid #ece4d8;
+    width: 28px; height: 28px;
+    border-radius: 5px;
+    cursor: pointer;
+    color: #a8987b;
+    display: flex; align-items: center; justify-content: center;
+    font-family: "Libre Franklin", sans-serif;
+    font-size: 0.95rem;
+    z-index: 5;
+    transition: all 0.15s;
+  }
+  .admin-entry-trash:hover {
+    border-color: #e8b4b4;
+    color: #a83333;
+    background: #fdf3f3;
+  }
+  .timeline-entry.admin-hidden {
+    opacity: 0.35;
+    background: repeating-linear-gradient(45deg, transparent 0 8px, rgba(168,51,51,0.04) 8px 16px);
+  }
+  .timeline-entry.admin-hidden .admin-entry-trash { color: #2d6e2d; border-color: #b8d8b8; background: #f0fdf4; }
+  .timeline-entry.admin-hidden .admin-entry-trash:hover { color: #1a4d1a; background: #e0f5e0; }
+
+  /* Move up/down buttons (sit next to the trash button) */
+  .admin-entry-move {
+    position: absolute;
+    top: 0.4rem;
+    background: rgba(255,255,255,0.85);
+    border: 1px solid #ece4d8;
+    width: 28px; height: 28px;
+    border-radius: 5px;
+    cursor: pointer;
+    color: #8b7355;
+    display: flex; align-items: center; justify-content: center;
+    font-family: "Libre Franklin", sans-serif;
+    font-size: 0.95rem;
+    z-index: 5;
+    transition: all 0.15s;
+  }
+  .admin-entry-move:hover { border-color: #daa520; color: #5c3a1e; background: #fffaf0; }
+  .admin-entry-move:disabled { opacity: 0.3; cursor: not-allowed; }
+  .admin-entry-move.up { right: 6.6rem; }
+  .admin-entry-move.down { right: 4.0rem; }
+  .admin-entry-trash { right: 1.4rem; }
+  .admin-custom-badge {
+    position: absolute;
+    top: 0.4rem; left: 0.4rem;
+    font-size: 0.6rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+    color: #5c3a1e; background: #fef3c7; border: 1px solid #f0e4c8;
+    padding: 0.15rem 0.45rem; border-radius: 999px;
+    z-index: 5;
+  }
+
+  /* "+ Add event" button between entries */
+  .admin-add-event {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    max-width: 720px;
+    margin: 0.4rem auto;
+    padding: 0.45rem;
+    border: 1.5px dashed #d8cdb9;
+    border-radius: 6px;
+    background: transparent;
+    color: #8b7355;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: "Libre Franklin", sans-serif;
+    transition: all 0.15s;
+  }
+  .admin-add-event:hover {
+    border-color: #daa520; border-style: solid;
+    background: #fffaf0; color: #5c3a1e;
+  }
+
+  /* Top panel — pinned top-right */
+  .top-panel {
+    position: fixed;
+    top: 1rem; right: 1rem; left: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    z-index: 100;
+    pointer-events: none;
+  }
+  .top-panel > * { pointer-events: auto; }
+  .top-panel .spacer { flex: 1; }
+  .top-panel .lang-pills {
+    display: flex; gap: 0.3rem;
+    background: rgba(255,255,255,0.85);
+    backdrop-filter: blur(4px);
+    border-radius: 8px;
+    padding: 0.25rem;
+    border: 1px solid #ece4d8;
+    box-shadow: 0 1px 4px rgba(92,58,30,0.08);
+  }
+  .top-panel .lang-pills button {
+    font-family: "Libre Franklin", sans-serif;
+    font-size: 0.8rem; font-weight: 600;
+    padding: 0.35rem 0.85rem;
+    border: 1.5px solid transparent;
+    border-radius: 5px;
+    background: transparent;
+    color: #8b7355;
+    cursor: pointer;
+    opacity: 0.6;
+  }
+  .top-panel .lang-pills button.active { opacity: 1; border-color: #daa520; color: #5c3a1e; background: #fff; }
+  .top-panel .nav-link {
+    color: #8b7355; font-size: 0.8rem; text-decoration: none;
+    background: rgba(255,255,255,0.85);
+    backdrop-filter: blur(4px);
+    padding: 0.4rem 0.7rem;
+    border-radius: 6px;
+    border: 1px solid #ece4d8;
+  }
+  .top-panel .nav-link:hover { color: #5c3a1e; }
+
+  /* Save bar */
+  .save-bar {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    background: rgba(255,252,245,0.96);
+    border-top: 1px solid #ece4d8;
+    padding: 0.85rem 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 1rem;
+    backdrop-filter: blur(6px);
+    z-index: 90;
+  }
+  .btn-save {
+    background: #5c3a1e; color: #fff; border: none;
+    padding: 0.7rem 1.4rem; border-radius: 6px;
+    font-family: "Libre Franklin", sans-serif; font-weight: 600; font-size: 0.95rem; cursor: pointer;
+  }
+  .btn-save:hover { background: #4a2e16; }
+  .btn-save:disabled { opacity: 0.5; cursor: not-allowed; }
+  .save-status { font-size: 0.85rem; color: #8b7355; }
+  .save-status.success { color: #2d6e2d; }
+  .save-status.error { color: #a83333; }
+
+  /* Login screen */
+  .login {
+    max-width: 420px; margin: 5rem auto;
+    background: #fff; padding: 2rem; border-radius: 8px; border: 1px solid #ece4d8;
+    font-family: "Libre Franklin", sans-serif;
+  }
+  .login h1 {
+    font-family: "Source Serif 4", Georgia, serif;
+    color: #5c3a1e; margin: 0 0 0.5rem; font-size: 1.6rem;
+  }
+  .login p { color: #8b7355; font-size: 0.9rem; margin: 0 0 1.2rem; }
+  .login input {
+    width: 100%; padding: 0.7rem; border: 2px solid #ece4d8; border-radius: 6px;
+    font-family: inherit; font-size: 0.95rem;
+  }
+  .login button {
+    width: 100%; padding: 0.7rem; background: #5c3a1e; color: #fff; border: none;
+    border-radius: 6px; font-family: inherit; font-weight: 600; cursor: pointer; margin-top: 0.75rem;
+  }
+  .login .err { color: #a83333; font-size: 0.85rem; margin-top: 0.5rem; min-height: 1.2em; }
+  body.show-login { background: #fffcf5; }
+</style>
+</head>
+<body class="lang-en show-login">
+
+<div id="loginScreen" class="login" style="display:none;">
+  <h1>Admin · Timeline</h1>
+  <p>Enter the admin password to edit the timeline.</p>
+  <input type="password" id="passwordInput" placeholder="Password" autocomplete="current-password">
+  <button onclick="tryLogin()">Sign in</button>
+  <div class="err" id="loginErr"></div>
+</div>
+
+<div id="editorScreen" style="display:none;">
+  <div class="top-panel">
+    <a class="nav-link" href="/admin/">← All editors</a>
+    <div class="lang-pills" id="langPills">
+      <button class="active" data-lang="en">English</button>
+      <button data-lang="es">Spanish</button>
+      <button data-lang="zh">中文</button>
+    </div>
+    <span class="spacer"></span>
+    <a class="nav-link" href="/" target="_blank">Open timeline ↗</a>
+    <a class="nav-link" href="#" onclick="logout(); return false;">Sign out</a>
+  </div>
+
+  <div id="timelineMount"></div>
+
+  <div class="save-bar">
+    <span class="save-status" id="saveStatus"></span>
+    <button class="btn-save" id="saveBtn" onclick="save()">Save changes</button>
+  </div>
+</div>
+
+<script>
+  // ── Auth ────────────────────────────────────────────────
+  const PW_KEY = 'admin_pw';
+  const getPw = () => sessionStorage.getItem(PW_KEY) || '';
+  const setPw = p => sessionStorage.setItem(PW_KEY, p);
+  const clearPw = () => sessionStorage.removeItem(PW_KEY);
+
+  async function tryLogin() {
+    const errEl = document.getElementById('loginErr');
+    errEl.textContent = '';
+    const pw = document.getElementById('passwordInput').value;
+    if (!pw) { errEl.textContent = 'Enter a password.'; return; }
+    setPw(pw);
+    const res = await fetch('/.netlify/functions/save-content?surface=timeline', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + pw },
+      body: JSON.stringify({ probe: true }),
+    });
+    if (res.status === 401) { clearPw(); errEl.textContent = 'Wrong password.'; return; }
+    if (!res.ok) { clearPw(); errEl.textContent = 'Server error. Check ADMIN_PASSWORD.'; return; }
+    document.body.classList.remove('show-login');
+    await loadEditor();
+    showEditor();
+  }
+  function logout() {
+    clearPw();
+    location.reload();
+  }
+  function showEditor() {
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('editorScreen').style.display = '';
+  }
+  function showLogin() {
+    document.getElementById('loginScreen').style.display = '';
+    document.getElementById('editorScreen').style.display = 'none';
+  }
+
+  // ── State ───────────────────────────────────────────────
+  // snapshot     — defaults captured from source before applying overrides
+  // editsLive    — current edit values (only set when user has typed)
+  // hiddenSet    — Set of existing-entry ids the admin has marked hidden
+  // eventOrder   — array of entry ids in current display order (e-N or custom-X)
+  // customEvents — admin-added events: { id: {date, heading:{en,es}, paragraph:{en,es}, videoUrl} }
+  // existingNodes / customNodes — DOM-node references by id
+  const state = {
+    snapshot: { elements: {}, dates: {}, videos: {} },
+    editsLive: { elements: {}, dates: {}, videos: {} },
+    hiddenSet: new Set(),
+    eventOrder: [],
+    customEvents: {},
+    existingNodes: {},
+    customNodes: {},
+    container: null,
+    currentLang: 'en',
+  };
+
+  // ── Load + render the editor ────────────────────────────
+  async function loadEditor() {
+    let htmlText = '';
+    let overrides = {};
+    try {
+      const [htmlRes, overridesRes] = await Promise.all([
+        fetch('/', { cache: 'no-cache' }).then(r => r.text()),
+        fetch('/.netlify/functions/get-content?surface=timeline', { cache: 'no-cache' }).then(r => r.json()).catch(() => ({})),
+      ]);
+      htmlText = htmlRes;
+      overrides = overridesRes || {};
+    } catch (e) {
+      console.error('Failed to load timeline:', e);
+      return;
+    }
+
+    const elementsOv = overrides.elements || {};
+    const datesOv    = overrides.dates    || {};
+    const videosOv   = overrides.videos   || {};
+    const hiddenIds  = new Set(overrides.hiddenEvents || []);
+
+    const doc = new DOMParser().parseFromString(htmlText, 'text/html');
+
+    // Inject the timeline's <style> blocks into our head (one-time)
+    if (!document.querySelector('style[data-from-timeline]')) {
+      doc.head.querySelectorAll('style').forEach(s => {
+        const cloned = s.cloneNode(true);
+        cloned.setAttribute('data-from-timeline', 'true');
+        document.head.appendChild(cloned);
+      });
+    }
+
+    // Strip stuff we don't want in admin
+    doc.querySelectorAll('script').forEach(el => el.remove());
+    doc.querySelectorAll('.lang-toggle').forEach(el => el.remove());
+    doc.querySelectorAll('[onclick]').forEach(el => el.removeAttribute('onclick'));
+
+    // Force all collapsible entries open
+    doc.querySelectorAll('.timeline-entry').forEach(e => {
+      e.classList.add('open');
+      const c = e.querySelector('.timeline-content');
+      if (c) c.style.maxHeight = 'none';
+    });
+
+    // Reset state
+    state.snapshot = { elements: {}, dates: {}, videos: {} };
+    state.editsLive = { elements: {}, dates: {}, videos: {} };
+    state.hiddenSet = new Set(hiddenIds);
+
+    // 1. Bilingual text spans → contenteditable
+    doc.querySelectorAll('span.lang-en').forEach((span, i) => {
+      const id = 't-' + (i + 1);
+      span.setAttribute('data-edit-id', id);
+      span.setAttribute('data-edit-lang', 'en');
+      span.setAttribute('data-edit-placeholder', 'English');
+      span.setAttribute('contenteditable', 'plaintext-only');
+      span.classList.add('admin-editable');
+      state.snapshot.elements[id] = state.snapshot.elements[id] || {};
+      state.snapshot.elements[id].en = span.textContent;
+      const v = elementsOv[id];
+      if (v && typeof v.en === 'string' && v.en.length) span.textContent = v.en;
+    });
+    doc.querySelectorAll('span.lang-es').forEach((span, i) => {
+      const id = 't-' + (i + 1);
+      span.setAttribute('data-edit-id', id);
+      span.setAttribute('data-edit-lang', 'es');
+      span.setAttribute('data-edit-placeholder', 'Español');
+      span.setAttribute('contenteditable', 'plaintext-only');
+      span.classList.add('admin-editable');
+      state.snapshot.elements[id] = state.snapshot.elements[id] || {};
+      state.snapshot.elements[id].es = span.textContent;
+      const v = elementsOv[id];
+      if (v && typeof v.es === 'string' && v.es.length) span.textContent = v.es;
+    });
+    doc.querySelectorAll('span.lang-zh').forEach((span, i) => {
+      const id = 't-' + (i + 1);
+      span.setAttribute('data-edit-id', id);
+      span.setAttribute('data-edit-lang', 'zh');
+      span.setAttribute('data-edit-placeholder', '中文');
+      span.setAttribute('contenteditable', 'plaintext-only');
+      span.classList.add('admin-editable');
+      state.snapshot.elements[id] = state.snapshot.elements[id] || {};
+      state.snapshot.elements[id].zh = span.textContent;
+      const v = elementsOv[id];
+      if (v && typeof v.zh === 'string' && v.zh.length) span.textContent = v.zh;
+    });
+
+    // 2. Year / date pills → single-value editable
+    doc.querySelectorAll('.timeline-date').forEach((el, i) => {
+      const id = 'd-' + (i + 1);
+      el.setAttribute('data-date-id', id);
+      el.setAttribute('contenteditable', 'plaintext-only');
+      el.classList.add('admin-date-edit');
+      state.snapshot.dates[id] = el.textContent;
+      const v = datesOv[id];
+      if (typeof v === 'string' && v.length) el.textContent = v;
+    });
+
+    // 3. Video iframes → render with an editable URL input
+    doc.querySelectorAll('.video-wrapper').forEach((wrapper, i) => {
+      const id = 'v-' + (i + 1);
+      const iframe = wrapper.querySelector('iframe');
+      if (!iframe) return;
+      const defaultSrc = iframe.getAttribute('src') || '';
+      state.snapshot.videos[id] = defaultSrc;
+      const ov = videosOv[id];
+      if (typeof ov === 'string' && ov.length) iframe.setAttribute('src', ov);
+      const label = doc.createElement('div');
+      label.className = 'admin-video-label';
+      label.textContent = 'YouTube embed URL';
+      const input = doc.createElement('input');
+      input.type = 'text';
+      input.className = 'admin-video-url';
+      input.setAttribute('data-video-id', id);
+      input.value = iframe.getAttribute('src') || '';
+      input.placeholder = 'https://www.youtube.com/embed/...';
+      wrapper.parentNode.insertBefore(label, wrapper.nextSibling);
+      label.parentNode.insertBefore(input, label.nextSibling);
+    });
+
+    // 4. Tag each timeline entry with an id and stash references
+    state.existingNodes = {};
+    doc.querySelectorAll('.timeline-entry').forEach((entry, i) => {
+      const id = 'e-' + (i + 1);
+      entry.setAttribute('data-entry-id', id);
+      state.existingNodes[id] = entry;
+    });
+
+    // Mount: move parsed body children into our mount point
+    const mount = document.getElementById('timelineMount');
+    mount.innerHTML = '';
+    Array.from(doc.body.children).forEach(c => mount.appendChild(c));
+
+    // Find the container that holds the timeline entries (parent of .timeline-entry).
+    const firstEntry = mount.querySelector('.timeline-entry');
+    state.container = firstEntry ? firstEntry.parentNode : mount;
+
+    // Build custom-event DOM nodes for any saved custom events
+    state.customNodes = {};
+    state.customEvents = overrides.customEvents || {};
+    Object.keys(state.customEvents).forEach(id => {
+      state.customNodes[id] = buildCustomEntryDOM(id, state.customEvents[id]);
+    });
+
+    // Determine initial event order: from override, else default natural order + customs at end
+    const naturalOrder = Object.keys(state.existingNodes);
+    if (Array.isArray(overrides.eventOrder) && overrides.eventOrder.length) {
+      state.eventOrder = overrides.eventOrder.slice();
+      // Append any IDs missing from order (defensive — shouldn't normally happen)
+      naturalOrder.forEach(id => { if (!state.eventOrder.includes(id)) state.eventOrder.push(id); });
+      Object.keys(state.customEvents).forEach(id => { if (!state.eventOrder.includes(id)) state.eventOrder.push(id); });
+    } else {
+      state.eventOrder = [...naturalOrder, ...Object.keys(state.customEvents)];
+    }
+
+    // Event delegation for in-place edits (existing entries)
+    mount.addEventListener('input', e => {
+      const ed = e.target.closest('.admin-editable');
+      if (ed && ed.dataset.editId) {
+        const id = ed.dataset.editId;
+        const lang = ed.dataset.editLang;
+        state.editsLive.elements[id] = state.editsLive.elements[id] || {};
+        state.editsLive.elements[id][lang] = ed.textContent;
+        return;
+      }
+      const date = e.target.closest('.admin-date-edit');
+      if (date && date.dataset.dateId) {
+        state.editsLive.dates[date.dataset.dateId] = date.textContent;
+        return;
+      }
+      const url = e.target.closest('.admin-video-url');
+      if (url && url.dataset.videoId) {
+        state.editsLive.videos[url.dataset.videoId] = url.value;
+        const wrapper = url.parentElement.querySelector('.video-wrapper iframe');
+        if (wrapper) wrapper.setAttribute('src', url.value);
+        return;
+      }
+    });
+    mount.addEventListener('click', e => {
+      // Suppress link navigation in admin
+      const a = e.target.closest('a');
+      if (a) e.preventDefault();
+    });
+
+    renderControls();
+  }
+
+  // Build a custom event's DOM and wire up its inline editors.
+  function buildCustomEntryDOM(id, data) {
+    const entry = document.createElement('div');
+    entry.className = 'timeline-entry open';
+    entry.setAttribute('data-entry-id', id);
+
+    const dot = document.createElement('div'); dot.className = 'dot'; entry.appendChild(dot);
+
+    const date = document.createElement('div');
+    date.className = 'timeline-date admin-date-edit';
+    date.contentEditable = 'plaintext-only';
+    date.textContent = data.date || '';
+    date.dataset.placeholder = 'Year';
+    date.addEventListener('input', () => { state.customEvents[id].date = date.textContent; });
+    entry.appendChild(date);
+
+    const header = document.createElement('div');
+    header.className = 'timeline-header';
+    const h3 = document.createElement('h3');
+    h3.className = 'timeline-heading';
+    ['en','es','zh'].forEach(lang => {
+      const span = document.createElement('span');
+      span.className = 'lang-' + lang + ' admin-editable';
+      span.contentEditable = 'plaintext-only';
+      span.dataset.editPlaceholder = ({ en: 'English heading', es: 'Spanish heading', zh: '中文标题' })[lang];
+      span.textContent = (data.heading && data.heading[lang]) || '';
+      span.addEventListener('input', () => {
+        if (!state.customEvents[id].heading) state.customEvents[id].heading = { en: '', es: '', zh: '' };
+        state.customEvents[id].heading[lang] = span.textContent;
+      });
+      h3.appendChild(span);
+    });
+    header.appendChild(h3);
+    const chev = document.createElement('span');
+    chev.className = 'chevron';
+    chev.innerHTML = '<svg viewbox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg>';
+    header.appendChild(chev);
+    entry.appendChild(header);
+
+    const content = document.createElement('div'); content.className = 'timeline-content';
+    const card = document.createElement('div'); card.className = 'card';
+    const p = document.createElement('p');
+    ['en','es','zh'].forEach(lang => {
+      const span = document.createElement('span');
+      span.className = 'lang-' + lang + ' admin-editable';
+      span.contentEditable = 'plaintext-only';
+      span.dataset.editPlaceholder = ({ en: 'English paragraph', es: 'Spanish paragraph', zh: '中文段落' })[lang];
+      span.textContent = (data.paragraph && data.paragraph[lang]) || '';
+      span.addEventListener('input', () => {
+        if (!state.customEvents[id].paragraph) state.customEvents[id].paragraph = { en: '', es: '', zh: '' };
+        state.customEvents[id].paragraph[lang] = span.textContent;
+      });
+      p.appendChild(span);
+    });
+    card.appendChild(p);
+
+    // Optional video — render iframe if a URL is set, plus the editable URL input
+    if (data.videoUrl) {
+      const vw = document.createElement('div'); vw.className = 'video-wrapper';
+      const ifr = document.createElement('iframe');
+      ifr.setAttribute('allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share');
+      ifr.setAttribute('allowfullscreen', '');
+      ifr.setAttribute('loading', 'lazy');
+      ifr.setAttribute('src', data.videoUrl);
+      vw.appendChild(ifr);
+      card.appendChild(vw);
+    }
+    const vlabel = document.createElement('div');
+    vlabel.className = 'admin-video-label';
+    vlabel.textContent = 'YouTube embed URL (optional)';
+    const vinput = document.createElement('input');
+    vinput.type = 'text';
+    vinput.className = 'admin-video-url';
+    vinput.placeholder = 'https://www.youtube.com/embed/...';
+    vinput.value = data.videoUrl || '';
+    vinput.addEventListener('input', () => {
+      const v = vinput.value.trim();
+      state.customEvents[id].videoUrl = v;
+      let wrapper = card.querySelector('.video-wrapper');
+      if (v) {
+        if (wrapper) {
+          wrapper.querySelector('iframe').setAttribute('src', v);
+        } else {
+          wrapper = document.createElement('div');
+          wrapper.className = 'video-wrapper';
+          const ifr = document.createElement('iframe');
+          ifr.setAttribute('allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share');
+          ifr.setAttribute('allowfullscreen', '');
+          ifr.setAttribute('loading', 'lazy');
+          ifr.setAttribute('src', v);
+          wrapper.appendChild(ifr);
+          card.insertBefore(wrapper, vlabel);
+        }
+      } else {
+        if (wrapper) wrapper.remove();
+      }
+    });
+    card.appendChild(vlabel);
+    card.appendChild(vinput);
+
+    content.appendChild(card);
+    entry.appendChild(content);
+
+    const badge = document.createElement('div');
+    badge.className = 'admin-custom-badge';
+    badge.textContent = 'New';
+    entry.appendChild(badge);
+
+    return entry;
+  }
+
+  function generateCustomId() {
+    return 'custom-' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5);
+  }
+
+  function nodeForId(id) {
+    return state.existingNodes[id] || state.customNodes[id] || null;
+  }
+
+  // Re-arrange DOM nodes per state.eventOrder, then refresh +/↑/↓/trash controls.
+  function renderControls() {
+    if (!state.container) return;
+    // Remove all existing add-event buttons (we'll re-emit them)
+    state.container.querySelectorAll('.admin-add-event').forEach(b => b.remove());
+
+    // Walk eventOrder, append each node (moves to correct position)
+    state.eventOrder.forEach(id => {
+      const node = nodeForId(id);
+      if (node) state.container.appendChild(node);
+    });
+
+    // Now decorate each entry with controls and intersperse add buttons
+    const total = state.eventOrder.length;
+    state.eventOrder.forEach((id, idx) => {
+      const node = nodeForId(id);
+      if (!node) return;
+      // Reset controls on this node
+      node.querySelectorAll('.admin-entry-trash, .admin-entry-move').forEach(b => b.remove());
+
+      const isCustom = id.startsWith('custom-');
+      const isHidden = state.hiddenSet.has(id);
+      node.classList.toggle('admin-hidden', isHidden);
+
+      // Move-up
+      const upBtn = document.createElement('button');
+      upBtn.type = 'button';
+      upBtn.className = 'admin-entry-move up';
+      upBtn.title = 'Move up';
+      upBtn.textContent = '↑';
+      upBtn.disabled = idx === 0;
+      upBtn.addEventListener('click', e => { e.preventDefault(); moveEvent(idx, -1); });
+      node.appendChild(upBtn);
+
+      // Move-down
+      const downBtn = document.createElement('button');
+      downBtn.type = 'button';
+      downBtn.className = 'admin-entry-move down';
+      downBtn.title = 'Move down';
+      downBtn.textContent = '↓';
+      downBtn.disabled = idx === total - 1;
+      downBtn.addEventListener('click', e => { e.preventDefault(); moveEvent(idx, 1); });
+      node.appendChild(downBtn);
+
+      // Trash (delete-custom or hide-existing)
+      const trash = document.createElement('button');
+      trash.type = 'button';
+      trash.className = 'admin-entry-trash';
+      if (isCustom) {
+        trash.title = 'Delete this event';
+        trash.textContent = '🗑';
+        trash.addEventListener('click', e => {
+          e.preventDefault();
+          if (!confirm('Delete this added event? This cannot be undone.')) return;
+          deleteCustomEvent(id);
+        });
+      } else if (isHidden) {
+        trash.title = 'Restore this event';
+        trash.textContent = '↺';
+        trash.addEventListener('click', e => { e.preventDefault(); state.hiddenSet.delete(id); renderControls(); });
+      } else {
+        trash.title = 'Hide this event';
+        trash.textContent = '🗑';
+        trash.addEventListener('click', e => {
+          e.preventDefault();
+          if (!confirm('Hide this event from the timeline? You can restore it from this admin page.')) return;
+          state.hiddenSet.add(id);
+          renderControls();
+        });
+      }
+      node.appendChild(trash);
+
+      // "+ Add event" button BEFORE this entry (insertion at idx)
+      state.container.insertBefore(makeAddBtn(idx), node);
+    });
+    // One final + after the last entry
+    state.container.appendChild(makeAddBtn(state.eventOrder.length));
+  }
+
+  function makeAddBtn(insertIdx) {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'admin-add-event';
+    btn.textContent = '+ Add event';
+    btn.addEventListener('click', e => { e.preventDefault(); addCustomEventAt(insertIdx); });
+    return btn;
+  }
+
+  function addCustomEventAt(insertIdx) {
+    const id = generateCustomId();
+    state.customEvents[id] = {
+      date: '',
+      heading: { en: '', es: '', zh: '' },
+      paragraph: { en: '', es: '', zh: '' },
+      videoUrl: '',
+    };
+    state.customNodes[id] = buildCustomEntryDOM(id, state.customEvents[id]);
+    state.eventOrder.splice(insertIdx, 0, id);
+    renderControls();
+    setTimeout(() => {
+      state.customNodes[id].scrollIntoView({ behavior: 'smooth', block: 'center' });
+      const firstEditable = state.customNodes[id].querySelector('.timeline-date');
+      if (firstEditable) firstEditable.focus();
+    }, 50);
+  }
+
+  function deleteCustomEvent(id) {
+    delete state.customEvents[id];
+    if (state.customNodes[id] && state.customNodes[id].parentNode) state.customNodes[id].parentNode.removeChild(state.customNodes[id]);
+    delete state.customNodes[id];
+    state.eventOrder = state.eventOrder.filter(x => x !== id);
+    renderControls();
+  }
+
+  function moveEvent(idx, delta) {
+    const target = idx + delta;
+    if (target < 0 || target >= state.eventOrder.length) return;
+    const [item] = state.eventOrder.splice(idx, 1);
+    state.eventOrder.splice(target, 0, item);
+    renderControls();
+  }
+
+  // ── Language toggle ─────────────────────────────────────
+  document.getElementById('langPills').addEventListener('click', e => {
+    const btn = e.target.closest('button[data-lang]');
+    if (!btn) return;
+    const lang = btn.dataset.lang;
+    state.currentLang = lang;
+    document.body.classList.remove('lang-en', 'lang-es');
+    document.body.classList.add('lang-' + lang);
+    document.querySelectorAll('#langPills button').forEach(b => {
+      b.classList.toggle('active', b.dataset.lang === lang);
+    });
+  });
+
+  // ── Save ────────────────────────────────────────────────
+  function buildPayload() {
+    const elements = {};
+    Object.keys(state.snapshot.elements).forEach(id => {
+      const def = state.snapshot.elements[id] || {};
+      const live = state.editsLive.elements[id] || {};
+      const out = {};
+      let dirty = false;
+      ['en', 'es', 'zh'].forEach(lang => {
+        const liveVal = (live[lang] !== undefined) ? live[lang] : null;
+        const defVal = def[lang] || '';
+        if (liveVal !== null && liveVal !== defVal) {
+          out[lang] = liveVal;
+          dirty = true;
+        }
+      });
+      if (dirty) elements[id] = out;
+    });
+
+    const dates = {};
+    Object.keys(state.snapshot.dates).forEach(id => {
+      const def = state.snapshot.dates[id] || '';
+      const live = state.editsLive.dates[id];
+      if (live !== undefined && live !== def) dates[id] = live;
+    });
+
+    const videos = {};
+    Object.keys(state.snapshot.videos).forEach(id => {
+      const def = state.snapshot.videos[id] || '';
+      const live = state.editsLive.videos[id];
+      if (live !== undefined && live !== def) videos[id] = live;
+    });
+
+    return {
+      elements,
+      dates,
+      videos,
+      hiddenEvents: Array.from(state.hiddenSet),
+      eventOrder: state.eventOrder.slice(),
+      customEvents: state.customEvents,
+    };
+  }
+
+  async function save() {
+    const status = document.getElementById('saveStatus');
+    const btn = document.getElementById('saveBtn');
+    status.className = 'save-status';
+    status.textContent = 'Saving...';
+    btn.disabled = true;
+    try {
+      const res = await fetch('/.netlify/functions/save-content?surface=timeline', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + getPw() },
+        body: JSON.stringify(buildPayload()),
+      });
+      if (res.status === 401) {
+        clearPw();
+        status.className = 'save-status error';
+        status.textContent = 'Session expired — sign in again.';
+        setTimeout(() => location.reload(), 1500);
+        return;
+      }
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      status.className = 'save-status success';
+      status.textContent = 'Saved.';
+      setTimeout(() => { status.textContent = ''; }, 3000);
+    } catch (e) {
+      status.className = 'save-status error';
+      status.textContent = 'Save failed.';
+      console.error(e);
+    } finally {
+      btn.disabled = false;
+    }
+  }
+
+  // ── Boot ────────────────────────────────────────────────
+  (async function boot() {
+    if (getPw()) {
+      document.body.classList.remove('show-login');
+      await loadEditor();
+      showEditor();
+    } else {
+      showLogin();
+      document.getElementById('passwordInput').addEventListener('keydown', e => {
+        if (e.key === 'Enter') tryLogin();
+      });
+    }
+  })();
+</script>
+</body>
+</html>
