@@ -244,6 +244,13 @@
   }
   .btn-save:hover { background: #4a2e16; }
   .btn-save:disabled { opacity: 0.5; cursor: not-allowed; }
+  .btn-revert {
+    background: transparent; color: #8b7355; border: 1.5px solid #ece4d8;
+    padding: 0.7rem 1.2rem; border-radius: 6px;
+    font-family: inherit; font-weight: 600; font-size: 0.9rem; cursor: pointer;
+  }
+  .btn-revert:hover { background: #fffaf0; border-color: #daa520; color: #5c3a1e; }
+  .btn-revert:disabled { opacity: 0.5; cursor: not-allowed; }
   .save-status { font-size: 0.85rem; color: #8b7355; }
   .save-status.success { color: #2d6e2d; }
   .save-status.error { color: #a83333; }
@@ -362,6 +369,7 @@
 
   <div class="save-bar">
     <span class="save-status" id="saveStatus"></span>
+    <button class="btn-revert" id="revertBtn" onclick="revert()" title="Discard your in-progress edits and reload the last saved version">Revert to saved</button>
     <button class="btn-save" id="saveBtn" onclick="save()">Save changes</button>
   </div>
 </div>
@@ -909,6 +917,30 @@
       if (hasOverride) i18nOut[key] = entryOut;
     }
     return { i18n: i18nOut, questions: questionsState };
+  }
+
+  async function revert() {
+    if (!confirm('Discard your in-progress edits and reload the last saved version?')) return;
+    const status = document.getElementById('saveStatus');
+    const revertBtn = document.getElementById('revertBtn');
+    const saveBtn = document.getElementById('saveBtn');
+    status.className = 'save-status';
+    status.textContent = 'Reverting...';
+    revertBtn.disabled = true;
+    saveBtn.disabled = true;
+    try {
+      await loadAndRender();
+      status.className = 'save-status success';
+      status.textContent = 'Reverted to last saved.';
+      setTimeout(() => { status.textContent = ''; }, 3000);
+    } catch (e) {
+      status.className = 'save-status error';
+      status.textContent = 'Revert failed.';
+      console.error(e);
+    } finally {
+      revertBtn.disabled = false;
+      saveBtn.disabled = false;
+    }
   }
 
   async function save() {
