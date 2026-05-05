@@ -1,3 +1,7 @@
+// Receives a story submission, formats it as HTML, and emails it via Resend.
+// The client provides a `labels` map (key -> English label), so admin-edited
+// or admin-added questions are reflected in the email automatically.
+
 exports.handler = async (event) => {
   const headers = {
     "Access-Control-Allow-Origin": "*",
@@ -38,48 +42,32 @@ exports.handler = async (event) => {
       .replace(/</g, "&lt;")
       .replace(/>/g, "&gt;");
 
-  const fields = [
-    ["Personal email", data.email],
-    ["Age, gender, and race/ethnicity", data["age-gender-ethnicity"]],
-    ["Country of origin and language spoken", data["country-language"]],
-    ["Years in the US, and years in current city", data.years],
-    ["Education", data.education],
-    ["Do you vote in local or presidential elections?", data.voted],
-    ["Do you volunteer?", data.volunteer],
-    ["Do you have health conditions?", data.health],
-    [
-      "Based on your personal journey, create a poem, story, song, collage, drawing, photograph, and/or another creative work that captures the essence of your contributions to others.",
-      data["creative-work"],
-    ],
-    [
-      "In the past 12 months, what community contribution has been most significant for you, and what made this experience meaningful or memorable?",
-      data["civic-contribution"],
-    ],
-    [
-      "How would you describe the way individuals contributed/helped each other in the community where you grew up?",
-      data["early-life"],
-    ],
-    [
-      "Share a story of one of the first times you chose to help others or make a difference in a person's life, group, or community.",
-      data["first-helping"],
-    ],
-    [
-      "Share a story about something that happened in your life that changed how you contribute to your community or society (e.g., moving to a new place, changes in health, work, or loss).",
-      data["influences"],
-    ],
-    [
-      "Share a story about a time when aspects of your identity (e.g., age, race, ethnicity, nationality, gender, language, or health status) shaped your participation in a civic or community activity.",
-      data["identity-civic"],
-    ],
-    ["What does civic participation mean to you?", data["civic-meaning"]],
-    [
-      "After thinking about how you have contributed over the years, what advice would you give people about the importance of getting involved and contributing to others outside family and work?",
-      data["community-support"],
-    ],
-  ];
+  // Keys we never want to render as a Q&A row (housekeeping / payload metadata).
+  const SKIP_KEYS = new Set(["attachments", "labels", "language", "fieldOrder"]);
+
+  const labels = (data.labels && typeof data.labels === "object") ? data.labels : {};
+  const ordered = Array.isArray(data.fieldOrder) ? data.fieldOrder : Object.keys(data);
+  const seen = new Set();
+
+  const fields = [];
+  for (const key of ordered) {
+    if (SKIP_KEYS.has(key) || seen.has(key)) continue;
+    seen.add(key);
+    if (!(key in data)) continue;
+    const val = data[key];
+    if (val === null || val === undefined || String(val).trim() === "") continue;
+    const label = labels[key] || key;
+    fields.push([label, val]);
+  }
+  // Catch any data keys not in fieldOrder (shouldn't happen, but defensive).
+  for (const key of Object.keys(data)) {
+    if (SKIP_KEYS.has(key) || seen.has(key)) continue;
+    const val = data[key];
+    if (val === null || val === undefined || String(val).trim() === "") continue;
+    fields.push([labels[key] || key, val]);
+  }
 
   const blocks = fields
-    .filter(([, v]) => v && String(v).trim())
     .map(
       ([label, val]) => `
         <div style="margin-bottom:18px;">
