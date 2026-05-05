@@ -7,9 +7,9 @@
     i18n: {
       "header-title":      { en: "Our Way of Life", es: "Nuestra Forma de Vida", zh: "我们的生活方式" },
       "header-subtitle":   { en: "Share Your Story", es: "Comparta Su Historia", zh: "分享您的故事" },
-      "header-desc":       { en: "In this research study of civic participation, you are invited to reflect on your lifetime of contributions to your community. Take a moment to think about the people who shaped you and the moments that stand out. Share these memories to be added to this website's participant list. Please include your personal email so we can request your approval before publication.", es: "En este estudio sobre la participación cívica, le invitamos a reflexionar sobre toda una vida de contribuciones a su comunidad. Tómese un momento para pensar en las personas que le formaron y en los momentos que destacan. Comparta estos recuerdos para ser añadido a la lista de participantes de este sitio. Por favor incluya su correo electrónico personal para que podamos solicitar su aprobación antes de la publicación.", zh: "在这项关于公民参与的研究中，我们邀请您回顾自己一生对社区的贡献。请花些时间想一想那些塑造了您的人，以及那些令您难忘的时刻。分享这些记忆，以便加入本网站的参与者名单。请填写您的个人电子邮箱，以便我们在发布前征得您的同意。" },
+      "header-desc":       { en: "You are invited to contribute to this study of civic participation. Take a moment to think about the people who shaped you and the moments that stand out. To be added to this website's participant list, fill out the questionnaire and include your email address so we can request your approval before publication.", es: "Le invitamos a contribuir a este estudio sobre la participación cívica. Tómese un momento para pensar en las personas que le formaron y en los momentos que destacan. Para ser añadido a la lista de participantes de este sitio, complete el cuestionario e incluya su dirección de correo electrónico para que podamos solicitar su aprobación antes de la publicación.", zh: "我们邀请您为这项关于公民参与的研究做出贡献。请花些时间想一想那些塑造了您的人，以及那些令您难忘的时刻。要加入本网站的参与者名单，请填写问卷并提供您的电子邮箱，以便我们在发布前征得您的同意。" },
       "submit-note":       { en: "Submissions will be reviewed before posting, and anonymity will be respected.", es: "Las respuestas serán revisadas antes de publicarse, y se respetará el anonimato.", zh: "所有提交内容在发布前都会经过审阅，并会尊重您的匿名选择。" },
-      "stories-heading":   { en: "Stories Published", es: "Historias Publicadas", zh: "已发布的故事" },
+      "stories-heading":   { en: "Stories Published:", es: "Historias Publicadas", zh: "已发布的故事" },
       "quote-1":           { en: "“We stayed together very well. It made you feel safe and wanted and loved.”", es: "“Nos mantuvimos muy unidos. Te hacía sentir seguro, querido y amado.”", zh: "“我们非常团结。这让你感到安全、被需要和被爱。”" },
       "attr-1":            { en: "on growing up in Harlem", es: "sobre crecer en Harlem", zh: "关于在哈莱姆长大" },
       "quote-kwanzaa":     { en: "“Umoja — unity. What can I do today to think more of unity in my family, in my community?”", es: "“Umoja — unidad. ¿Qué puedo hacer hoy para pensar más en la unidad en mi familia, en mi comunidad?”", zh: "“Umoja —— 团结。今天我能做些什么，让自己更多地思考家庭与社区中的团结？”" },
@@ -43,7 +43,7 @@
       "status-saved":      { en: "Recording saved.", es: "Grabación guardada.", zh: "录音已保存。" },
       "status-denied":     { en: "Microphone access denied. Please allow microphone access.", es: "Acceso al micrófono denegado. Por favor, permita el acceso al micrófono.", zh: "麦克风访问被拒绝。请允许使用麦克风。" },
       "placeholder-answer":{ en: "Type your answer here...", es: "Escriba su respuesta aquí...", zh: "在此输入您的回答..." },
-      "divider-or":        { en: "or", es: "o", zh: "或" },
+      "divider-or":        { en: "You can also:", es: "También puede:", zh: "您也可以：" },
       "word-of":           { en: "of", es: "de", zh: "/" },
       "completion-title":  { en: "Thank You", es: "Gracias", zh: "感谢您" },
       "completion-desc":   { en: "Your submission will be reviewed for posting.", es: "Su envío será revisado para su publicación.", zh: "您的提交将经过审阅后发布。" },
@@ -100,7 +100,7 @@
       },
       {
         id: "identity-civic",
-        prompt: { en: "Share a story about a time when aspects of your identity (e.g., age, race, ethnicity, nationality, gender, language, or health status) shaped your participation in a civic or community activity.", es: "Comparta una historia sobre un momento en que aspectos de su identidad (por ejemplo, edad, raza, origen étnico, nacionalidad, género, idioma o estado de salud) influyeron en su participación en una actividad cívica o comunitaria.", zh: "请分享一个故事：您的身份特征（例如年龄、种族、民族、国籍、性别、语言或健康状况）曾在某次公民或社区活动中如何影响了您的参与。" },
+        prompt: { en: "Share a story about a time when aspects of your identity (e.g., age, race, ethnicity, nationality, gender, language, or health status) shaped your participation.", es: "Comparta una historia sobre un momento en que aspectos de su identidad (por ejemplo, edad, raza, origen étnico, nacionalidad, género, idioma o estado de salud) influyeron en su participación.", zh: "请分享一个故事：您的身份特征（例如年龄、种族、民族、国籍、性别、语言或健康状况）曾如何影响了您的参与。" },
         sub:    { en: "Reflect on how these experiences affected you and in what ways they influenced your participation moving forward.", es: "Reflexione sobre cómo estas experiencias le afectaron y de qué maneras influyeron en su participación en adelante.", zh: "请回想这些经历如何影响了您，以及它们在哪些方面影响了您之后的参与方式。" }
       },
       {
