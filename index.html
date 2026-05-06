@@ -182,6 +182,19 @@
         transform: rotate(180deg);
       }
 
+      /* Gentle bounce on closed entries' chevrons so visitors notice the
+         affordance. Stops once the entry is opened. */
+      @keyframes chevron-bounce {
+        0%, 60%, 100% { transform: translateY(0); }
+        30%           { transform: translateY(5px); }
+      }
+      .timeline-entry:not(.open) .chevron svg {
+        animation: chevron-bounce 1.8s ease-in-out infinite;
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .timeline-entry .chevron svg { animation: none; }
+      }
+
 /* ============================================
      EXPANDABLE CONTENT CARD
      ============================================ */
