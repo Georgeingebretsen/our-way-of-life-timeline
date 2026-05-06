@@ -186,34 +186,18 @@
          until the user opens any entry. */
       .click-hint {
         position: absolute;
-        bottom: calc(100% + 0.5rem);
-        right: -0.4rem;
+        bottom: calc(100% + 0.15rem);
+        right: 0;
         font-family: "Libre Franklin", sans-serif;
-        font-size: 0.78rem;
-        font-weight: 600;
-        color: #5c3a1e;
+        font-size: 0.72rem;
+        font-style: italic;
+        font-weight: 400;
+        color: #a8987b;
         white-space: nowrap;
-        background: #fef3c7;
-        border: 1px solid #f0e4c8;
-        border-radius: 6px;
-        padding: 0.3rem 0.6rem;
-        box-shadow: 0 2px 6px rgba(92,58,30,0.12);
         pointer-events: none;
-        animation: clickHintBob 2.4s ease-in-out infinite;
-      }
-      .click-hint::after {
-        content: "";
-        position: absolute;
-        top: 100%;
-        right: 0.85rem;
-        border: 6px solid transparent;
-        border-top-color: #f0e4c8;
+        letter-spacing: 0.02em;
       }
       body.has-opened-entry .click-hint { display: none; }
-      @keyframes clickHintBob {
-        0%, 100% { transform: translateY(0); }
-        50% { transform: translateY(-3px); }
-      }
 
       /* ============================================
      EXPANDABLE CONTENT CARD
