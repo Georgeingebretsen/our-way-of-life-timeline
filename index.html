@@ -1653,6 +1653,22 @@
         childList: true, subtree: true, attributes: true
       });
       window.addEventListener('transitionend', notifyHeight);
+
+      // When this page is embedded as an iframe, allow the parent page (or any
+      // tab opening this URL) to dictate the active language two ways:
+      //   1. URL param: wjxqmv.top/?lang=es  →  setLang('es') on load
+      //   2. postMessage: parent posts {type:'setLang', lang:'es'}  →  setLang(...)
+      // Languages: 'en' | 'es' | 'zh'.
+      (function () {
+        try {
+          var p = (new URL(window.location.href).searchParams.get('lang') || '').toLowerCase();
+          if (p === 'en' || p === 'es' || p === 'zh') setLang(p);
+        } catch (e) {}
+        window.addEventListener('message', function (ev) {
+          var d = ev && ev.data;
+          if (d && d.type === 'setLang' && /^(en|es|zh)$/.test(d.lang)) setLang(d.lang);
+        });
+      })();
     </script>
 </div></body>
 </html>
