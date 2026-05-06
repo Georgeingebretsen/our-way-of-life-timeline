@@ -182,24 +182,7 @@
         transform: rotate(180deg);
       }
 
-      /* "Click to expand" hint that floats above the first entry's chevron
-         until the user opens any entry. */
-      .click-hint {
-        position: absolute;
-        bottom: calc(100% + 0.15rem);
-        right: 0;
-        font-family: "Libre Franklin", sans-serif;
-        font-size: 0.72rem;
-        font-style: italic;
-        font-weight: 400;
-        color: #a8987b;
-        white-space: nowrap;
-        pointer-events: none;
-        letter-spacing: 0.02em;
-      }
-      body.has-opened-entry .click-hint { display: none; }
-
-      /* ============================================
+/* ============================================
      EXPANDABLE CONTENT CARD
      ============================================ */
       .timeline-content {
@@ -1576,25 +1559,8 @@
                 lastExisting = customNodes[id];
               });
             }
-            addClickHint();
           });
       })();
-
-      // Adds a one-time "Click to expand ↓" hint above the first timeline
-      // entry's chevron. Hides itself once any entry is opened (via the
-      // body.has-opened-entry CSS rule).
-      function addClickHint() {
-        var first = document.querySelector('.timeline-entry');
-        if (!first) return;
-        var chev = first.querySelector('.chevron');
-        if (!chev || chev.querySelector('.click-hint')) return;
-        var hint = document.createElement('span');
-        hint.className = 'click-hint';
-        hint.innerHTML = '<span class="lang-en">Click to expand ↓</span><span class="lang-es">Haga clic para abrir ↓</span><span class="lang-zh">点击展开 ↓</span>';
-        chev.appendChild(hint);
-      }
-      // Fallback in case the override fetch fails (it would skip the call above)
-      setTimeout(addClickHint, 1500);
 
 
       /**
@@ -1602,7 +1568,6 @@
        * Called from the onclick on each .timeline-header.
        */
       function toggleEntry(headerEl) {
-        document.body.classList.add('has-opened-entry');
         var entry = headerEl.closest(".timeline-entry");
         var content = entry.querySelector(
           ".timeline-content",
