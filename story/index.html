@@ -670,8 +670,26 @@
       top: 1rem;
       right: 1rem;
       display: flex;
-      gap: 0.3rem;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 0.35rem;
       z-index: 100;
+    }
+    .lang-toggle-label {
+      font-family: "Libre Franklin", sans-serif;
+      font-size: 0.72rem;
+      font-style: italic;
+      color: #5c3a1e;
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(4px);
+      padding: 0.2rem 0.55rem;
+      border-radius: 5px;
+      box-shadow: 0 1px 3px rgba(92, 58, 30, 0.08);
+      white-space: nowrap;
+    }
+    .lang-toggle-buttons {
+      display: flex;
+      gap: 0.3rem;
     }
 
     .lang-toggle button {
@@ -841,8 +859,9 @@
        RESPONSIVE
        ============================================ */
     @media (max-width: 600px) {
-      /* Make room for the fixed lang-toggle so it doesn't overlap the title */
-      .page-header { padding-top: 4.5rem; }
+      /* Make room for the fixed lang-toggle (label + buttons) so it doesn't
+         overlap the title. Taller now that there's a label pill above. */
+      .page-header { padding-top: 6.25rem; }
       .page-header h1,
       .page-header h2 { font-size: 1.7rem; }
 
@@ -864,9 +883,12 @@
        HEADER
        ============================================ -->
 <div class="lang-toggle">
+<div class="lang-toggle-label" data-i18n="lang-toggle-hint">Click to translate survey</div>
+<div class="lang-toggle-buttons">
 <button class="active" data-lang="en" onclick="setLang('en')">English</button>
-<button data-lang="es" onclick="setLang('es')">Spanish</button>
+<button data-lang="es" onclick="setLang('es')">Español</button>
 <button data-lang="zh" onclick="setLang('zh')">中文</button>
+</div>
 </div>
 <div class="page-header">
 <h1 data-i18n="header-title">Our Way of Life</h1>
