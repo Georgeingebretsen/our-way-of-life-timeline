@@ -182,14 +182,14 @@
         transform: rotate(180deg);
       }
 
-      /* Gentle bounce on closed entries' chevrons so visitors notice the
-         affordance. Stops once the entry is opened. */
-      @keyframes chevron-bounce {
-        0%, 60%, 100% { transform: translateY(0); }
-        30%           { transform: translateY(5px); }
+      /* Soft golden shimmer on closed entries' chevrons so visitors notice
+         the affordance — no motion, just a subtle glow + brightness pulse. */
+      @keyframes chevron-shine {
+        0%, 100% { stroke: #daa520; filter: drop-shadow(0 0 0 rgba(218,165,32,0)); }
+        50%      { stroke: #f4c560; filter: drop-shadow(0 0 5px rgba(244,197,96,0.75)); }
       }
       .timeline-entry:not(.open) .chevron svg {
-        animation: chevron-bounce 1.8s ease-in-out infinite;
+        animation: chevron-shine 2.2s ease-in-out infinite;
       }
       @media (prefers-reduced-motion: reduce) {
         .timeline-entry .chevron svg { animation: none; }
