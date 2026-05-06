@@ -784,6 +784,30 @@
 
     .basic-field input::placeholder { color: #bfae94; }
 
+    /* Validation: red flag missing fields after a Next/Skip attempt */
+    .basic-field input.field-invalid,
+    .basic-field select.field-invalid {
+      border-color: #c43030;
+      background: #fdf3f3;
+    }
+    .basic-field.field-invalid {
+      border-radius: 6px;
+      box-shadow: 0 0 0 2px #c43030;
+      padding: 0.4rem;
+      margin: -0.4rem;
+    }
+    .basic-required-hint {
+      display: none;
+      background: #fdf3f3;
+      border: 1px solid #f0c2c2;
+      color: #a83333;
+      font-size: 0.85rem;
+      padding: 0.55rem 0.8rem;
+      border-radius: 6px;
+      margin-bottom: 1rem;
+    }
+    .basic-required-hint.visible { display: block; }
+
     .radio-group {
       display: flex;
       gap: 0.75rem;
@@ -924,6 +948,7 @@
 <!-- SECTION 1a: Basic Information (Part 1) -->
 <div class="form-section active" data-section="basic-info">
 <div class="prompt-text" data-i18n="prompt-basic">Basic Info</div>
+<div class="basic-required-hint" data-i18n="basic-required-hint">Please fill in every field before continuing.</div>
 <div class="basic-fields">
 <div class="field-row-3">
 <div class="basic-field">
@@ -1206,6 +1231,22 @@
       buildProgressBar();
       setLang(currentLang);
       adjustPromptSizes();
+      // Clear basic-info invalid flags as soon as the user starts fixing them
+      var basic = document.querySelector('[data-section="basic-info"]');
+      if (basic) {
+        basic.addEventListener('input', function(e) {
+          var t = e.target;
+          if (t.classList) t.classList.remove('field-invalid');
+          var bf = t.closest && t.closest('.basic-field');
+          if (bf) bf.classList.remove('field-invalid');
+        });
+        basic.addEventListener('change', function(e) {
+          var t = e.target;
+          if (t.classList) t.classList.remove('field-invalid');
+          var bf = t.closest && t.closest('.basic-field');
+          if (bf) bf.classList.remove('field-invalid');
+        });
+      }
     }
 
     // Boot: fetch admin overrides, then render and initialize.
@@ -1265,6 +1306,40 @@
     function navigate(direction, isSkip) {
       // Stop any active recording
       if (activeRecorder) stopRecording();
+
+      // Require every field on basic-info before moving forward (Next or Skip).
+      // Mark missing fields red, scroll to the first one, and block navigation.
+      if (direction === 1) {
+        var section = sections[currentIndex];
+        if (section.getAttribute('data-section') === 'basic-info') {
+          var invalid = [];
+          section.querySelectorAll('input[type="text"], input[type="email"]').forEach(function(inp) {
+            inp.classList.toggle('field-invalid', !inp.value.trim());
+            if (!inp.value.trim()) invalid.push(inp);
+          });
+          section.querySelectorAll('select').forEach(function(sel) {
+            sel.classList.toggle('field-invalid', !sel.value);
+            if (!sel.value) invalid.push(sel);
+          });
+          // Radio groups: at least one option in each named group must be checked
+          var radioGroups = {};
+          section.querySelectorAll('input[type="radio"]').forEach(function(r) { radioGroups[r.name] = radioGroups[r.name] || false; });
+          section.querySelectorAll('input[type="radio"]:checked').forEach(function(r) { radioGroups[r.name] = true; });
+          Object.keys(radioGroups).forEach(function(name) {
+            var first = section.querySelector('input[type="radio"][name="' + name + '"]');
+            var groupEl = first && first.closest('.basic-field');
+            if (groupEl) groupEl.classList.toggle('field-invalid', !radioGroups[name]);
+            if (!radioGroups[name] && groupEl) invalid.push(groupEl);
+          });
+          if (invalid.length) {
+            var hint = section.querySelector('.basic-required-hint');
+            if (hint) hint.classList.add('visible');
+            invalid[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
+            if (invalid[0].focus) invalid[0].focus({ preventScroll: true });
+            return;
+          }
+        }
+      }
 
       if (!isSkip) saveCurrentResponse();
 

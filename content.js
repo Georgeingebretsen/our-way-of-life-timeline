@@ -6,6 +6,7 @@
   const defaultContent = {
     i18n: {
       "lang-toggle-hint":  { en: "Click to translate survey", es: "Haga clic para traducir la encuesta", zh: "点击翻译问卷" },
+      "basic-required-hint": { en: "Please fill in every field before continuing.", es: "Por favor, complete todos los campos antes de continuar.", zh: "请在继续之前填写所有字段。" },
       "header-title":      { en: "Our Way of Life", es: "Nuestra Forma de Vida", zh: "我们的生活方式" },
       "header-subtitle":   { en: "Share Your Story", es: "Comparta Su Historia", zh: "分享您的故事" },
       "header-desc":       { en: "You are invited to contribute to this study of civic participation. Take a moment to think about the people who shaped you and the moments that stand out. To be added to this website's participant list, fill out the questionnaire and include your email address so we can request your approval before publication.", es: "Le invitamos a contribuir a este estudio sobre la participación cívica. Tómese un momento para pensar en las personas que le formaron y en los momentos que destacan. Para ser añadido a la lista de participantes de este sitio, complete el cuestionario e incluya su dirección de correo electrónico para que podamos solicitar su aprobación antes de la publicación.", zh: "我们邀请您为这项关于公民参与的研究做出贡献。请花些时间想一想那些塑造了您的人，以及那些令您难忘的时刻。要加入本网站的参与者名单，请填写问卷并提供您的电子邮箱，以便我们在发布前征得您的同意。" },
