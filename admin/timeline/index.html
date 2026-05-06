@@ -784,7 +784,7 @@
     if (!btn) return;
     const lang = btn.dataset.lang;
     state.currentLang = lang;
-    document.body.classList.remove('lang-en', 'lang-es');
+    document.body.classList.remove('lang-en', 'lang-es', 'lang-zh');
     document.body.classList.add('lang-' + lang);
     document.querySelectorAll('#langPills button').forEach(b => {
       b.classList.toggle('active', b.dataset.lang === lang);
