@@ -1449,9 +1449,10 @@
             };
 
             recognition.onerror = function(e) {
+              // Audio recording continues regardless. Log to console for our own
+              // debugging but don't surface anything to the user — they'd just
+              // wonder if something was broken with their submission.
               console.log('Speech recognition error:', e.error, e);
-              if (e.error === 'aborted' || e.error === 'no-speech') return;
-              statusEl.textContent = 'Speech recognition error (' + e.error + ') — audio still recording.';
             };
 
             recognition.onend = function() {
