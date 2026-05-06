@@ -162,23 +162,57 @@
       /* Chevron */
       .chevron {
         flex-shrink: 0;
-        width: 20px;
-        height: 20px;
+        width: 32px;
+        height: 32px;
+        position: relative;
         transition: transform 0.35s ease;
       }
 
       .chevron svg {
-        width: 20px;
-        height: 20px;
+        width: 32px;
+        height: 32px;
         stroke: #daa520;
         fill: none;
-        stroke-width: 2.2;
+        stroke-width: 2.4;
         stroke-linecap: round;
         stroke-linejoin: round;
       }
 
       .timeline-entry.open .chevron {
         transform: rotate(180deg);
+      }
+
+      /* "Click to expand" hint that floats above the first entry's chevron
+         until the user opens any entry. */
+      .click-hint {
+        position: absolute;
+        bottom: calc(100% + 0.5rem);
+        right: -0.4rem;
+        font-family: "Libre Franklin", sans-serif;
+        font-size: 0.78rem;
+        font-weight: 600;
+        color: #5c3a1e;
+        white-space: nowrap;
+        background: #fef3c7;
+        border: 1px solid #f0e4c8;
+        border-radius: 6px;
+        padding: 0.3rem 0.6rem;
+        box-shadow: 0 2px 6px rgba(92,58,30,0.12);
+        pointer-events: none;
+        animation: clickHintBob 2.4s ease-in-out infinite;
+      }
+      .click-hint::after {
+        content: "";
+        position: absolute;
+        top: 100%;
+        right: 0.85rem;
+        border: 6px solid transparent;
+        border-top-color: #f0e4c8;
+      }
+      body.has-opened-entry .click-hint { display: none; }
+      @keyframes clickHintBob {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-3px); }
       }
 
       /* ============================================
@@ -1558,8 +1592,25 @@
                 lastExisting = customNodes[id];
               });
             }
+            addClickHint();
           });
       })();
+
+      // Adds a one-time "Click to expand ↓" hint above the first timeline
+      // entry's chevron. Hides itself once any entry is opened (via the
+      // body.has-opened-entry CSS rule).
+      function addClickHint() {
+        var first = document.querySelector('.timeline-entry');
+        if (!first) return;
+        var chev = first.querySelector('.chevron');
+        if (!chev || chev.querySelector('.click-hint')) return;
+        var hint = document.createElement('span');
+        hint.className = 'click-hint';
+        hint.innerHTML = '<span class="lang-en">Click to expand ↓</span><span class="lang-es">Haga clic para abrir ↓</span><span class="lang-zh">点击展开 ↓</span>';
+        chev.appendChild(hint);
+      }
+      // Fallback in case the override fetch fails (it would skip the call above)
+      setTimeout(addClickHint, 1500);
 
 
       /**
@@ -1567,6 +1618,7 @@
        * Called from the onclick on each .timeline-header.
        */
       function toggleEntry(headerEl) {
+        document.body.classList.add('has-opened-entry');
         var entry = headerEl.closest(".timeline-entry");
         var content = entry.querySelector(
           ".timeline-content",
