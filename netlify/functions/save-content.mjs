@@ -52,13 +52,14 @@ async function clearRateLimit(ip) {
   } catch (_) { /* best-effort */ }
 }
 
-async function sendLoginNotification({ ip, userAgent, surface }) {
+async function sendLoginNotification({ ip, userAgent, surface, host }) {
   if (!process.env.RESEND_API_KEY) return;
   const escape = (s) => String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  const siteLabel = host || "the admin editor";
   const html = `
     <div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;max-width:520px;color:#3d2817;">
       <h2 style="color:#5c3a1e;border-bottom:2px solid #daa520;padding-bottom:8px;">Admin login</h2>
-      <p>Someone signed in to the lalacami.art admin editor.</p>
+      <p>Someone signed in to <strong>${escape(siteLabel)}</strong>.</p>
       <ul style="color:#5c3a1e;font-size:14px;line-height:1.7;">
         <li><strong>When:</strong> ${escape(new Date().toUTCString())}</li>
         <li><strong>From IP:</strong> ${escape(ip)}</li>
@@ -119,6 +120,7 @@ export default async (req) => {
           || (req.headers.get("x-forwarded-for") || "").split(",")[0].trim()
           || "unknown";
   const userAgent = req.headers.get("user-agent") || "";
+  const host = req.headers.get("host") || "";
 
   // ── Rate limit (failed attempts only) ───────────────────
   const rl = await readRateLimit(ip);
@@ -149,7 +151,7 @@ export default async (req) => {
 
   // Probe: a successful probe = a successful login. Notify and exit without writing.
   if (body && body.probe === true) {
-    await sendLoginNotification({ ip, userAgent, surface });
+    await sendLoginNotification({ ip, userAgent, surface, host });
     return new Response(JSON.stringify({ ok: true }), { status: 200, headers });
   }
 
