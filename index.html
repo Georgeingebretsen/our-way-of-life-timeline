@@ -426,8 +426,26 @@
         top: 1rem;
         right: 1rem;
         display: flex;
-        gap: 0.3rem;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 0.35rem;
         z-index: 100;
+      }
+      .lang-toggle-label {
+        font-family: "Libre Franklin", sans-serif;
+        font-size: 0.72rem;
+        font-style: italic;
+        color: #5c3a1e;
+        background: rgba(255, 255, 255, 0.85);
+        backdrop-filter: blur(4px);
+        padding: 0.2rem 0.55rem;
+        border-radius: 5px;
+        box-shadow: 0 1px 3px rgba(92, 58, 30, 0.08);
+        white-space: nowrap;
+      }
+      .lang-toggle-buttons {
+        display: flex;
+        gap: 0.3rem;
       }
 
       .lang-toggle button {
@@ -720,7 +738,7 @@
 </div>
 <div class="timeline-wrapper">
 <h1 class="timeline-title"><span class="lang-en">Our Way of Life</span><span class="lang-es">Nuestra Forma de Vida</span><span class="lang-zh">我们的生活方式</span></h1>
-<p class="timeline-subtitle"><span class="lang-en">Weaving Our History</span><span class="lang-es">Tejiendo Nuestra Historia</span><span class="lang-zh">编织我们的历史</span></p><div class="lang-toggle" translate="no"><button class="active" data-lang="en" onclick="setLang('en')">English</button><button data-lang="es" onclick="setLang('es')">Español</button><button data-lang="zh" onclick="setLang('zh')">中文</button></div>
+<p class="timeline-subtitle"><span class="lang-en">Weaving Our History</span><span class="lang-es">Tejiendo Nuestra Historia</span><span class="lang-zh">编织我们的历史</span></p><div class="lang-toggle" translate="no"><div class="lang-toggle-label" translate="yes"><span class="lang-en">Click to translate timeline</span><span class="lang-es">Haga clic para traducir la línea de tiempo</span><span class="lang-zh">点击翻译时间轴</span></div><div class="lang-toggle-buttons"><button class="active" data-lang="en" onclick="setLang('en')">English</button><button data-lang="es" onclick="setLang('es')">Español</button><button data-lang="zh" onclick="setLang('zh')">中文</button></div></div>
 <div class="timeline">
 <!-- =============================================
          TEMPLATE: Copy a block like the one below to
